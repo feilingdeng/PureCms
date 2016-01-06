@@ -1,0 +1,168 @@
+﻿@model PureCms.Web.Admin.Models.EditRolePrivilegesModel
+@{
+    ViewBag.Title = "RolePrivileges";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a data-toggle="collapse"
+                           href="#collapseOne">
+                            <strong>[<strong id="rolename">@Model.RoleName</strong>] - 权限编辑</strong>
+                        </a>
+                    </h3>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        @using (Html.BeginForm("EditRolePrivileges", "security", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @role = "form" }))
+                        {
+                            <div class="btn-group col-sm-offset-3">
+                                <button class="btn btn-default" type="button" data-toggle="button" id="toggleChecked" data-state="1">
+                                    <span class="glyphicon glyphicon-check"></span> 全选 / <span class="glyphicon glyphicon-unchecked"></span> 取消
+                                </button>
+                                <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                            </div>
+                            <hr />
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(x => x.RoleId)
+                            @Html.HiddenFor(x => x.RoleName)
+                            <div id="tree1" data-url="Privileges"></div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <table class="table table-hover table-bordered  table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>角色名称</th>
+                        <th width="30%">操作</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: lines">
+                    <tr>
+                        <td>
+                            <a href="#" data-bind="click: $root.click"><span data-bind="text: name"></span></a>
+                        </td>
+                        <td>
+                            <a class="btn btn-info btn-sm" data-bind="click: $root.click"><span class="glyphicon glyphicon-lock"></span> 权限</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/knockout-2.2.0.js"></script>
+    <script>
+        var $tree = $('#tree1'), $form = $("#editform");
+        $(function () {
+            purecms.ajaxform($form);
+            //表单验证
+            //purecms.form($form);
+            $("#toggleChecked").click(function () {
+                var state = $(this).attr("data-state");
+                if (state == 1) {
+                    $tree.find("input[name=privilegeid]").prop("checked", true);
+                    $(this).attr("data-state", 0).removeClass("active");
+                } else {
+                    $tree.find("input[name=privilegeid]").prop("checked", false);
+                    $(this).attr("data-state", 1).addClass("active");
+                }
+            });
+            $tree.tree({
+                autoOpen: false
+                , onCreateLi: function (node, $li) {
+                    $li.find('.jqtree-title').before('<input type="checkbox" name="privilegeid" onclick="setState(this)" value="' + node.id + '" />&nbsp;&nbsp;');
+                }
+                , selectable: false,
+                onCanSelectNode: function (node) {
+                    //$tree.tree('addToSelection', node);
+                    //$tree.tree('selectNode', node);
+                    $tree.tree('openNode', node);
+                    return true;
+                },
+                dataFilter: function (data) {
+                    return purecms.getajaxresult(data).content;
+                }
+            });
+            purecms.getjson("roles", null, function (data) {
+                if (!data) return;
+                var result = data.content;
+                var Items = function () {
+                    var self = this;
+                    self.lines = ko.observableArray(result.items);
+
+                    self.click = function (item) {
+                        $tree.tree('reload');
+                        loadRolePrivileges(item.roleid);
+                    }
+                }
+                ko.applyBindings(new Items());
+            });
+            var roleid = $("#RoleId").val();
+            if (roleid > 0) {
+                loadRolePrivileges(roleid);
+            }
+        });
+
+        function loadRolePrivileges(roleid) {
+            $("#RoleId").val(roleid);
+            purecms.getjson("EditRolePrivileges?roleid=" + roleid, null, function (data) {
+                if (!data) return;
+                var result = data.content;
+                $("#rolename").text(result.rolename);
+                if (result.roleprivileges.length > 0) {
+                    $(result.roleprivileges).each(function (i, n) {
+                        setChildrenSelected(n.privilegeid);
+                    });
+                }
+                else {
+                    var node = $tree.tree('getNodeById', 0);
+                    $tree.tree('openNode', node);
+                }
+            });
+        }
+        function setChildrenSelected(nodeid) {
+            var node = $tree.tree('getNodeById', nodeid);
+            $(node.element).find("input[type=checkbox][value=" + nodeid + "]").prop("checked", true);
+            $tree.tree('openNode', node);
+            for (var i = 0; i < node.children.length; i++) {
+                var child = node.children[i];
+                if (child.children.length > 0) {
+                    setChildrenSelected(child.id);
+                }
+
+                var childnode = $tree.tree('getNodeById', child.id);
+                $(childnode.element).find("input[type=checkbox][value=" + child.id + "]").prop("checked", true);
+                $tree.tree('openNode', childnode);
+            }
+        }
+
+        function setState(t) {
+
+            var flag = $(t).prop("checked");
+            var nodeid = $(t).val();
+            if (flag) {
+                setChildrenSelected(nodeid);
+            }
+            else {
+                var node = $tree.tree('getNodeById', nodeid);
+                if (node.children.length > 0) {
+                    $(node.element).find("input[type=checkbox]").prop("checked", false);
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,138 @@
+﻿@model PureCms.Web.Admin.Models.EditArticleModel
+@{
+    ViewBag.Title = "EditArticle";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>文章编辑</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("EditArticle", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.ArticleId <= 0 ? "true" : "") }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.ArticleId)
+                @Html.HiddenFor(x => x.ChannelId)
+                @Html.ValidationSummary()
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="Title">标题</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Title, new { @class = "form-control required" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="Author">作者</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Author, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="Summary">摘要</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Summary, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="Url">链接</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Url, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.ChannelName, "频道", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.ChannelName, new { @class = "form-control required", @disabled = true })
+                        <div class="input-group">
+                            @*<span class="input-group-addon" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </span>
+                            <div id="channels" data-url="channels?wrapRoot=false" class="dropdown-menu col-sm-12"></div>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="IsShow">显示状态</label>
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsShow, true, new { @class = "required" }) 显示
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsShow, false, new { @class = "required" }) 隐藏
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="Content">内容</label>
+                    <div class="col-sm-10">
+                        @Html.TextAreaFor(x => x.Content, new { @class = "form-control editor", @rows = "20" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 center-block" id="form-buttons">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                    <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script src="/admin/content/editor/kindeditor-min.js"></script>
+    <script>
+        var $tree = $('#channels'), $form = $('#editform');
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+            //initChannelTree();
+            //初始化编辑器
+            var editor = KindEditor.create('.editor', {
+                width: '100%',
+                height: '350px',
+                resizeType: 1,
+                uploadJson: '/admin/tool/upload?op=article',
+                allowFileManager: true,
+                fileManagerJson: '/admin/tools/files',
+                afterBlur: function () { this.sync(); }
+            });
+        });
+
+        function initChannelTree() {
+            //频道树
+            $tree.tree({
+                dragAndDrop: true
+                , autoOpen: true
+                , selectable: true
+                , dataFilter: function (data) {
+                    return purecms.getajaxresult(data).content;
+                }
+                , onCanSelectNode: function (node) {
+                    return node.id > 0;
+                }
+            });
+            $tree.bind(
+            'tree.select',
+            function (event) {
+                if (event.node) {
+                    var node = event.node;
+                    $tree.tree('openNode', node);
+                    $form.find("input[name='channelid']").val(node.id);
+                    $form.find("input[name='channelname']").val(node.name);
+                }
+            }
+            );
+        }
+    </script>
+}

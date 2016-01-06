@@ -1,0 +1,354 @@
+﻿@model PureCms.Web.Admin.Models.EditChannelModel
+@{
+    ViewBag.Title = "Channels";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <a data-toggle="collapse"
+                           href="#collapseChannels">
+                            <strong>频道</strong>
+                        </a>
+                    </div>
+                </div>
+                <div id="collapseChannels" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <select class="form-control" id="sites"><option value="0">请选择站点</option></select>
+                        <hr />
+                        <div id="tree1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        <a data-toggle="collapse"
+                           href="#collapseEditChannels">
+                            <strong>频道编辑</strong>
+                        </a>
+                    </div>
+                </div>
+                <div id="collapseEditChannels" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        @using (Html.BeginForm("EditChannel", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(x => x.ChannelId)
+                            @Html.HiddenFor(x => x.SiteId)
+                            @Html.HiddenFor(x => x.ParentChannelId)
+                            @Html.HiddenFor(x => x.Level)
+                            <div class="form-group col-sm-12">
+                                <label class="col-sm-2 control-label" for="actionstatus">操作</label>
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="0"> 编辑本节点
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="1" checked> 新增子节点
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="2"> 新增同级节点
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.Name, "名称", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.Url, "链接", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.Url, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.OpenTarget, "打开方式", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.OpenTarget, "", new { @checked = true }) 本窗口
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.OpenTarget, "_blank") 新窗口
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.IsShow, "内容类型", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.ContentType, (int)PureCms.Core.Domain.Cms.ContentType.Single) 单页
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.ContentType, (int)PureCms.Core.Domain.Cms.ContentType.List) 列表
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.ContentType, (int)PureCms.Core.Domain.Cms.ContentType.Link) 链接
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.IsShow, "显示状态", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsShow, true) 显示
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsShow, false) 隐藏
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.IsEnabled, "启用状态", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsEnabled, true) 可用
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsEnabled, false) 禁用
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.DisplayOrder, "排序", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.DisplayOrder, new { @class = "form-control" })
+                                    <span class="help-block">
+                                        新增时自动计算排序号，左边拖动排序后将重置排序号
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12 text-center hide" id="form-buttons">
+                                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                                <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery.cookie.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        var $tree = $('#tree1'), $form = $('#editform');
+        var $editaction = $form.find("input[name='actionstatus'][value='0']");
+        var $childaction = $form.find("input[name='actionstatus'][value='1']");
+        var $siblingaction = $form.find("input[name='actionstatus'][value='2']");
+        $(function () {
+            getSites();
+            //表单验证
+            purecms.form($form, function (response) {
+                loadTree();
+                $form.resetForm();
+                $childaction.trigger("click");
+            });
+
+            //操作类型
+            $form.find("input[name='actionstatus']").click(function () {
+                var id = $form.find("input[name='channelid']").val();
+                var node = $tree.tree('getSelectedNode');
+                if (id == '' || id <= 0) {
+                    if (node != false) {
+                        id = node.id;
+                    }
+                }
+                $form.find("input[name='actionstatus']").prop("checked", false);
+                if ($(this).val() == 0)//编辑本节点
+                {
+                    doEditAction(id);
+                }
+                else if ($(this).val() == 1)//新增子节点
+                {
+                    doChildAction(id);
+                }
+                else if ($(this).val() == 2)//新增同级节点
+                {
+                    doCreateAction(id, node);
+                }
+            });
+        });
+        function doEditAction(id) {
+            if (id <= 0) {
+                $.messager.popup("请选择根节点下的子节点");
+                return;
+            }
+            getChannelInfo(id);
+            $editaction.prop("checked", true);
+        }
+        function doChildAction(id) {
+            $form.resetForm();
+            $form.find("input[name='parentchannelid']").val(id);
+            $form.find("input[name='channelid']").val("0");
+            $childaction.prop("checked", true);
+        }
+        function doCreateAction(id, node) {
+            if (id <= 0) {
+                $.messager.popup("请选择根节点下的子节点");
+                return;
+            }
+            $form.resetForm();
+            $form.find("input[name='parentchannelid']").val(node.parent ? node.parent.id : 0);
+            $form.find("input[name='channelid']").val("0");
+            $siblingaction.prop("checked", true);
+        }
+        function initTree() {
+            var siteid = $("#sites option:selected").val();
+            if (siteid <= 0) return;
+            $tree.tree({
+                dragAndDrop: true
+                , autoOpen: true
+                , saveState: 'admin-channeltree'
+                , onCreateLi: function (node, $li) {
+                    if (node.id > 0) {
+                        $li.find('.jqtree-title').after('&nbsp;&nbsp;<a class="glyphicon glyphicon-trash" title="删除" href="javascript:removeNode(' + node.id + ')" data-nodeid="' + node.id + '"></a>');
+                    }
+                }
+                , dataFilter: function (data) {
+                    return purecms.getajaxresult(data).content;
+                }
+                , onCanMoveTo: function (moved_node, target_node, position) {
+                    console.log(moved_node, target_node, position);
+                    var moveid = moved_node.id;
+                    var targetid = target_node.id;
+                    var previd = moved_node.getPreviousNode() != null ? moved_node.getPreviousNode().id : 0;
+                    var nextid = moved_node.getNextNode() != null ? moved_node.getNextNode().id : 0;
+                    console.log(position + " moveparentid=" + moved_node.parent.id + ",targetid=" + target_node.id + ",targetparentid=" + target_node.parent.id);
+
+                    var flag = false;
+                    if (position == "inside" && moved_node.parent.id == target_node.id) {
+                        flag = true;
+                    }
+                    else if (position == "after" && moved_node.parent.id == target_node.parent.id) {
+                        flag = true;
+                    }
+                    return flag;
+                }
+                , selectable: true
+            });
+
+            $tree.bind(
+                'tree.move',
+                function (event) {
+                    console.log('moved_node', event.move_info.moved_node);
+                    console.log('target_node', event.move_info.target_node);
+                    console.log('position', event.move_info.position);
+                    console.log('previous_parent', event.move_info.previous_parent);
+                    var moveid = event.move_info.moved_node.id;
+                    var targetid = event.move_info.target_node.id;
+                    var parentid = event.move_info.previous_parent.id;
+                    var position = event.move_info.position;
+                    $.get("MoveChannel?moveid=" + moveid + "&targetid=" + targetid + "&parentid=" + parentid + "&position=" + position, function (response) {
+                        console.log(response);
+                        loadTree();
+                        $.messager.popup(response.Content);
+                    });
+                }
+            );
+            $tree.bind(
+            'tree.select',
+            function (event) {
+                if (event.node) {
+                    // node was selected
+                    var node = event.node;
+                    $tree.tree('openNode', node);
+                    $form.find("input[name='actionstatus']").prop("checked", false);
+                    if (node.id <= 0) {
+                        doChildAction(0);
+                        return;
+                    }
+                    doEditAction(node.id);
+                }
+            }
+            );
+            loadTree();
+        }
+        function getSites() {
+            var siteSelect = $("#sites");
+            $.get("sites", function (data) {
+                console.log(data);
+                if (!data) return;
+                var list = purecms.getajaxresult(data).content.items;
+                $(list).each(function (i, n) {
+                    if (n.isdefault == true) {
+                        siteSelect.append("<option value=\"" + n.siteid + "\" selected>" + n.name + "</option>");
+                        $form.find("#siteid").val(n.siteid);
+                    }
+                    else {
+                        siteSelect.append("<option value=\"" + n.siteid + "\">" + n.name + "</option>");
+                    }
+                });
+                initTree();
+            });
+            siteSelect.change(function () {
+                //重新加载节点
+                $form.clearForm();
+                loadTree();
+            });
+        }
+        function getChannelInfo(id) {
+            $.get("EditChannel?id=" + id, function (data) {
+                console.log(data);
+                if (!data) return;
+                var entity = purecms.getajaxresult(data).content;
+                console.log(entity);
+                for (var p in entity) {
+                    if (typeof (entity[p]) != "function") { // p 为属性名称，entity[p]为对应属性的值
+                        var value = entity[p] == null ? "" : entity[p];
+                        var target = $form.find("input[name='" + p + "']");
+                        if (target.is(":radio") || target.is(":checkbox")) {
+                            target.each(function (i, n) {
+                                if ($(n).val().toLowerCase() == value.toString().toLowerCase()) {
+                                    $(n).prop("checked", true);
+                                }
+                            });
+                        }
+                        else {
+                            target.val(entity[p]);
+                        }
+                    }
+                }
+            });
+        }
+        function removeNode(id) {
+            //event.preventDefault();
+            var node = $tree.tree('getNodeById', id);
+            purecms.del(id, "deletechannel", false, function (response) {
+                if (response.StatusName == "success") {
+                    $tree.tree('removeNode', node);
+                    $form.resetForm();
+                }
+            });
+        }
+        function loadTree() {
+            var siteid = $("#sites option:selected").val();
+            if (siteid <= 0) {
+                $tree.children().remove();
+                return;
+            }
+            $form.find("#siteid").val(siteid);
+            //$tree.tree('loadDataFromUrl', "channels?siteid=" + siteid);
+            $.get("channels?siteid=" + siteid, function (response) {
+                var results = purecms.getajaxresult(response).content;
+                $tree.tree('loadData', results);
+                var node = $tree.tree('getNodeById', 0);
+                $tree.tree('openNode', node);
+            });
+        }
+    </script>
+}

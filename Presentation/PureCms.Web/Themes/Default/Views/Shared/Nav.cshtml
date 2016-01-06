@@ -1,0 +1,35 @@
+﻿
+@{
+    List<PureCms.Core.Domain.Cms.ChannelInfo> channels = ViewData["channels"] as List<PureCms.Core.Domain.Cms.ChannelInfo>;
+    @*<nav class="navbar navbar-default navbar-static-top" role="navigation">
+   <div class="navbar-header">
+      <a class="navbar-brand" href="/">PureCms</a>
+   </div>
+   <div>
+      <ul class="nav navbar-nav">          
+      </ul>
+   </div>
+</nav>*@
+    
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header col-sm-3 col-md-3">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-cloud"></span> <strong>PureCms演示平台</strong></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse col-sm-8 col-sm-offset-4">
+                <ul class="nav navbar-nav navbar-pill">
+                    @foreach (var item in channels)
+                    {
+                        <li><a href="/admin/cms/articles?channelid=@item.ChannelId">@item.Name</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+}

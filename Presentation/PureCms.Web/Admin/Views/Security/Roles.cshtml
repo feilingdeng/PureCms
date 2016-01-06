@@ -1,0 +1,101 @@
+﻿@model PureCms.Web.Admin.Models.RoleModel
+@{
+    ViewBag.Title = "Roles";
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <strong>角色</strong>
+            <div class="pull-right">
+                <a class="btn btn-info btn-sm" data-toggle="collapse"
+                   href="#collapseOne">
+                    <span class="glyphicon glyphicon-search"></span> 查询
+                </a>
+                <a class="btn btn-info btn-sm" href="editrole"><span class="glyphicon glyphicon-file"></span> 新增</a>
+            </div>
+        </div>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse">
+        <div class="panel-body">
+            @using (Html.BeginForm("Roles", "security", FormMethod.Get, new { @class = "form-horizontal", @role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
+                @Html.Hidden("page", 1)
+                @Html.Hidden("pagesize", 10)
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="clientip">名称</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="url">状态</label>
+                    <div class="col-sm-9">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, true) 启用
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, false) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-condensed" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+            <thead>
+                <tr>
+                    <th width="2%"><input type="checkbox" name="checkall" /></th>
+                    <th data-sortname="name">
+                        @Html.ActionLink("名称", "roles", new { name = Model.Name, isenabled=Model.IsEnabled, sortby = "name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="10%" data-sortname="isenabled">
+                        @Html.ActionLink("状态", "roles", new { name = Model.Name, isenabled = Model.IsEnabled, sortby = "isenabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="15%" data-sortname="createdon">
+                        @Html.ActionLink("创建日期", "roles", new { name = Model.Name, isenabled = Model.IsEnabled, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="20%">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><input type="checkbox" value="@item.RoleId" name="recordid" /></td>
+                        <td>@item.Name</td>
+                        <td>@(item.IsEnabled ? "<span class=\"label label-info\">可用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <a class="btn btn-default btn-sm" href="/admin/security/editrole?id=@item.RoleId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                            <a class="btn btn-info btn-sm" href="/admin/security/EditRolePrivileges?roleid=@item.RoleId"><span class="glyphicon glyphicon-lock"></span> 权限</a>
+                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.RoleId','/admin/security/deleterole')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="active">
+                        <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/security/deleterole" data-role="delete"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+@section Header {
+}
+@section Scripts {
+    <script>
+        $(function () {
+            //列表排序样式
+            purecms.datatable($("#datatable"));
+        });
+    </script>
+}

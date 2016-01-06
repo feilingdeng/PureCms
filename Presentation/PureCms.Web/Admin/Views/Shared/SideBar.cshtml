@@ -1,0 +1,89 @@
+﻿<div class="col-sm-3 col-md-2 sidebar" id="sidebar" style="padding:0;">
+    <ul class="nav nav-sidebar nav-list">
+        <li class="nav-header text-primary" style="padding-left:5px;">
+            <h5><span class="glyphicon glyphicon-th-large"></span> <strong>频道内容</strong></h5>
+        </li>
+        @{
+            List<PureCms.Core.Domain.Cms.ChannelInfo> channels = ViewData["channels"] as List<PureCms.Core.Domain.Cms.ChannelInfo>;
+        }
+        @{
+            var parents = channels.Where(n => n.Level == 1).ToList();
+            foreach (var item in parents)
+            {
+                var url = (item.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "/admin/cms/articles" : (item.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "/admin/cms/editpagecontent" : item.Url));
+                var otarget = (item.ContentType == PureCms.Core.Domain.Cms.ContentType.Link? "_blank" : "");
+            var childs = channels.Where(n => n.ParentChannelId == item.ChannelId).ToList();
+                @:<li id="@item.ChannelId" data-parentid="@item.ParentChannelId">
+                    @:<a href="@url?channelid=@item.ChannelId" class="dropdown-toggle" target="@otarget">
+                        @:<span class="glyphicon glyphicon-leaf"></span>
+                        @:<span class="menu-text"> @item.Name </span>
+                        if ((childs != null && childs.Count > 0)){
+                            @:<b class="arrow icon-angle-down">&rsaquo;</b>
+                        }
+                        @:</a>
+
+                    if (childs != null && childs.Count > 0)
+                    {
+                    @:<ul class="submenu">
+                        foreach (var child in childs)
+                        {
+                        otarget = (child.ContentType == PureCms.Core.Domain.Cms.ContentType.Link ? "_blank" : "");
+                        url = (child.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "/admin/cms/articles" : (child.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "/admin/cms/editpagecontent" : child.Url));
+                        @:<li id="@child.ChannelId" data-parentid="@child.ParentChannelId">
+        @:<a href="@url?channelid=@child.ChannelId" target="@otarget">
+        @:<i class="icon-double-angle-right"></i>
+        @child.Name
+        @:</a>
+        @:</li>
+                        }
+                        @:</ul>
+                    }
+                    else
+                    {
+                    @:</li>
+                 }
+            }
+}
+                @* <li class="active"><a href="/admin/platform/log">日志</a></li>
+                    <li><a href="/admin/security/privileges">权限</a></li>
+                    <li><a href="/admin/security/roles">角色</a></li>
+                    <li>
+                        <a data-toggle="collapse" data-parent="#sidebar"
+                           href="#collapseOne">组织</a>
+                        <ul id="collapseOne" class="collapse nav nav-bar submenu">
+                            <li><a href="/admin/security/roles">部门</a></li>
+                            <li><a href="/admin/security/roles">职员</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-toggle">
+                            <span class="glyphicon glyphicon-leaf"></span>
+                            <span class="menu-text"> 微信设置 </span>
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
+
+                        <ul class="submenu">
+                            <li>
+                                <a href="/wechat/bind" target="contentframe">
+                                    <i class="icon-double-angle-right"></i>
+                                    微信绑定
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/wechat/bind" target="contentframe">
+                                    <i class="icon-double-angle-right"></i>
+                                    微信绑定
+                                </a>
+                            </li>
+                        </ul>
+                    </li>*@
+            </ul>
+        </div>
+<script>
+    $(function () {
+        var channelid = $.getUrlParam("channelid");
+        var current  = $("#sidebar").find("#" + channelid);
+        current.addClass("active");
+        $("#sidebar").find("#" + current.data("parentid")).find("a:first").trigger("click");
+    });
+</script>

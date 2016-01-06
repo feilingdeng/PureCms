@@ -1,0 +1,283 @@
+﻿@{ 
+    //var currentMenu = new PureCms.Services.Security.PrivilegeService().GetOne(n=>n.Where(w=>w.ClassName,WorkContext.Controller).Where(w=>w.MethodName, WorkContext.Action));
+}
+@{
+    var className = this.WorkContext.Controller;
+    var methodName = this.WorkContext.Action;
+    List<PureCms.Core.Domain.Security.PrivilegeInfo> result = new PureCms.Services.Security.PrivilegeService().GetTreePath(className, methodName);
+    string title = string.Empty;
+    foreach (var item in result)
+    {
+        title += item.DisplayName + "-";
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="@WorkContext.Copyright">
+    <meta name="author" content="purecms">
+    <link rel="icon" href="/favicon.ico">
+
+    @*<title>@ViewBag.Title</title>*@
+    <title>@title</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="@WorkContext.CSSCDN/admin/content/css/bootstrap3.3.5/bootstrap.min.css?v=@WorkContext.Version" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="@WorkContext.CSSCDN/admin/content/css/dashboard.css?v=@WorkContext.Version" rel="stylesheet">
+    <link href="@WorkContext.CSSCDN/admin/content/css/ace.min.css?v=@WorkContext.Version" rel="stylesheet">
+    <link href="@WorkContext.CSSCDN/admin/content/css/font-awesome.min.css?v=@WorkContext.Version" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="/admin/content/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    @*<script src="/admin/content/js/ie-emulation-modes-warning.js?v=@WorkContext.Version"></script>*@
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/admin/content/js/html5shiv.min.js"></script>
+      <script src="/admin/content/js/respond.min.js"></script>
+    <![endif]-->
+    <!-- Bootstrap core JavaScript ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="@WorkContext.ScriptCDN/admin/content/js/jquery.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/bootstrap.min.js?v=@WorkContext.Version"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="@WorkContext.ScriptCDN/admin/content/js/ie10-viewport-bug-workaround.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/jquery.bootstrap.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/ace.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/content/js/json2.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/jquery.purecms.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/purecms.admin.js?v=@WorkContext.Version"></script>
+    <script>
+        jQuery(function () {
+            try { ace.settings.check('sidebar', 'fixed') } catch (e) { }
+            purecms.loading();
+        });
+    </script>
+    <style>
+        .table td {
+            word-break: break-all;
+        }
+        .loading {
+            width: 160px;
+            height: 56px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            line-height: 56px;
+            color: #fff;
+            padding-left: 60px;
+            font-size: 15px;
+            background: #000 url(/content/images/loading.gif) no-repeat 10px 50%;
+            opacity: 0.7;
+            z-index: 9999;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            border-radius: 20px;
+            filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+        }
+        /*.navbar {
+            background: #438eb9;
+        }
+        .navbar a{
+            color:white;
+            font-weight:bolder;
+        }*/
+    </style>    
+    @if (IsSectionDefined("Header"))
+    {
+        @RenderSection("Header")
+    }
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header col-sm-3 col-md-2">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/admin"><span class="glyphicon glyphicon-cloud"></span> <strong>演示平台</strong></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse col-sm-9 col-sm-offset-3">
+                <ul class="nav navbar-nav navbar-pill">
+                    <li><a href="/admin" class="navbar-link"><span class="glyphicon glyphicon-home"></span> 仪表板</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-th-large"></span> CMS <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">站点</li>
+                            <li><a href="/admin/cms/sites"><span class="glyphicon glyphicon-list"></span> 站点列表</a></li>
+                            <li><a href="/admin/cms/themes"><span class="glyphicon glyphicon-file"></span> 界面模板</a></li>
+                            <li><a href="/admin/cms/customattributes"><span class="glyphicon glyphicon-edit"></span> 扩展字段</a></li>
+                            <li class="dropdown-header">频道</li>
+                            <li><a href="/admin/cms/channels"><span class="glyphicon glyphicon-list"></span> 频道管理</a></li>
+                            @*<li><a href="/admin/cms/categories"><span class="glyphicon glyphicon-folder-open"></span> 文章分类</a></li>
+    <li class="dropdown-header">内容</li>
+    <li><a href="/admin/cms/editarticle"><span class="glyphicon glyphicon-edit"></span> 发布文章</a></li>
+    <li><a href="/admin/cms/articles"><span class="glyphicon glyphicon-list"></span> 文章列表</a></li>
+    <li><a href="/admin/cms/comments"><span class="glyphicon glyphicon-comment"></span> 文章评论</a></li>*@
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-user"></span> 用户 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/admin/user/index"><span class="glyphicon glyphicon-list"></span> 用户管理</a></li>
+                            <li><a href="/admin/user/userrank"><span class="glyphicon glyphicon-sort"></span> 用户等级</a></li>
+                            <li><a href="/admin/user/integral"><span class="glyphicon glyphicon-folder-open"></span> 用户积分</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-stats"></span> 报表统计 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">用户</li>
+                            <li><a href="/admin/report/users"><span class="glyphicon glyphicon-th"></span> 新注册用户</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">商品</li>
+                            <li><a href="/admin/report/productsales"><span class="glyphicon glyphicon-file"></span> 销售趋势</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-tree-conifer"></span> 组织 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">架构</li>
+                            <li><a href="/admin/org/depts"><span class="glyphicon glyphicon-tower"></span> 部门</a></li>
+                            <li><a href="/admin/org/employees"><span class="glyphicon glyphicon-user"></span> 职员</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">安全</li>
+                            <li><a href="/admin/security/privileges"><span class="glyphicon glyphicon-lock"></span> 权限项</a></li>
+                            <li><a href="/admin/security/roles"><span class="glyphicon glyphicon-leaf"></span> 安全角色</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-cog"></span> 系统 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">参数设置</li>
+                            <li><a href="/admin/settings/editplatformsetting"><span class="glyphicon glyphicon-leaf"></span> 系统参数</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> 安全参数</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> SEO参数</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> 优化参数</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">定时任务</li>
+                            <li><a href="#"><span class="glyphicon glyphicon-time"></span> 任务列表</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">监控</li>
+                            <li><a href="/admin/platform/caching"><span class="glyphicon glyphicon-globe"></span> 缓存</a></li>
+                            <li><a href="/admin/platform/log"><span class="glyphicon glyphicon-th-list"></span> 操作日志</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-magnet"></span> 插件 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><span class="glyphicon glyphicon-link"></span> 支付</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-link"></span> 登录</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-link"></span> 微信</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-road"></span> 更多 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><span class="glyphicon glyphicon-info-sign"></span> 个人信息</a></li>
+                            <li><a href="/admin/home/signout"><span class="glyphicon glyphicon-off"></span> 退出</a></li>
+                            <li><a href="#"><span class="glyphicon glyphicon-question-sign"></span> 帮助</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                @*<div class="navbar-right">
+                                    <span class="glyphicon glyphicon-user"></span> @WorkContext.CurrentUser.UserName
+                    </div>*@
+                @*<form class="navbar-form navbar-right">
+                        <input type="text" class="form-control" placeholder="搜你妹...">
+                    </form>*@
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid" id="body">
+        <div class="row">
+            @{Html.RenderAction("sidebar", "home");}
+            @*<div class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li class="active"><a href="/admin/platform/log">日志 <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    <li><a href="/admin/security/privileges">权限</a></li>
+                    <li><a href="/admin/security/roles">角色</a></li>
+                    <li><a href="#">组织</a></li>
+                </ul>
+                @*<ul class="nav nav-sidebar">
+                        <li><a href="">Nav item</a></li>
+                        <li><a href="">Nav item again</a></li>
+                        <li><a href="">One more nav</a></li>
+                        <li><a href="">Another nav item</a></li>
+                        <li><a href="">More navigation</a></li>
+                    </ul>
+                    <ul class="nav nav-sidebar">
+                            <li><a href="">Nav item again</a></li>
+                            <li><a href="">One more nav</a></li>
+                            <li><a href="">Another nav item</a></li>
+                        </ul>
+            </div>*@
+            <div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2" id="main">
+                @*@{Html.RenderPartial("navpath");}*@
+
+                <div class="" style="margin-left: -15px; margin-right: -15px;">
+
+                    <ol class="breadcrumb">
+                        <li>&rsaquo;&rsaquo;</li>
+                        @foreach (var item in result)
+                        {
+                            @:<li><a href="/admin/@item.ClassName/@item.MethodName">@item.DisplayName</a></li>
+                    }
+                    </ol>
+                </div>
+                <div class="" style="margin-bottom: 80px;">
+                    <!--main-->
+                    @RenderBody()
+                </div>
+                <nav class="navbar navbar-default navbar-fixed-bottom col-sm-offset-3 col-md-offset-2 hide" role="navigation" id="body-footer">
+                    <div class="container">
+                        <div class="navbar-form navbar-left" id="body-footer-content">
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    @RenderSection("scripts", required: false)
+    <script>
+        $(function () {
+            $(".navbar-nav").find(".dropdown-toggle").bind("mouseover", function () {
+                $(this).trigger("click");//next().show();
+            });
+            //$(".navbar-nav").find("a").bind("mouseover", function () {
+            //    if ($(this).parents("li").prop("class").indexOf("dropdown") < 0)
+            //        $(".navbar-nav").find(".dropdown").find("a[aria-expanded=true]").trigger("click");
+            //});
+            $("#body").bind("mouseout", function () {
+                //$(this).find(".dropdown-menu").hide();
+                $(".navbar-nav").find("a[aria-expanded=true]").trigger("click");
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="@WorkContext.Copyright">
+    <meta name="author" content="purecms">
+    <link rel="icon" href="/favicon.ico">
+
+    <title>@ViewBag.Title</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/content/css/bootstrap3.3.5/bootstrap.min.css?v=@WorkContext.Version" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/content/js/html5shiv.min.js"></script>
+      <script src="/content/js/respond.min.js"></script>
+    <![endif]-->
+    <!-- Bootstrap core JavaScript ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/content/js/jquery.min.js?v=@WorkContext.Version"></script>
+    <script src="/content/js/bootstrap.min.js?v=@WorkContext.Version"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/content/js/ie10-viewport-bug-workaround.js?v=@WorkContext.Version"></script>
+    <script src="/content/js/jquery.bootstrap.min.js?v=@WorkContext.Version"></script>
+    <script src="/content/js/json2.js?v=@WorkContext.Version"></script> 
+    @if (IsSectionDefined("Header"))
+    {
+        @RenderSection("Header")
+    }
+</head>
+<body>    
+    @{Html.RenderAction("nav", "home");}
+    <div class="container-fluid">
+        @RenderBody()
+    </div>    
+    @RenderSection("scripts", required: false)
+</body>
+</html>

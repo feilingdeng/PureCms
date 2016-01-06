@@ -1,0 +1,60 @@
+﻿@model PureCms.Web.Admin.Models.EditContentModel
+@{
+    ViewBag.Title = "频道内容";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>【@Model.ChannelName】内容编辑</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("editpagecontent", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.ChannelId)
+
+                <div class="form-group col-sm-12">
+                    @Html.TextAreaFor(x => x.Content, new { @class = "form-control editor", @rows = "20" })
+                </div>
+                <div class="form-group col-sm-12 center-block" id="form-buttons">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                    <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script src="/admin/content/editor/kindeditor-min.js"></script>
+    <script>
+        var $form = $('#editform');
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+            //初始化编辑器
+            var editor = KindEditor.create('.editor', {
+                width: '100%',
+                height: '350px',
+                resizeType: 1,
+                uploadJson: '/admin/tools/upload',
+                fileManagerJson: '/admin/tools/files',
+                afterBlur: function () { this.sync(); },
+                allowFileManager: true
+            });
+        });
+    </script>
+}

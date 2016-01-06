@@ -1,0 +1,122 @@
+﻿@model PureCms.Web.Admin.Models.SiteModel
+@{
+    ViewBag.Title = "Sites";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <strong>站点</strong>
+            <div class="pull-right">
+                <a class="btn btn-info btn-sm" data-toggle="collapse"
+                   href="#collapseOne">
+                    <span class="glyphicon glyphicon-search"></span> 查询
+                </a>
+                <a class="btn btn-info btn-sm" href="editsite"><span class="glyphicon glyphicon-file"></span> 新增</a>
+            </div>
+        </div>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse">
+        <!--in-->
+        <div class="panel-body">
+            @using (Html.BeginForm("sites", "cms", FormMethod.Get, new { @class = "form-horizontal", @role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
+                @Html.Hidden("page", 1)
+                @Html.Hidden("pagesize", 10)
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="Name">名称</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="IsEnabled">状态</label>
+                    <div class="col-sm-9">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, true) 启用
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, false) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-condensed" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+            <thead>
+                <tr>
+                    <th width="2%"><input type="checkbox" name="checkall" /></th>
+                    <th data-sortname="title">
+                        @Html.ActionLink("名称", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="10%" data-sortname="author">
+                        @Html.ActionLink("模板", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="20%" data-sortname="isshow">
+                        @Html.ActionLink("默认", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="20%" data-sortname="isshow">
+                        @Html.ActionLink("状态", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="15%" data-sortname="createdon">
+                        @Html.ActionLink("创建时间", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="10%">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><input type="checkbox" value="@item.SiteId" name="recordid" /></td>
+                        <td>@item.Name</td>
+                        <td>@item.Theme</td>
+                        <td>@(item.IsDefault ? "<span class=\"label label-info\">是</span>" : "<span class=\"label label-default\">否</span>")</td>
+                        <td>@(item.IsEnabled ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.SiteId','/admin/cms/deletesite')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="active">
+                        <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/cms/deletearticle" data-role="delete"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="panel-footer">
+        @Html.WebPager(Model.PagedModel, true)
+    </div>
+</div>
+
+@section Header {
+    <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script>
+        $(function () {
+            $('.datepicker').datepicker({
+                autoclose: true
+                , clearBtn: true
+                , format: "yyyy-mm-dd"
+                , language: "zh-CN"
+            });
+            //列表排序样式
+            purecms.datatable($("#datatable"));
+        });
+    </script>
+}

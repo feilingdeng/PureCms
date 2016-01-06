@@ -1,0 +1,52 @@
+﻿@model PureCms.Web.Framework.PromptModel
+@{
+    ViewBag.Title = "Prompt";
+}
+@section Header {
+    @{
+    if (Model.IsAutoBack)
+        {
+<script type="text/javascript">
+            window.onload = function(){
+            var time = @Model.CountdownTime; //设置时间为几秒
+            var timer = $('#timer'); //获取ID为timer的对象
+            timer.text(time); //初始化显示秒数
+            time = time - 1;
+            var g = window.setInterval(function(){
+            if(time<0){
+                window.clearTimeout(g); //清除动画
+                window.location.href = '@Model.BackUrl'; //跳转到指定地址
+                //window.history.back(-1); //后退
+            } else {
+                showTime();
+            }
+            },1000);
+            //显示函数
+            function showTime(){
+                timer.text(time);
+                time--;
+            }
+            };
+</script>
+        }
+        }
+}
+<div class="page-header">
+    <h1>
+        @Html.Raw(Model.Message)
+        <small></small>
+    </h1>
+</div>
+<div class="container">
+    <div class="row">
+        <p>
+            如果您不做出选择，将在
+            <span id="timer">@Model.CountdownTime</span>
+            秒后自动返回
+        </p>
+        @if (Model.IsShowBackLink)
+        {
+            <a href="@Model.BackUrl">←点击返回</a>
+        }
+    </div>
+</div>

@@ -1,0 +1,93 @@
+﻿@model PureCms.Web.Admin.Models.EditUserModel
+@{
+    ViewBag.Title = "EditUser";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>用户编辑</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("EditUser", "user", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.UserId <= 0 ? "true" : "") }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.UserId)
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.LoginName, "帐号", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.LoginName, new { @class = "form-control required" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.UserName, "姓名", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.UserName, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.RoleId, "角色", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(x => x.RoleId, Model.Roles, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.EmailAddress, "邮箱", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.EmailAddress, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.MobileNumber, "手机", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsActive, "状态", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsActive, true, new { @class = "required" }) 激活
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsActive, false, new { @class = "required" }) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Gender, "性别", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.Gender, 1, new { @class = "required" }) 男
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.Gender, 2, new { @class = "required" }) 女
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center" id="form-buttons">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                    <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+        });
+
+    </script>
+}

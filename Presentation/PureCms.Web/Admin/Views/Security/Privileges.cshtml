@@ -1,0 +1,321 @@
+﻿@model PureCms.Web.Admin.Models.EditPrivilegeModel
+@{
+    ViewBag.Title = "Privileges";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a data-toggle="collapse"
+                           href="#collapseOne">
+                            <strong>权限</strong>
+                        </a>
+                    </h3>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div id="tree1" data-url="Privileges"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a data-toggle="collapse"
+                           href="#collapseTwo">
+                            <strong>权限编辑</strong>
+                        </a>
+                    </h3>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        @using (Html.BeginForm("EditPrivilege", "security", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(x => x.PrivilegeId)
+                            @Html.HiddenFor(x => x.ParentPrivilegeId)
+                            <div class="form-group col-sm-12">
+                                <label class="col-sm-2 control-label" for="actionstatus">操作</label>
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="0"> 编辑本节点
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="1" checked> 新增子节点
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input class="required" name="actionstatus" type="radio" value="2"> 新增同级节点
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.SystemName, "系统名称", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.SystemName, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.DisplayName, "显示名称", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.DisplayName, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.ClassName, "控制器", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.ClassName, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.MethodName, "动作", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.MethodName, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.BigIcon, "大图标", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.BigIcon, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.SmallIcon, "小图标", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.SmallIcon, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.Url, "链接", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(x => x.Url, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.IsEnable, "状态", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsEnable, true) 可用
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsEnable, false) 禁用
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.IsShowAsMenu, "显示菜单", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsShowAsMenu, true) 是
+                                    </label>
+                                    <label class="radio-inline">
+                                        @Html.RadioButtonFor(x => x.IsShowAsMenu, false) 否
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.DisplayOrder, "排序", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                                                        @Html.TextBoxFor(x => x.DisplayOrder, new { @class = "form-control" })
+                                    <span class="help-block">
+                                        新增时自动计算排序号，左边拖动排序后将重置排序号
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                @Html.LabelFor(x => x.Description, "描述", new { @class = "col-sm-2 control-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextAreaFor(x => x.Description, new { @class = "form-control", @rows = "3" })
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12 text-center" id="form-buttons">
+                                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                                <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery.cookie.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        var $tree = $('#tree1'), $form = $('#editform');
+        var $editaction = $form.find("input[name='actionstatus'][value='0']");
+        var $childaction = $form.find("input[name='actionstatus'][value='1']");
+        var $siblingaction = $form.find("input[name='actionstatus'][value='2']");
+        $(function () {
+            initTree();
+            //表单验证
+            purecms.form($form, function (response) {
+                loadTree();
+                $form.resetForm();
+                $childaction.trigger("click");
+            });
+
+            //操作类型
+            $form.find("input[name='actionstatus']").click(function () {
+                var id = $form.find("input[name='privilegeid']").val();
+                var node = $tree.tree('getSelectedNode');
+                if (id == '' || id <= 0) {
+                    if (node != false) {
+                        id = node.id;
+                    }
+                }
+                $form.find("input[name='actionstatus']").prop("checked", false);
+                if ($(this).val() == 0)//编辑本节点
+                {
+                    doEditAction(id);
+                }
+                else if ($(this).val() == 1)//新增子节点
+                {
+                    doChildAction(id);
+                }
+                else if ($(this).val() == 2)//新增同级节点
+                {
+                    doCreateAction(id, node);
+                }
+            });
+        });
+        function doEditAction(id) {
+            if (id <= 0) {
+                $.messager.popup("请选择根节点下的子节点");
+                return;
+            }
+            getPrivilegeInfo(id);
+            $editaction.prop("checked", true);
+        }
+        function doChildAction(id) {
+            $form.resetForm();
+            $form.find("input[name='parentprivilegeid']").val(id);
+            $form.find("input[name='privilegeid']").val("0");
+            $childaction.prop("checked", true);
+        }
+        function doCreateAction(id, node) {
+            if (id <= 0) {
+                $.messager.popup("请选择根节点下的子节点");
+                return;
+            }
+            $form.resetForm();
+            $form.find("input[name='parentprivilegeid']").val(node.parent ? node.parent.id : 0);
+            $form.find("input[name='privilegeid']").val("0");
+            $siblingaction.prop("checked", true);
+        }
+        function initTree() {
+            $tree.tree({
+                dragAndDrop: true
+                , autoOpen: true
+                , saveState: 'admin-menutree'
+                , onCreateLi: function (node, $li) {
+                    if (node.id > 0) {
+                        $li.find('.jqtree-title').after('&nbsp;&nbsp;<a class="glyphicon glyphicon-trash" title="删除" href="javascript:removeNode(' + node.id + ')" nodeid="' + node.id + '"></a>');
+                    }
+                },
+                dataFilter: function (data) {
+                    return purecms.getajaxresult(data).content;
+                }
+                , onCanMoveTo: function (moved_node, target_node, position) {
+                    //console.log(moved_node, target_node, position);
+                    var moveid = moved_node.id;
+                    var targetid = target_node.id;
+                    var previd = moved_node.getPreviousNode() != null ? moved_node.getPreviousNode().id : 0;
+                    var nextid = moved_node.getNextNode() != null ? moved_node.getNextNode().id : 0;
+                    console.log(position + " moveparentid=" + moved_node.parent.id + ",targetid=" + target_node.id + ",targetparentid=" + target_node.parent.id);
+
+                    var flag = false;
+                    if (position == "inside" && moved_node.parent.id == target_node.id) {
+                        flag = true;
+                    }
+                    else if (position == "after" && moved_node.parent.id == target_node.parent.id) {
+                        flag = true;
+                    }
+                    return flag;
+                }
+                , selectable: true
+            });
+
+            $tree.bind(
+                'tree.move',
+                function (event) {
+                    console.log('moved_node', event.move_info.moved_node);
+                    console.log('target_node', event.move_info.target_node);
+                    console.log('position', event.move_info.position);
+                    console.log('previous_parent', event.move_info.previous_parent);
+                    var moveid = event.move_info.moved_node.id;
+                    var targetid = event.move_info.target_node.id;
+                    var parentid = event.move_info.previous_parent.id;
+                    var position = event.move_info.position;
+                    $.get("MovePrivilege?moveid=" + moveid + "&targetid=" + targetid + "&parentid=" + parentid + "&position=" + position, function (response) {
+                        console.log(response);
+                        $tree.tree('reload');
+                    });
+                }
+            );
+            $tree.bind(
+            'tree.select',
+            function (event) {
+                if (event.node) {
+                    // node was selected
+                    var node = event.node;
+                    $tree.tree('openNode', node);
+                    $form.find("input[name='actionstatus']").prop("checked", false);
+                    if (node.id <= 0) {
+                        doChildAction(0);
+                        return;
+                    }
+                    doEditAction(node.id);
+                }
+            }
+            );
+        }
+        function getPrivilegeInfo(id) {
+            $.get("EditPrivilege?id=" + id, function (data) {
+                console.log(data);
+                if (!data) return;
+                var entity = purecms.getajaxresult(data).content;
+                console.log(entity);
+                for (var p in entity) {
+                    if (typeof (entity[p]) != "function") { // p 为属性名称，entity[p]为对应属性的值
+                        var value = entity[p] == null ? "" : entity[p];
+                        var target = $form.find("input[name='" + p + "']");
+                        if (target.is(":radio") || target.is(":checkbox")) {
+                            target.each(function (i, n) {
+                                if ($(n).val().toLowerCase() == value.toString().toLowerCase()) {
+                                    $(n).prop("checked", true);
+                                }
+                            });
+                        }
+                        else {
+                            target.val(entity[p]);
+                        }
+                    }
+                }
+            });
+        }
+        function removeNode(id) {
+            var node = $tree.tree('getNodeById', id);
+            purecms.del(id, "deleteprivilege", false, function (response) {
+                if (response.StatusName == "success") {
+                    $tree.tree('removeNode', node);
+                    $form.resetForm();
+                }
+            });
+        }
+        function loadTree() {
+            $tree.tree('reload');
+        }
+    </script>
+}

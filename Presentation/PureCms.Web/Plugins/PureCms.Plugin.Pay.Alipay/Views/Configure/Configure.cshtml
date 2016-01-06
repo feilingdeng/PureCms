@@ -1,0 +1,69 @@
+﻿@model PureCms.Plugin.Pay.Alipay.SettingModel
+
+
+<h1 class="rightH1">
+    插件管理 &gt;&gt; 插件配置
+    <div class="right">
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+</h1>
+@using (Html.BeginForm("configure", "configure"))
+{
+    <div class="addTable">
+        <table width="100%">
+            <tr>
+                <td width="120px" align="right">合作者身份ID：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.Partner, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.Partner)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">交易安全检验码：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.Key, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.Key)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">私钥：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.PrivateKey, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.PrivateKey)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">收款支付宝帐户：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.Seller, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.Seller)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">支付手续费：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.PayFee, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.PayFee)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">免费金额：</td>
+                <td>
+                    @Html.TextBoxFor(x => x.FreeMoney, new { @class = "input", size = "20" })
+                    @Html.ValidationMessageFor(x => x.FreeMoney)
+                </td>
+            </tr>
+            <tr>
+                <td align="right">&nbsp;</td>
+                <td>
+                    <input type="submit" value="save" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right">&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+}

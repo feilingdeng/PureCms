@@ -1,0 +1,88 @@
+﻿@model PureCms.Web.Admin.Models.EditSiteModel
+@{
+    ViewBag.Title = "EditSite";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>站点编辑</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("EditSite", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.SiteId <= 0 ? "true" : "") }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.SiteId)
+                @Html.ValidationSummary()
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Name, "名称", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control required" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Logo, "Logo", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Logo, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Theme, "模板", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(x => x.Theme, Model.Themes, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Url, "域名", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Url, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsEnabled, "状态", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, true, new { @class = "required" }) 启用
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsEnabled, false, new { @class = "required" }) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsDefault, "默认", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsDefault, true, new { @class = "required" }) 是
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsDefault, false, new { @class = "required" }) 否
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center" id="form-buttons">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                    <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+        });
+
+    </script>
+}

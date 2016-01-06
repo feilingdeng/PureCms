@@ -1,0 +1,155 @@
+﻿@model PureCms.Web.Admin.Models.UserModel
+@{
+    ViewBag.Title = "Users";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <strong>用户</strong>
+            <div class="pull-right">
+                <a class="btn btn-info btn-sm" data-toggle="collapse"
+                   href="#collapseUsersSearch">
+                    <span class="caret"></span> 查询
+                </a>
+                <a class="btn btn-info btn-sm" href="edituser"><span class="glyphicon glyphicon-file"></span> 新增</a>
+            </div>
+        </div>
+    </div>
+    <div id="collapseUsersSearch" class="panel-collapse collapse">
+        <!--in-->
+        <div class="panel-body">
+            @using (Html.BeginForm("index", "user", FormMethod.Get, new { @class = "form-horizontal", @role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
+                @Html.Hidden("page", 1)
+                @Html.Hidden("pagesize", 10)
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="begintime">开始时间</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.BeginTime, new { @class = "form-control datepicker" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-3 control-label" for="endtime">结束时间</label>
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.EndTime, new { @class = "form-control datepicker" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    @Html.LabelFor(x => x.LoginName, "帐号", new { @class = "col-sm-3 control-label" })
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.LoginName, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    @Html.LabelFor(x => x.EmailAddress, "邮箱", new { @class = "col-sm-3 control-label" })
+                    <div class="col-sm-9">
+                        @Html.TextBoxFor(x => x.EmailAddress, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    @Html.LabelFor(x => x.IsActive, "启用状态", new { @class = "col-sm-3 control-label" })
+                    <div class="col-sm-9">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsActive, true) 激活
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsActive, false) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-condensed table-striped" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+            <thead>
+                <tr>
+                    <th width="2%"><input type="checkbox" name="checkall" /></th>
+                    <th data-sortname="loginname">
+                        @Html.ActionLink("帐号", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "loginname", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="20%" data-sortname="emailaddress">
+                        @Html.ActionLink("邮箱", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "emailaddress", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="15%" data-sortname="mobilenumber">
+                        @Html.ActionLink("电话", "index", new { loginname = Model.LoginName, mobilenumber=Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "mobilenumber", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="5%" data-sortname="isactive">
+                        @Html.ActionLink("状态", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "isactive", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="15%" data-sortname="createdon">
+                        @Html.ActionLink("注册时间", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    </th>
+                    <th width="20%">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><input type="checkbox" value="@item.UserId" name="recordid" /></td>
+                        <td>@item.LoginName</td>
+                        <td>@item.EmailAddress</td>
+                        <td>@item.MobileNumber</td>
+                        <td>@(item.IsActive ? "<span class=\"label label-info\">激活</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <a class="btn btn-default btn-sm" href="/admin/user/edituser?id=@item.UserId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                            <a class="btn btn-info btn-sm" href="/admin/user/edituserpassword?id=@item.UserId"><span class="glyphicon glyphicon-lock"></span> 密码</a>
+                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.UserId','/admin/user/deleteuser')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="active">
+                        <div class="form-group form-inline" role="form">
+                            <button type="button" class="btn btn-sm btn-primary" data-action="/admin/cms/deleteuser" data-role="delete"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                            <div class="btn-group dropup">
+                                <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
+                                        data-toggle="dropdown">
+                                    <span class="glyphicon glyphicon-edit"></span> 批量更新
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" data-action="/admin/user/SetUserActive?isactive=true" data-role="update">激活</a></li>
+                                    <li><a href="#" data-action="/admin/user/SetUserActive?isactive=false" data-role="update">禁用</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="panel-footer">
+        @Html.WebPager(Model.PagedModel, true)
+    </div>
+</div>
+
+@section Header {
+    <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script>
+        $(function () {
+            $('.datepicker').datepicker({
+                autoclose: true
+                , clearBtn: true
+                , format: "yyyy-mm-dd"
+                , language: "zh-CN"
+            });
+            //列表排序样式
+            purecms.datatable($("#datatable"));
+        });
+    </script>
+}
