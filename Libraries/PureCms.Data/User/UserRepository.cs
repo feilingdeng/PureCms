@@ -214,8 +214,17 @@ namespace PureCms.Data.User
         {
             var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM Users");
+
             //过滤条件
-            query.Append(ParseWhereSql(q,otherCondition));
+            if (q.QueryText.IsNotEmpty() && q.Parameters.IsNotNullOrEmpty())
+            {
+                var values = q.Parameters.Select(n=>n.Value).ToArray();
+                query.Append("WHERE");
+                query.Append(q.QueryText, values);
+            }
+            else {
+                query.Append(ParseWhereSql(q, otherCondition));
+            }
             
             //排序
             if (isCount == false)

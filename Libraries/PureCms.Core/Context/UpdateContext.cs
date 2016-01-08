@@ -36,6 +36,12 @@ namespace PureCms.Core.Context
             return this;
         }
 
+        public UpdateContext<T, TQ> Where(Expression<Func<T, bool>> predicates)
+        {
+            //q.Compile().Invoke(QueryContext);
+            return this;
+        }
+
         public UpdateContext<T,TQ> Set(Expression<Func<T, object>> fieldPath, object value)
         {
             var field = ExpressionHelper.GetPropertyName<T>(fieldPath);

@@ -1,5 +1,6 @@
 ﻿using PureCms.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -155,13 +156,16 @@ namespace PureCms.Core.Context
         /// </summary>
         /// <param name="conditions"></param>
         /// <returns></returns>
-        public TChild Conditions(Expression<Func<T, bool>> predicate)
+        public TChild Where(Expression<Func<T, bool>> predicate)
         {
             var translator = new QueryTranslator();
-            var a = translator.Translate(predicate);
+            QueryText = translator.Translate(predicate);
+            Parameters = translator.Parameters;
             
             return this as TChild;
         }
+        public string QueryText { get; set; }
+        public List<QueryParameter> Parameters { get; set; }
 
         private List<string> _columns;
         public List<string> Columns
@@ -177,7 +181,6 @@ namespace PureCms.Core.Context
         }
         public TChild Select(params Expression<Func<T, object>>[] fields)
         {
-            //fields.Select(e => (PropertyPathMarker)e);
             if (_columns == null)
             {
                 _columns = new List<string>();
@@ -190,7 +193,7 @@ namespace PureCms.Core.Context
                     _columns.AddRange(m.AsEnumerable().Select(f=>f.Name));
                 }
                 else if(item.Body is MemberExpression) {
-                    _columns.Add(((MemberExpression)item.Body).Member.Name); //(ExpressionHelper.GetPropertyName<T>(item));
+                    _columns.Add(((MemberExpression)item.Body).Member.Name); 
                 }
             }
             return this as TChild;
@@ -229,10 +232,36 @@ namespace PureCms.Core.Context
         }
     }
 
+    public class QueryParameter
+    {
+        public string Name { get; set; }
 
+        public object Value { get; set; }
+    }
     public class QueryTranslator : ExpressionVisitor
     {
-        StringBuilder sb;
+        private StringBuilder _queryText;
+
+        private List<string> _parameters = new List<string>();
+        private List<object> _values = new List<object>();
+
+        public List<QueryParameter> Parameters
+        {
+            get
+            {
+                List<QueryParameter> result = new List<QueryParameter>();
+                int i = 0;
+                foreach (var p in _parameters)
+                {
+                    result.Add(new QueryParameter() {
+                        Name = p
+                        ,Value = _values[i]
+                    });
+                    i++;
+                }
+                return result;
+            }
+        }
 
         public QueryTranslator()
         {
@@ -240,9 +269,14 @@ namespace PureCms.Core.Context
 
         public string Translate(Expression expression)
         {
-            this.sb = new StringBuilder();
+            this._queryText = new StringBuilder();
             this.Visit(expression);
-            return this.sb.ToString();
+            return this._queryText.ToString();
+        }
+
+        private void SetParam(string key, object value)
+        {
+            _parameters.Add(key);
         }
 
         private static Expression StripQuotes(Expression e)
@@ -256,8 +290,7 @@ namespace PureCms.Core.Context
 
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
-            //m.Method.DeclaringType == typeof(QueryExtensions) && 
-            //if (m.Method.Name == "Where")
+            //if (m.Method.DeclaringType == typeof(QueryExtensions) && m.Method.Name == "Where")
             //{
             //    sb.Append("SELECT * FROM ");
             //    this.Visit(m.Arguments[0]);
@@ -266,12 +299,70 @@ namespace PureCms.Core.Context
             //    this.Visit(lambda.Body);
             //    return m;
             //}
-            if (m.Method.DeclaringType == typeof(String) && m.Method.Name == "Contains")
+            //if (m.Method.DeclaringType == typeof(string) && m.Method.Name == "Contains")
+            //{
+            //    this.Visit(m.Object);
+            //    _queryText.Append(" LIKE '%");
+            //    this.Visit(m.Arguments[0]);
+            //    _queryText.Append("%' ");
+            //    return m;
+            //}
+            if (m.Method.DeclaringType == typeof(MemberExtensions) && m.Method.Name == "Like")
             {
-                this.Visit(m.Object);
-                sb.Append(" like '%");
-                this.Visit(m.Arguments[0]);
-                sb.Append("%' ");
+                _queryText.Append(((MemberExpression)m.Arguments[0]).Member.Name);
+                _queryText.Append(" LIKE '%");
+                _queryText.Append("@" + _values.Count);
+                _queryText.Append("%' ");
+                _values.Add(((ConstantExpression)m.Arguments[1]).Value);
+                return m;
+            }
+            if (m.Method.DeclaringType == typeof(MemberExtensions) && m.Method.Name == "In")
+            {
+                _queryText.Append(((MemberExpression)m.Arguments[0]).Member.Name);
+                _queryText.Append(" IN (");
+                var newArray = ((NewArrayExpression)m.Arguments[1]).Expressions;
+                var values = new List<object>();
+                foreach (var n in newArray)
+                {
+                    if (n is MemberExpression)
+                    {
+                        var v = GetMemberValue(n as MemberExpression);
+                        values.Add(v);
+                    }
+                    else if(n is ConstantExpression)
+                    {
+                        values.Add(((ConstantExpression)n).Value);
+                    }
+                }
+                _queryText.Append("@" + _values.Count);
+                _queryText.Append(") ");
+                _values.Add(values);
+                return m;
+            }
+            if (m.Method.DeclaringType == typeof(MemberExtensions) && m.Method.Name == "IsNull")
+            {
+                if (m.Arguments[0] is MemberExpression)
+                {
+                    _queryText.Append(((MemberExpression)m.Arguments[0]).Member.Name);
+                }
+                else
+                {
+                    this.Visit(m.Arguments[0]);
+                }
+                _queryText.Append(" IS NULL ");
+                return m;
+            }
+            if (m.Method.DeclaringType == typeof(MemberExtensions) && m.Method.Name == "IsNotNull")
+            {
+                if (m.Arguments[0] is MemberExpression)
+                {
+                    _queryText.Append(((MemberExpression)m.Arguments[0]).Member.Name);
+                }
+                else
+                {
+                    this.Visit(m.Arguments[0]);
+                }
+                _queryText.Append(" IS NOT NULL ");
                 return m;
             }
             throw new NotSupportedException(string.Format("方法{0}不支持", m.Method.Name));
@@ -282,7 +373,7 @@ namespace PureCms.Core.Context
             switch (u.NodeType)
             {
                 case ExpressionType.Not:
-                    sb.Append(" NOT ");
+                    _queryText.Append(" NOT ");
                     this.Visit(u.Operand);
                     break;
                 case ExpressionType.Convert:
@@ -296,45 +387,45 @@ namespace PureCms.Core.Context
 
         protected override Expression VisitBinary(BinaryExpression b)
         {
-            sb.Append("(");
+            _queryText.Append("(");
             this.Visit(b.Left);
             switch (b.NodeType)
             {
                 case ExpressionType.And:
-                    sb.Append(" AND ");
+                    _queryText.Append(" AND ");
                     break;
                 case ExpressionType.AndAlso:
-                    sb.Append(" AND ");
+                    _queryText.Append(" AND ");
                     break;
                 case ExpressionType.Or:
-                    sb.Append(" OR ");
+                    _queryText.Append(" OR ");
                     break;
                 case ExpressionType.OrElse:
-                    sb.Append(" OR ");
+                    _queryText.Append(" OR ");
                     break;
                 case ExpressionType.Equal:
-                    sb.Append(" = ");
+                    _queryText.Append(" = ");
                     break;
                 case ExpressionType.NotEqual:
-                    sb.Append(" <> ");
+                    _queryText.Append(" <> ");
                     break;
                 case ExpressionType.LessThan:
-                    sb.Append(" < ");
+                    _queryText.Append(" < ");
                     break;
                 case ExpressionType.LessThanOrEqual:
-                    sb.Append(" <= ");
+                    _queryText.Append(" <= ");
                     break;
                 case ExpressionType.GreaterThan:
-                    sb.Append(" > ");
+                    _queryText.Append(" > ");
                     break;
                 case ExpressionType.GreaterThanOrEqual:
-                    sb.Append(" >= ");
+                    _queryText.Append(" >= ");
                     break;
                 default:
                     throw new NotSupportedException(string.Format("运算符{0}不支持", b.NodeType));
             }
             this.Visit(b.Right);
-            sb.Append(")");
+            _queryText.Append(")");
             return b;
         }
 
@@ -343,35 +434,38 @@ namespace PureCms.Core.Context
             if (c.Value is IQueryable)
             {
                 IQueryable q = c.Value as IQueryable;
-                sb.Append(q.ElementType.Name);
+                _queryText.Append(q.ElementType.Name);
             }
             else if (c.Value == null)
             {
-                sb.Append("NULL");
+                _queryText.Append("NULL");
             }
             else
             {
-                switch (Type.GetTypeCode(c.Value.GetType()))
-                {
-                    case TypeCode.Boolean:
-                        sb.Append(((bool)c.Value) ? 1 : 0);
-                        break;
-                    case TypeCode.String:
-                        sb.Append("'");
-                        sb.Append(c.Value);
-                        sb.Append("'");
-                        break;
-                    case TypeCode.DateTime:
-                        sb.Append("'");
-                        sb.Append(c.Value);
-                        sb.Append("'");
-                        break;
-                    case TypeCode.Object:
-                        throw new NotSupportedException(string.Format("常量{0}不支持", c.Value));
-                    default:
-                        sb.Append(c.Value);
-                        break;
-                }
+                //switch (Type.GetTypeCode(c.Value.GetType()))
+                //{
+                //    case TypeCode.Boolean:
+                //        _queryText.Append(((bool)c.Value) ? 1 : 0);
+                //        break;
+                //    case TypeCode.String:
+                //        _queryText.Append("'");
+                //        _queryText.Append(c.Value);
+                //        _queryText.Append("'");
+                //        break;
+                //    case TypeCode.DateTime:
+                //        _queryText.Append("'");
+                //        _queryText.Append(c.Value);
+                //        _queryText.Append("'");
+                //        break;
+                //    case TypeCode.Object:
+                //        throw new NotSupportedException(string.Format("常量{0}不支持", c.Value));
+                //    default:
+                //        _queryText.Append(c.Value);
+                //        break;
+                //}
+
+                _queryText.Append("@"+_values.Count);
+                _values.Add(c.Value);
             }
             return c;
         }
@@ -380,13 +474,17 @@ namespace PureCms.Core.Context
         {
             if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter)
             {
-                sb.Append(m.Member.Name);
+                _queryText.Append(m.Member.Name);
+                SetParam(m.Member.Name + _parameters.Count, null);
                 return m;
             }
-            else if (m.Expression != null && m.Expression.NodeType == ExpressionType.MemberAccess) {
+            else if (m.Expression != null && m.Expression.NodeType == ExpressionType.MemberAccess)
+            {
                 var v = GetMemberValue(m);
-                sb.Append(v);
-                //this.Visit(m.Expression);
+                //_queryText.Append(v);
+                _queryText.Append("@" + _values.Count);
+                _values.Add(v);
+                //SetParam(m.Member.Name + Parameters.Count, v);
                 return m;
             }
             throw new NotSupportedException(string.Format("成员{0}不支持", m.Member.Name));
@@ -429,18 +527,71 @@ namespace PureCms.Core.Context
                 throw new NotSupportedException("Member type not supported: "
                     + memberInfo.GetType().FullName);
             }
-            if(result is String || result is DateTime)
-            {
-                result = ("'" + result.ToString() + "'");
-            }
-            if (result is Boolean)
-            {
-                result = (bool.Parse(result.ToString()) ? 1 : 0);
-            }
+            //if(result is String || result is DateTime)
+            //{
+            //    result = ("'" + result.ToString() + "'");
+            //}
+            //if (result is Boolean)
+            //{
+            //    result = (bool.Parse(result.ToString()) ? 1 : 0);
+            //}
             return result;
         }
     }
 
+    public static class MemberExtensions
+    {
+        public const string Tips = "此扩展方法只能用于本框架";
+        /// <summary>
+        /// IN
+        /// </summary>
+        public static bool In(this object member, IEnumerable<object> values)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// IN
+        /// </summary>
+        public static bool In(this object member, params object[] values)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// IN
+        /// </summary>
+        public static bool NotIn(this object member, IEnumerable<object> values)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// IN
+        /// </summary>
+        public static bool NotIn(this object member, params object[] values)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// LIKE
+        /// </summary>
+        public static bool Like(this string member, string values)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// IS NULL
+        /// </summary>
+        public static bool IsNull(this object member)
+        {
+            throw new Exception(Tips);
+        }
+        /// <summary>
+        /// IS NOT NULL
+        /// </summary>
+        public static bool IsNotNull(this object member)
+        {
+            throw new Exception(Tips);
+        }
+    }
 
     public static class QueryExtensions
     {
