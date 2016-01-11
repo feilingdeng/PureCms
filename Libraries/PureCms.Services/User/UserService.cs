@@ -66,10 +66,10 @@ namespace PureCms.Services.User
 
             return _repository.Query(q);
         }
-        public bool Update(Func<UpdateContext<UserInfo, UserQueryContext>, UpdateContext<UserInfo, UserQueryContext>> context)
+        public bool Update(Func<UpdateContext<UserInfo>, UpdateContext<UserInfo>> context)
         {
-            var ctx = context(new UpdateContext<UserInfo, UserQueryContext>());
-            return _repository.Update(ctx.Sets, ctx.QueryContext);
+            var ctx = context(new UpdateContext<UserInfo>());
+            return _repository.Update(ctx);
         }
     }
 }

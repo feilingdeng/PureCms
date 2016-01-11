@@ -17,7 +17,7 @@ namespace PureCms.Core.User
         int Create(UserInfo entity);
 
         bool Update(UserInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, UserQueryContext q);
+        bool Update(UpdateContext<UserInfo> q);
 
         bool DeleteById(int id);
         bool DeleteById(List<int> ids);

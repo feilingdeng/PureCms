@@ -245,7 +245,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 _channelService.Update(x => x.Set(n => n.Content, model.Content)
-                    .Filter(w => w.Where(n => n.ChannelId, model.ChannelId))
+                    .Where(n=>n.ChannelId == model.ChannelId)
                     );
                 if (IsAjaxRequest)
                 {
@@ -469,7 +469,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 bool result = _articleService.Update(x => x.Set(n => n.IsShow, isShow)
-                    .Filter(w => w.Where(n => n.ArticleIdList, recordid.ToList()))
+                    .Where(n => n.ArticleId.In(recordid.ToList()))
                     );
                 flag = result;
                 if (flag)

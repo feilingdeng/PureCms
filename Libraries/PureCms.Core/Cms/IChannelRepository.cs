@@ -9,7 +9,7 @@ namespace PureCms.Core.Cms
         int Create(ChannelInfo entity);
 
         bool Update(ChannelInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, ChannelQueryContext q);
+        bool Update(UpdateContext<ChannelInfo> q);
 
         bool DeleteById(int id);
 

@@ -23,12 +23,10 @@ namespace PureCms.Services.Cms
         {
             return _repository.Update(entity);
         }
-        public bool Update(Func<UpdateContext<ArticleInfo, ArticleQueryContext>, UpdateContext<ArticleInfo, ArticleQueryContext>> context)
+        public bool Update(Func<UpdateContext<ArticleInfo>, UpdateContext<ArticleInfo>> context)
         {
-            var ctx = context(new UpdateContext<ArticleInfo, ArticleQueryContext>());
-            List<KeyValuePair<string, object>> sets = ctx.Sets;
-            ArticleQueryContext q = ctx.QueryContext;
-            return _repository.Update(sets, q);
+            var ctx = context(new UpdateContext<ArticleInfo>());
+            return _repository.Update(ctx);
         }
 
         public ArticleInfo GetById(long id)

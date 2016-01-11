@@ -9,7 +9,7 @@ namespace PureCms.Core.Cms
         long Create(ArticleInfo entity);
 
         bool Update(ArticleInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, ArticleQueryContext q);
+        bool Update(UpdateContext<ArticleInfo> q);
 
         bool DeleteById(long id);
         bool DeleteById(List<long> ids);

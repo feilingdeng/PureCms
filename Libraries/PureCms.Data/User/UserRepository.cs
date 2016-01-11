@@ -193,17 +193,19 @@ namespace PureCms.Data.User
         /// <param name="sets">需要设置的字段和值</param>
         /// <param name="q">过滤条件</param>
         /// <returns></returns>
-        public bool Update(List<KeyValuePair<string, object>> sets, UserQueryContext q)
+        public bool Update(UpdateContext<UserInfo> q)
         {
-            Guard.ArgumentNotNullOrEmpty<KeyValuePair<string, object>>(sets, "sets");
+            //Guard.ArgumentNotNullOrEmpty<KeyValuePair<string, object>>(q.Sets, "sets");
 
             Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName + " SET ");
             string optName = string.Empty;
-            foreach (var item in sets)
+            foreach (var item in q.Sets)
             {
                 query.Append(TableName + "." + item.Key + "=@0", item.Value);
             }
-            query.Append(ParseWhereSql(q));
+            var values = q.Parameters.Select(n => n.Value).ToArray();
+            query.Append("WHERE");
+            query.Append(q.QueryText, values);
             int result = ((Database)_repository.Client).Execute(query);
             return result > 0;
         }

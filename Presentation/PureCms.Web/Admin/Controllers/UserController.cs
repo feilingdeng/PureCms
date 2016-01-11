@@ -29,7 +29,7 @@ namespace PureCms.Web.Admin.Controllers
                 model.SortDirection = (int)SortDirection.Desc;
             }
             model.IsActive = true; model.IsDeleted = false;
-            model.UserName = "purecms";
+            model.UserName = "purecms ";
             model.MobileNumber = "13800138000";
             //FilterContainer<UserInfo> container = new FilterContainer<UserInfo>();
             //if (model.IsActive.HasValue)
@@ -55,21 +55,20 @@ namespace PureCms.Web.Admin.Controllers
             ////container.Or(f => f.UserName == model.UserName && f.IsActive == true);
             //_userService.Query(x => x.Where(container));
             //_userService.Query(x => x.Where(filter => filter.And(f => f.IsActive == model.IsActive).And(f => f.IsDeleted == model.IsDeleted)));
-            var result = _userService.Query(x => x
-            .Page(model.Page, model.PageSize)
-            .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
-            .Where(n => n.UserName == model.UserName && (n.MobileNumber.Like("138") || model.MobileNumber == n.MobileNumber)
-            && n.UserName.In(model.UserName.TrimEnd(), "u1") && n.Gender.IsNull() && n.IsActive.IsNotNull())
-            .Sort(s => s.SortDescending(n => n.CreatedOn)));
+            //var result = _userService.Query(x => x
+            //.Page(model.Page, model.PageSize)
+            //.Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
+            //.Where(n => n.UserName == model.UserName && (n.MobileNumber.Like("138") || model.MobileNumber == n.MobileNumber)
+            //&& n.UserName.In(model.UserName.TrimEnd(), "u1", "u2") && n.Gender.IsNull() && n.IsActive.IsNotNull())
+            //.Sort(s => s.SortDescending(n => n.CreatedOn)));
 
-            //PagedList<UserInfo> result = _userService.Query(x => x
-            //    .Page(model.Page, model.PageSize)
-            //    .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })//c.UserName, c => c.CreatedOn, c => c.LoginName, c => c.EmailAddress, c => c.IsActive, c => c.IsDeleted, c => c.MobileNumber)
-            //    .Where(n => n.LoginName, model.LoginName).Where(n => n.IsActive, model.IsActive).Where(n => n.IsDeleted, model.IsDeleted)
-            //    .Where(n => n.MobileNumber, model.MobileNumber)
-            //    .Where(n => n.BeginTime, model.BeginTime).Where(n => n.EndTime, model.EndTime)
-            //    .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
-            //    );
+            PagedList<UserInfo> result = _userService.Query(x => x
+                .Page(model.Page, model.PageSize)
+                .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
+                .Where(n => n.LoginName == model.LoginName && n.IsActive == model.IsActive && n.IsDeleted == model.IsDeleted && n.MobileNumber == model.MobileNumber
+                && n.CreatedOn >= model.BeginTime && n.CreatedOn <= model.EndTime)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+            );
 
             model.Items = result.Items;
             model.TotalItems = result.TotalItems;
@@ -155,8 +154,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 bool result = _userService.Update(x => x.Set(n => n.IsActive, isActive)
-                    .Filter(w => w.Where(n => n.UserIdList, recordid.ToList()))
-                    .Where(n=>n.UserId==1)
+                    .Where(n=>n.UserId.In(recordid))
                     );
                 flag = result;
                 if (flag)
@@ -206,9 +204,10 @@ namespace PureCms.Web.Admin.Controllers
             {
                 var user = _userService.GetById(model.UserId);
                 string password = SecurityHelper.MD5(model.NewPassword + user.Salt);
-                bool result = _userService.Update(x => x.Set(n => n.Password, password)
-                    .Filter(w => w.Where(n => n.UserId, model.UserId))
-                    );
+                bool result = _userService.Update(x => x
+                    .Set(n => n.Password, password)
+                    .Where(n => n.UserId == model.UserId)
+                );
 
                 flag = result;
                 if (flag)
