@@ -134,9 +134,17 @@ namespace PureCms.Web.Admin.Controllers
                 m.SortBy = Utilities.ExpressionHelper.GetPropertyName<RoleInfo>(n => n.Name);
                 m.SortDirection = (int)SortDirection.Desc;
             }
+            FilterContainer<RoleInfo> container = new FilterContainer<RoleInfo>();
+            if (m.Name.IsNotEmpty())
+            {
+                container.And(n => n.Name == m.Name);
+            }
+            if (m.IsEnabled.HasValue)
+            {
+                container.And(n => n.IsEnabled == m.IsEnabled);
+            }
             var result = _roleService.GetAll(x => x
-                .Where(n => n.Name, m.Name)
-                .Where(n => n.IsEnabled, m.IsEnabled)
+                .Where(container)
                 .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
             );
             m.Items = result;
@@ -203,7 +211,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 var result = _rolePrivilegesService.GetAll(x => x
-                    .Where(n => n.RoleId, roleId)
+                    .Where(n => n.RoleId == roleId)
                     .Sort(n => n.SortDescending(f=>f.PrivilegeId))
                 );
                 model.RolePrivileges = result;

@@ -16,7 +16,7 @@ namespace PureCms.Core.Logging
 
         bool DeleteById(long id);
 
-        PagedList<LogInfo> Query(LogQueryContext q);
+        PagedList<LogInfo> Query(QueryDescriptor<LogInfo> q);
 
         LogInfo GetById(long id);
     }

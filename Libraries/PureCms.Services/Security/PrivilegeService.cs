@@ -24,10 +24,9 @@ namespace PureCms.Services.Security
             {
                 entity.Level = parent.Level + 1;
             }
-            var count = _repository.Count(new PrivilegeQueryContext()
-            {
-                ParentPrivilegeId = entity.ParentPrivilegeId
-            });
+            var q = new QueryDescriptor<PrivilegeInfo>();
+            q.Where(n => n.ParentPrivilegeId == entity.ParentPrivilegeId);
+            var count = _repository.Count(q);
             entity.DisplayOrder = ((int)count + 1);
             if (entity.Level <= 0)
             {
@@ -52,15 +51,15 @@ namespace PureCms.Services.Security
             return _repository.DeleteById(id);
         }
 
-        public PagedList<PrivilegeInfo> Query(Func<PrivilegeQueryContext, PrivilegeQueryContext> container)
+        public PagedList<PrivilegeInfo> Query(Func<QueryDescriptor<PrivilegeInfo>, QueryDescriptor<PrivilegeInfo>> container)
         {
-            PrivilegeQueryContext q = container(new PrivilegeQueryContext());
+            QueryDescriptor<PrivilegeInfo> q = container(new QueryDescriptor<PrivilegeInfo>());
 
             return _repository.Query(q);
         }
-        public List<PrivilegeInfo> GetAll(Func<PrivilegeQueryContext, PrivilegeQueryContext> container)
+        public List<PrivilegeInfo> GetAll(Func<QueryDescriptor<PrivilegeInfo>, QueryDescriptor<PrivilegeInfo>> container)
         {
-            PrivilegeQueryContext q = container(new PrivilegeQueryContext());
+            QueryDescriptor<PrivilegeInfo> q = container(new QueryDescriptor<PrivilegeInfo>());
             return _repository.GetAll(q);
         }
         public List<PrivilegeInfo> GetAll()
@@ -72,20 +71,20 @@ namespace PureCms.Services.Security
             }
             else
             {
-                result = this.GetAll(n=>n.Sort(s=>s.SortDescending(f=>f.DisplayOrder)));
+                result = this.GetAll(n => n.Sort(s => s.SortDescending(f => f.DisplayOrder)));
             }
 
             return result;
         }
-        public PrivilegeInfo GetOne(Func<PrivilegeQueryContext, PrivilegeQueryContext> container)
+        public PrivilegeInfo GetOne(Func<QueryDescriptor<PrivilegeInfo>, QueryDescriptor<PrivilegeInfo>> container)
         {
-            PrivilegeQueryContext q = container(new PrivilegeQueryContext());
+            QueryDescriptor<PrivilegeInfo> q = container(new QueryDescriptor<PrivilegeInfo>());
             return _repository.GetOne(q);
         }
 
         public int Move(int moveid, int targetid, int parentid, string position)
         {
-            int result = _repository.MoveNode(moveid,targetid,parentid,position);
+            int result = _repository.MoveNode(moveid, targetid, parentid, position);
             return result;
         }
 
@@ -123,9 +122,9 @@ namespace PureCms.Services.Security
         }
 
         #region json相关
-        public string GetJsonData(Func<PrivilegeQueryContext, PrivilegeQueryContext> container, bool nameLower = true)
+        public string GetJsonData(Func<QueryDescriptor<PrivilegeInfo>, QueryDescriptor<PrivilegeInfo>> container, bool nameLower = true)
         {
-            PrivilegeQueryContext q = container(new PrivilegeQueryContext());
+            QueryDescriptor<PrivilegeInfo> q = container(new QueryDescriptor<PrivilegeInfo>());
 
             List<PrivilegeInfo> list = _repository.GetAll(q);
             string json = string.Empty;

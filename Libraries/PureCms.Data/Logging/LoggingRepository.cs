@@ -48,14 +48,14 @@ namespace PureCms.Data.Logging
             return result.Result;
         }
 
-        public long Count(LogQueryContext q)
+        public long Count(QueryDescriptor<LogInfo> q)
         {
             ExecuteContext<LogInfo> ctx = ParseContext(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
 
-        public List<LogInfo> Top(LogQueryContext q)
+        public List<LogInfo> Top(QueryDescriptor<LogInfo> q)
         {
             ExecuteContext<LogInfo> ctx = ParseContext(q);
             var result = _repository.TopAsync(ctx);
@@ -67,7 +67,7 @@ namespace PureCms.Data.Logging
             return null;
         }
 
-        public PagedList<LogInfo> Query(LogQueryContext q)
+        public PagedList<LogInfo> Query(QueryDescriptor<LogInfo> q)
         {
             ExecuteContext<LogInfo> ctx = ParseContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -100,61 +100,28 @@ namespace PureCms.Data.Logging
 
 
         #region Utilities
-        private Sql ParseSql(LogQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseSql(QueryDescriptor<LogInfo> q, Sql otherCondition = null, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            //var columns = isCount ? "COUNT(1)" : (q.Columns != null && q.Columns.Count > 0 ? string.Join(",",q.Columns) : "log.*,users.username");
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName + " left join users on " + TableName + ".userid = users.userid");
             //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ClientIP.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.ClientIP LIKE @0", optName, TableName), "%" + q.ClientIP + "%");
-                optName = " AND ";
-            }
-            if (q.Description.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Description LIKE @0", optName, TableName), "%" + q.Description + "%");
-                optName = " AND ";
-            }
-            if (q.Url.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Url LIKE @0", optName, TableName), "%" + q.Url + "%");
-                optName = " AND ";
-            }
-            if (q.BeginTime.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.CreatedOn>=@0", optName, TableName), q.BeginTime.Value);
-                optName = " AND ";
-            }
-            if (q.EndTime.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.CreatedOn<=@0", optName, TableName), q.EndTime.Value);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
+            query.Append(PocoHelper.GetConditions<LogInfo>(q, otherCondition));
             //其它条件
             if (otherCondition != null)
             {
-                query.Append(optName);
+                query.Append("AND");
                 query.Append(otherCondition);
             }
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<LogInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<LogInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
         }
 
-        private ExecuteContext<LogInfo> ParseContext(LogQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<LogInfo> ParseContext(QueryDescriptor<LogInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<LogInfo> ctx = new ExecuteContext<LogInfo>()
             {

@@ -33,15 +33,15 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(id);
         }
 
-        public PagedList<ThemeInfo> Query(Func<ThemeQueryContext, ThemeQueryContext> container)
+        public PagedList<ThemeInfo> Query(Func<QueryDescriptor<ThemeInfo>, QueryDescriptor<ThemeInfo>> container)
         {
-            ThemeQueryContext q = container(new ThemeQueryContext());
+            QueryDescriptor<ThemeInfo> q = container(new QueryDescriptor<ThemeInfo>());
 
             return _repository.Query(q);
         }
-        public List<ThemeInfo> GetAll(Func<ThemeQueryContext, ThemeQueryContext> container)
+        public List<ThemeInfo> GetAll(Func<QueryDescriptor<ThemeInfo>, QueryDescriptor<ThemeInfo>> container)
         {
-            ThemeQueryContext q = container(new ThemeQueryContext());
+            QueryDescriptor<ThemeInfo> q = container(new QueryDescriptor<ThemeInfo>());
 
             return _repository.GetAll(q);
         }

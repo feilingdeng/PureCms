@@ -100,7 +100,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public long Count(ArticleQueryContext q)
+        public long Count(QueryDescriptor<ArticleInfo> q)
         {
             ExecuteContext<ArticleInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
@@ -111,7 +111,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public PagedList<ArticleInfo> Query(ArticleQueryContext q)
+        public PagedList<ArticleInfo> Query(QueryDescriptor<ArticleInfo> q)
         {
             ExecuteContext<ArticleInfo> ctx = ParseQueryContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -154,71 +154,10 @@ namespace PureCms.Data.Cms
         /// <param name="q">上下文</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseSelectSql(ArticleQueryContext q, bool isCount = false)
+        private Sql ParseSelectSql(QueryDescriptor<ArticleInfo> q, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        /// <summary>
-        /// 根据上下文生成过滤条件语句
-        /// </summary>
-        /// <param name="q">上下文</param>
-        /// <param name="otherCondition">其它附加过滤条件</param>
-        /// <returns></returns>
-        private Sql ParseWhereSql(ArticleQueryContext q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ArticleIdList != null && q.ArticleIdList.Any())
-            {
-                filter.Append(string.Format("{0} {1}.ArticleId IN(@0)", optName, TableName), q.ArticleIdList);
-                optName = " AND ";
-            }
-            if (q.CategoryId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ArticleCategoryId=@0", optName, TableName), q.CategoryId.Value);
-                optName = " AND ";
-            }
-            if (q.Author.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Author=@0", optName, TableName), q.Author);
-                optName = " AND ";
-            }
-            if (q.IsShow.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.IsShow=@0", optName, TableName), q.IsShow.Value == true ? 1 : 0);
-                optName = " AND ";
-            }
-            if (q.Title.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Title LIKE @0", optName, TableName), "%" + q.Title + "%");
-                optName = " AND ";
-            }
-            if (q.BeginTime.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.CreatedOn>=@0", optName, TableName), q.BeginTime.Value);
-                optName = " AND ";
-            }
-            if (q.EndTime.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.CreatedOn<=@0", optName, TableName), q.EndTime.Value);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append(optName);
-                query.Append(otherCondition);
-            }
             return query;
         }
         /// <summary>
@@ -228,14 +167,15 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseQuerySql(ArticleQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseQuerySql(QueryDescriptor<ArticleInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
-            query.Append(ParseWhereSql(q, otherCondition));
+            //过滤条件
+            query.Append(PocoHelper.GetConditions<ArticleInfo>(q, otherCondition));
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<ArticleInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<ArticleInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
@@ -247,7 +187,7 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private ExecuteContext<ArticleInfo> ParseQueryContext(ArticleQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<ArticleInfo> ParseQueryContext(QueryDescriptor<ArticleInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<ArticleInfo> ctx = new ExecuteContext<ArticleInfo>()
             {

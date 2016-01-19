@@ -24,7 +24,7 @@ namespace PureCms.Services.Security
         public bool HasPermission(CurrentUser currentUser, string className, string methodName, bool ignoreNull = true)
         {
             //获取权限项
-            var p = _privilegeService.GetOne(q=>q.Where(w=>w.ClassName, className).Where(w=>w.MethodName, methodName));
+            var p = _privilegeService.GetOne(q=>q.Where(w=>w.ClassName == className && w.MethodName == methodName));
             if (ignoreNull && null == p)
             {
                 return true;

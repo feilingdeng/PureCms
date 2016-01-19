@@ -88,7 +88,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public long Count(ChannelQueryContext q)
+        public long Count(QueryDescriptor<ChannelInfo> q)
         {
             ExecuteContext<ChannelInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
@@ -99,7 +99,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public PagedList<ChannelInfo> Query(ChannelQueryContext q)
+        public PagedList<ChannelInfo> Query(QueryDescriptor<ChannelInfo> q)
         {
             ExecuteContext<ChannelInfo> ctx = ParseQueryContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -127,7 +127,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public List<ChannelInfo> GetAll(ChannelQueryContext q)
+        public List<ChannelInfo> GetAll(QueryDescriptor<ChannelInfo> q)
         {
             ExecuteContext<ChannelInfo> ctx = ParseQueryContext(q);
             var result = _repository.GetAllAsync(ctx);
@@ -198,81 +198,10 @@ namespace PureCms.Data.Cms
         /// <param name="q">上下文</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseSelectSql(ChannelQueryContext q, bool isCount = false)
+        private Sql ParseSelectSql(QueryDescriptor<ChannelInfo> q, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        /// <summary>
-        /// 根据上下文生成过滤条件语句
-        /// </summary>
-        /// <param name="q">上下文</param>
-        /// <param name="otherCondition">其它附加过滤条件</param>
-        /// <returns></returns>
-        private Sql ParseWhereSql(ChannelQueryContext q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ChannelId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ChannelId=@0", optName, TableName), q.ChannelId.Value);
-                optName = " AND ";
-            }
-            if (q.IsEnabled.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.IsEnabled=@0", optName, TableName), q.IsEnabled.Value == true ? 1 : 0);
-                optName = " AND ";
-            }
-            if (q.IsShow.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.IsShow=@0", optName, TableName), q.IsShow.Value == true ? 1 : 0);
-                optName = " AND ";
-            }
-            if (q.Level.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.Level=@0", optName, TableName), q.Level.Value);
-                optName = " AND ";
-            }
-            if (q.ContentType.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ContentType=@0", optName, TableName), q.ContentType.Value);
-                optName = " AND ";
-            }
-            if (q.Name.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Name LIKE @0", optName, TableName), "%" + q.Name + "%");
-                optName = " AND ";
-            }
-            if (q.SiteId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.SiteId=@0", optName, TableName), q.SiteId.Value);
-                optName = " AND ";
-            }
-            if (q.Url.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Url=@0", optName, TableName), q.Url);
-                optName = " AND ";
-            }
-            if (q.ParentChannelId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ParentChannelId=@0", optName, TableName), q.ParentChannelId.Value);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append(optName);
-                query.Append(otherCondition);
-            }
             return query;
         }
         /// <summary>
@@ -282,14 +211,15 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseQuerySql(ChannelQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseQuerySql(QueryDescriptor<ChannelInfo> q, Sql otherCondition = null, bool isCount = false)
         {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount))
-                .Append(ParseWhereSql(q, otherCondition));
+            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
+            //过滤条件
+            query.Append(PocoHelper.GetConditions<ChannelInfo>(q, otherCondition));
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<ChannelInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<ChannelInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
@@ -301,7 +231,7 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private ExecuteContext<ChannelInfo> ParseQueryContext(ChannelQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<ChannelInfo> ParseQueryContext(QueryDescriptor<ChannelInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<ChannelInfo> ctx = new ExecuteContext<ChannelInfo>()
             {

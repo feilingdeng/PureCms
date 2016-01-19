@@ -52,23 +52,23 @@ namespace PureCms.Web.Admin.Controllers
             //{
             //    container.And(f => f.CreatedOn <= model.EndTime.Value);
             //}
-            ////container.Or(f => f.UserName == model.UserName && f.IsActive == true);
+            //container.Or(f => f.UserName == model.UserName && f.IsActive == true);
             //_userService.Query(x => x.Where(container));
             //_userService.Query(x => x.Where(filter => filter.And(f => f.IsActive == model.IsActive).And(f => f.IsDeleted == model.IsDeleted)));
-            //var result = _userService.Query(x => x
-            //.Page(model.Page, model.PageSize)
-            //.Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
-            //.Where(n => n.UserName == model.UserName && (n.MobileNumber.Like("138") || model.MobileNumber == n.MobileNumber)
-            //&& n.UserName.In(model.UserName.TrimEnd(), "u1", "u2") && n.Gender.IsNull() && n.IsActive.IsNotNull())
-            //.Sort(s => s.SortDescending(n => n.CreatedOn)));
 
-            PagedList<UserInfo> result = _userService.Query(x => x
-                .Page(model.Page, model.PageSize)
-                .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
-                .Where(n => n.LoginName == model.LoginName && n.IsActive == model.IsActive && n.IsDeleted == model.IsDeleted && n.MobileNumber == model.MobileNumber
-                && n.CreatedOn >= model.BeginTime && n.CreatedOn <= model.EndTime)
-                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
-            );
+            var result = _userService.Query(x => x
+            .Page(model.Page, model.PageSize)
+            .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
+            .Where(n => n.UserName == model.UserName && (n.MobileNumber.Like("138") || n.MobileNumber == model.MobileNumber)
+            && n.UserName.In(model.UserName.TrimEnd(), "u1", "u2") && n.Gender.IsNull() && n.IsActive.IsNotNull() && n.MobileNumber.Count() >= 11)
+            .Sort(s => s.SortDescending(n => n.CreatedOn)));
+
+            //PagedList<UserInfo> result = _userService.Query(x => x
+            //    .Page(model.Page, model.PageSize)
+            //    .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
+            //    .Where(container)
+            //    .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+            //);
 
             model.Items = result.Items;
             model.TotalItems = result.TotalItems;

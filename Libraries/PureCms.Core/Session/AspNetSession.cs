@@ -25,6 +25,11 @@ namespace PureCms.Core.Session
             return t;
         }
 
+        public object Get(string key)
+        {
+            return _httpContext.Session[key];
+        }
+
         public void Remove(string key)
         {
             _httpContext.Session.Remove(key);

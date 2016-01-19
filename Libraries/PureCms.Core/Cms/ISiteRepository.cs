@@ -12,9 +12,9 @@ namespace PureCms.Core.Cms
 
         bool DeleteById(int id);
 
-        long Count(SiteQueryContext q);
-        PagedList<SiteInfo> Query(SiteQueryContext q);
-        List<SiteInfo> GetAll(SiteQueryContext q);
+        long Count(QueryDescriptor<SiteInfo> q);
+        PagedList<SiteInfo> Query(QueryDescriptor<SiteInfo> q);
+        List<SiteInfo> GetAll(QueryDescriptor<SiteInfo> q);
 
         SiteInfo GetById(int id);
     }

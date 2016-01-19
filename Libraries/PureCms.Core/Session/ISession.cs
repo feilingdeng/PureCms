@@ -6,6 +6,8 @@
 
         T Get<T>(string key) where T : class, new();
 
+        object Get(string key);
+
         void Remove(string key);
 
         void Clear();

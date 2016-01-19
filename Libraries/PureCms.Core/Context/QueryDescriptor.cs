@@ -11,15 +11,9 @@ using System.Text;
 namespace PureCms.Core.Context
 {
 
-    public abstract class QueryDescriptor<T, TChild>
+    public class QueryDescriptor<T>
         where T : class
-        where TChild : class, new()
     {
-        /// <summary>
-        /// 设置接收条件值的对象
-        /// </summary>
-        /// <returns></returns>
-        public abstract object GetConditionContainer();
         private int _topCount;
         /// <summary>
         /// 查询前N条记录
@@ -62,10 +56,10 @@ namespace PureCms.Core.Context
         /// </summary>
         /// <param name="take"></param>
         /// <returns></returns>
-        public TChild Take(int take)
+        public QueryDescriptor<T> Take(int take)
         {
             _topCount = take;
-            return this as TChild;
+            return this;
         }
         /// <summary>
         /// 设置分页信息
@@ -73,7 +67,7 @@ namespace PureCms.Core.Context
         /// <param name="currentPage"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public TChild Page(int currentPage, int pageSize)
+        public QueryDescriptor<T> Page(int currentPage, int pageSize)
         {
             if (_pagingDescriptor == null)
             {
@@ -84,14 +78,14 @@ namespace PureCms.Core.Context
                 _pagingDescriptor.PageNumber = currentPage;
                 _pagingDescriptor.PageSize = pageSize;
             }
-            return this as TChild;
+            return this;
         }
         /// <summary>
         /// 设置排序信息
         /// </summary>
         /// <param name="sorts"></param>
         /// <returns></returns>
-        public TChild Sort(params SortDescriptor<T>[] sorts)
+        public QueryDescriptor<T> Sort(params SortDescriptor<T>[] sorts)
         {
             if (this._sortingDescriptor == null)
             {
@@ -104,14 +98,14 @@ namespace PureCms.Core.Context
                     this._sortingDescriptor.Add(item);
                 }
             }
-            return this as TChild;
+            return this;
         }
         /// <summary>
         /// 设置排序信息
         /// </summary>
         /// <param name="sorts"></param>
         /// <returns></returns>
-        public TChild Sort(params Func<SortDescriptor<T>, SortDescriptor<T>>[] sorts)
+        public QueryDescriptor<T> Sort(params Func<SortDescriptor<T>, SortDescriptor<T>>[] sorts)
         {
             if (this._sortingDescriptor == null)
             {
@@ -126,7 +120,7 @@ namespace PureCms.Core.Context
                     this._sortingDescriptor.Add(sd);
                 }
             }
-            return this as TChild;
+            return this;
         }
         /// <summary>
         /// 设置过滤条件
@@ -134,31 +128,37 @@ namespace PureCms.Core.Context
         /// <param name="field"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public TChild Where(Expression<Func<TChild, object>> field, object value)
-        {
-            var name = ExpressionHelper.GetPropertyName<TChild>(field);
-            Type t = typeof(TChild);
-            t.SetPropertyValue(GetConditionContainer(), name, value);
-            
-            return this as TChild;
-        }
-        public TChild Where(FilterContainer<T> filter)
-        {
+        //public TChild Where(Expression<Func<TChild, object>> field, object value)
+        //{
+        //    var name = ExpressionHelper.GetPropertyName<TChild>(field);
+        //    Type t = typeof(TChild);
+        //    t.SetPropertyValue(GetConditionContainer(), name, value);
 
-            return this as TChild;
+        //    return this as TChild;
+        //}
+        public QueryDescriptor<T> Where(FilterContainer<T> filter)
+        {
+            QueryText = filter.QueryText;
+            Parameters = filter.Parameters;
+            return this;
         }
         /// <summary>
         /// 设置过滤条件
         /// </summary>
         /// <param name="conditions"></param>
         /// <returns></returns>
-        public TChild Where(Expression<Func<T, bool>> predicate)
+        public QueryDescriptor<T> Where(Expression<Func<T, bool>> predicate)
         {
-            var translator = new QueryTranslator();
-            QueryText = translator.Translate(predicate);
-            Parameters = translator.Parameters;
+            //var translator = new QueryTranslator();
+            //QueryText = translator.Translate(predicate);
+            //Parameters = translator.Parameters;
             
-            return this as TChild;
+            ResolveExpression resolve = new ResolveExpression();
+            resolve.ResolveToSql(predicate);
+            QueryText = resolve.QueryText;
+            Parameters = resolve.Argument.Select(x => new QueryParameter(x.Key,x.Value)).ToList();
+
+            return this;
         }
         public string QueryText { get; set; }
         public List<QueryParameter> Parameters { get; set; }
@@ -170,12 +170,8 @@ namespace PureCms.Core.Context
             {
                 return _columns;
             }
-            set
-            {
-                _columns = value;
-            }
         }
-        public TChild Select(params Expression<Func<T, object>>[] fields)
+        public QueryDescriptor<T> Select(params Expression<Func<T, object>>[] fields)
         {
             if (_columns == null)
             {
@@ -186,13 +182,14 @@ namespace PureCms.Core.Context
                 if (item.Body is NewExpression)
                 {
                     var m = ((NewExpression)item.Body).Members;
-                    _columns.AddRange(m.AsEnumerable().Select(f=>f.Name));
+                    _columns.AddRange(m.AsEnumerable().Select(f => f.Name));
                 }
-                else if(item.Body is MemberExpression) {
-                    _columns.Add(((MemberExpression)item.Body).Member.Name); 
+                else if (item.Body is MemberExpression)
+                {
+                    _columns.Add(((MemberExpression)item.Body).Member.Name);
                 }
             }
-            return this as TChild;
+            return this;
         }
     }
 
@@ -201,6 +198,15 @@ namespace PureCms.Core.Context
         private QueryTranslator _translator = new QueryTranslator();
         private StringBuilder _queryText = new StringBuilder();
         private List<QueryParameter> _parameters = new List<QueryParameter>();
+        private ResolveExpression _resolver = new ResolveExpression();
+
+        public List<QueryParameter> Parameters
+        {
+            get
+            {
+                return this._parameters;
+            }
+        }
         public string QueryText
         {
             get
@@ -210,12 +216,14 @@ namespace PureCms.Core.Context
         }
         public FilterContainer<T> And(Expression<Func<T, bool>> predicate)
         {
-            if(_queryText.Length > 0)
+            if (_queryText.Length > 0)
             {
                 _queryText.Append(" AND ");
             }
-            _queryText.Append(_translator.Translate(predicate));
-            _parameters = _translator.Parameters;
+            //_queryText.Append(_translator.Translate(predicate));
+            //_parameters = _translator.Parameters;
+            _queryText.Append(_resolver.ResolveToSql(predicate).QueryText);
+            _parameters = _resolver.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }
         public FilterContainer<T> Or(Expression<Func<T, bool>> predicate)
@@ -224,13 +232,22 @@ namespace PureCms.Core.Context
             {
                 _queryText.Append(" OR ");
             }
-            _queryText.Append(_translator.Translate(predicate));
+            //_queryText.Append(_translator.Translate(predicate));
+            //_parameters = _translator.Parameters;
+            _queryText.Append(_resolver.ResolveToSql(predicate).QueryText);
+            _parameters = _resolver.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }
     }
 
     public class QueryParameter
     {
+        public QueryParameter() { }
+        public QueryParameter(string name, object value)
+        {
+            this.Name = name;
+            this.Value = value;
+        }
         public string Name { get; set; }
 
         public object Value { get; set; }
@@ -241,7 +258,7 @@ namespace PureCms.Core.Context
 
         private List<string> _parameters = new List<string>();
         private List<object> _values = new List<object>();
-        private List<QueryParameter> _params = new List<QueryParameter>();
+        //private List<QueryParameter> _params = new List<QueryParameter>();
 
         public List<QueryParameter> Parameters
         {
@@ -251,9 +268,11 @@ namespace PureCms.Core.Context
                 int i = 0;
                 foreach (var p in _parameters)
                 {
-                    result.Add(new QueryParameter() {
+                    result.Add(new QueryParameter()
+                    {
                         Name = p
-                        ,Value = _values[i]
+                        ,
+                        Value = _values[i]
                     });
                     i++;
                 }
@@ -272,16 +291,16 @@ namespace PureCms.Core.Context
             return this._queryText.ToString();
         }
 
-        private void SetParam(string key, object value)
+        private void SetParamName(string key)
         {
-            _parameters.Add(key);
-            _params.Add(new QueryParameter() { Name = key, Value = value});
+            _parameters.Add(key + _parameters.Count);
+            //_params.Add(new QueryParameter() { Name = key, Value = value });
         }
 
         private void SetParamValue(object value)
         {
-            var p = _params.Last();
-            p.Value = value;
+            //var p = _params.Last();
+            //p.Value = value;
             _values.Add(value);
         }
 
@@ -321,7 +340,7 @@ namespace PureCms.Core.Context
                         var v = GetMemberValue(n as MemberExpression);
                         values.Add(v);
                     }
-                    else if(n is ConstantExpression)
+                    else if (n is ConstantExpression)
                     {
                         values.Add(((ConstantExpression)n).Value);
                     }
@@ -333,7 +352,6 @@ namespace PureCms.Core.Context
                 }
                 _queryText.Append("@" + _values.Count);
                 _queryText.Append(") ");
-                //_values.Add(values);
                 SetParamValue(values);
                 return m;
             }
@@ -443,8 +461,7 @@ namespace PureCms.Core.Context
 
         protected override Expression VisitConstant(ConstantExpression c)
         {
-            _queryText.Append("@"+_values.Count);
-            //_values.Add(c.Value);
+            _queryText.Append("@" + _values.Count);
             SetParamValue(c.Value);
             return c;
         }
@@ -454,15 +471,14 @@ namespace PureCms.Core.Context
             if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter)
             {
                 _queryText.Append(m.Member.Name);
-                SetParam(m.Member.Name + _parameters.Count, null);
+                SetParamName(m.Member.Name);
                 return m;
             }
-            else if (m.Expression != null && m.Expression.NodeType == ExpressionType.MemberAccess)
+            else if (m.Expression != null && (m.Expression.NodeType == ExpressionType.MemberAccess || m.Expression.NodeType == ExpressionType.Constant))
             {
                 var v = GetMemberValue(m);
                 //_queryText.Append(v);
                 _queryText.Append("@" + _values.Count);
-                //_values.Add(v);
                 SetParamValue(v);
                 //SetParam(m.Member.Name + Parameters.Count, v);
                 return m;

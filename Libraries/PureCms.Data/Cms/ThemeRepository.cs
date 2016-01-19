@@ -66,7 +66,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public long Count(ThemeQueryContext q)
+        public long Count(QueryDescriptor<ThemeInfo> q)
         {
             ExecuteContext<ThemeInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
@@ -77,7 +77,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public PagedList<ThemeInfo> Query(ThemeQueryContext q)
+        public PagedList<ThemeInfo> Query(QueryDescriptor<ThemeInfo> q)
         {
             ExecuteContext<ThemeInfo> ctx = ParseQueryContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -105,7 +105,7 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public List<ThemeInfo> GetAll(ThemeQueryContext q)
+        public List<ThemeInfo> GetAll(QueryDescriptor<ThemeInfo> q)
         {
             ExecuteContext<ThemeInfo> ctx = ParseQueryContext(q);
             var result = _repository.GetAllAsync(ctx);
@@ -136,56 +136,10 @@ namespace PureCms.Data.Cms
         /// <param name="q">上下文</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseSelectSql(ThemeQueryContext q, bool isCount = false)
+        private Sql ParseSelectSql(QueryDescriptor<ThemeInfo> q, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        /// <summary>
-        /// 根据上下文生成过滤条件语句
-        /// </summary>
-        /// <param name="q">上下文</param>
-        /// <param name="otherCondition">其它附加过滤条件</param>
-        /// <returns></returns>
-        private Sql ParseWhereSql(ThemeQueryContext q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.IsEnabled.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.IsEnabled=@0", optName, TableName), q.IsEnabled.Value == true ? 1 : 0);
-                optName = " AND ";
-            }
-            if (q.Author.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Author LIKE @0", optName, TableName), "'%" + q.Author + "%'");
-                optName = " AND ";
-            }
-            if (q.DisplayName.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.DisplayName LIKE @0", optName, TableName), "'%" + q.DisplayName + "%'");
-                optName = " AND ";
-            }
-            if (q.Version.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Version=@0", optName, TableName), q.Version);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append(optName);
-                query.Append(otherCondition);
-            }
             return query;
         }
         /// <summary>
@@ -195,14 +149,15 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private Sql ParseQuerySql(ThemeQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseQuerySql(QueryDescriptor<ThemeInfo> q, Sql otherCondition = null, bool isCount = false)
         {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount))
-                .Append(ParseWhereSql(q, otherCondition));
+            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
+            //过滤条件
+            query.Append(PocoHelper.GetConditions<ThemeInfo>(q, otherCondition));
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<ThemeInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<ThemeInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
@@ -214,7 +169,7 @@ namespace PureCms.Data.Cms
         /// <param name="otherCondition">其它附加过滤条件</param>
         /// <param name="isCount">是否统计数量</param>
         /// <returns></returns>
-        private ExecuteContext<ThemeInfo> ParseQueryContext(ThemeQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<ThemeInfo> ParseQueryContext(QueryDescriptor<ThemeInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<ThemeInfo> ctx = new ExecuteContext<ThemeInfo>()
             {

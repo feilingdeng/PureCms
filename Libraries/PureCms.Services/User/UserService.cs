@@ -60,9 +60,9 @@ namespace PureCms.Services.User
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<UserInfo> Query(Func<UserQueryContext, UserQueryContext> container)
+        public PagedList<UserInfo> Query(Func<QueryDescriptor<UserInfo>, QueryDescriptor<UserInfo>> container)
         {
-            UserQueryContext q = container(new UserQueryContext());
+            QueryDescriptor<UserInfo> q = container(new QueryDescriptor<UserInfo>());
 
             return _repository.Query(q);
         }

@@ -46,13 +46,13 @@ namespace PureCms.Data.Security
             var result = _repository.DeleteAsync(id);
             return result.Result;
         }
-        public long Count(RoleQueryContext q)
+        public long Count(QueryDescriptor<RoleInfo> q)
         {
             ExecuteContext<RoleInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
-        public PagedList<RoleInfo> Query(RoleQueryContext q)
+        public PagedList<RoleInfo> Query(QueryDescriptor<RoleInfo> q)
         {
             ExecuteContext<RoleInfo> ctx = ParseQueryContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -81,7 +81,7 @@ namespace PureCms.Data.Security
             var result = _repository.GetByIdAsync(id);
             return result.Result;
         }
-        public List<RoleInfo> GetAll(RoleQueryContext q)
+        public List<RoleInfo> GetAll(QueryDescriptor<RoleInfo> q)
         {
             ExecuteContext<RoleInfo> ctx = ParseQueryContext(q);
             var result = _repository.GetAllAsync(ctx);
@@ -94,66 +94,27 @@ namespace PureCms.Data.Security
         #endregion
 
         #region Utilities
-        private Sql ParseSelectSql(RoleQueryContext q, bool isCount = false)
+        private Sql ParseSelectSql(QueryDescriptor<RoleInfo> q, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
             return query;
         }
-        private Sql ParseWhereSql(RoleQueryContext q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ParentRoleId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ParentRoleId=@0", optName, TableName), q.ParentRoleId.Value);
-                optName = " AND ";
-            }
-            if (q.RoleId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.RoleId=@0", optName, TableName), q.RoleId.Value);
-                optName = " AND ";
-            }
-            if (q.IsEnabled.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.IsEnabled=@0", optName, TableName), q.IsEnabled.Value == true ? 1 : 0);
-                optName = " AND ";
-            }
-            if (q.Name.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Name LIKE @0", optName, TableName), "%" + q.Name + "%");
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append(optName);
-                query.Append(otherCondition);
-            }
-            return query;
-        }
-        private Sql ParseQuerySql(RoleQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseQuerySql(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
-            query.Append(ParseWhereSql(q, otherCondition));
+            //过滤条件
+            query.Append(PocoHelper.GetConditions<RoleInfo>(q, otherCondition));
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<RoleInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<RoleInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
         }
 
-        private ExecuteContext<RoleInfo> ParseQueryContext(RoleQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<RoleInfo> ParseQueryContext(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<RoleInfo> ctx = new ExecuteContext<RoleInfo>()
             {

@@ -13,9 +13,9 @@ namespace PureCms.Core.Cms
 
         bool DeleteById(int id);
 
-        long Count(ChannelQueryContext q);
-        PagedList<ChannelInfo> Query(ChannelQueryContext q);
-        List<ChannelInfo> GetAll(ChannelQueryContext q);
+        long Count(QueryDescriptor<ChannelInfo> q);
+        PagedList<ChannelInfo> Query(QueryDescriptor<ChannelInfo> q);
+        List<ChannelInfo> GetAll(QueryDescriptor<ChannelInfo> q);
 
         ChannelInfo GetById(int id);
         int MoveNode(int moveid, int targetid, int parentid, string position);

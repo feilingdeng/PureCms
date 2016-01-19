@@ -26,10 +26,9 @@ namespace PureCms.Services.Cms
             {
                 entity.Level = parent.Level + 1;
             }
-            var count = _repository.Count(new ChannelQueryContext()
-            {
-                ParentChannelId = entity.ParentChannelId
-            });
+            var q = new QueryDescriptor<ChannelInfo>();
+            q.Where(n => n.ParentChannelId == entity.ParentChannelId);
+            var count = _repository.Count(q);
             entity.DisplayOrder = ((int)count + 1);
             if (entity.Level <= 0)
             {
@@ -56,16 +55,16 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(id);
         }
 
-        public PagedList<ChannelInfo> Query(Func<ChannelQueryContext, ChannelQueryContext> container)
+        public PagedList<ChannelInfo> Query(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
         {
-            ChannelQueryContext q = container(new ChannelQueryContext());
+            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
 
             return _repository.Query(q);
         }
 
-        public List<ChannelInfo> GetAll(Func<ChannelQueryContext, ChannelQueryContext> container)
+        public List<ChannelInfo> GetAll(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
         {
-            ChannelQueryContext q = container(new ChannelQueryContext());
+            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
 
             return _repository.GetAll(q);
         }
@@ -106,9 +105,9 @@ namespace PureCms.Services.Cms
         /// <param name="nameLower">属性名称是否转换为小写</param>
         /// <param name="wrapRoot">是否包含于根节点</param>
         /// <returns></returns>
-        public string GetJsonData(Func<ChannelQueryContext, ChannelQueryContext> container, bool nameLower = true, bool wrapRoot = true)
+        public string GetJsonData(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container, bool nameLower = true, bool wrapRoot = true)
         {
-            ChannelQueryContext q = container(new ChannelQueryContext());
+            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
 
             List<ChannelInfo> list = _repository.GetAll(q);
             string json = string.Empty;

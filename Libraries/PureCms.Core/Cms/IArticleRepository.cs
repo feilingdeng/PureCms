@@ -14,8 +14,8 @@ namespace PureCms.Core.Cms
         bool DeleteById(long id);
         bool DeleteById(List<long> ids);
 
-        long Count(ArticleQueryContext q);
-        PagedList<ArticleInfo> Query(ArticleQueryContext q);
+        long Count(QueryDescriptor<ArticleInfo> q);
+        PagedList<ArticleInfo> Query(QueryDescriptor<ArticleInfo> q);
 
         ArticleInfo GetById(long id);
     }

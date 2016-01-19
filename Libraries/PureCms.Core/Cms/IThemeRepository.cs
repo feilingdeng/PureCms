@@ -12,9 +12,9 @@ namespace PureCms.Core.Cms
 
         bool DeleteById(int id);
 
-        long Count(ThemeQueryContext q);
-        PagedList<ThemeInfo> Query(ThemeQueryContext q);
-        List<ThemeInfo> GetAll(ThemeQueryContext q);
+        long Count(QueryDescriptor<ThemeInfo> q);
+        PagedList<ThemeInfo> Query(QueryDescriptor<ThemeInfo> q);
+        List<ThemeInfo> GetAll(QueryDescriptor<ThemeInfo> q);
 
         ThemeInfo GetById(int id);
     }

@@ -22,7 +22,7 @@ namespace PureCms.Core.User
         bool DeleteById(int id);
         bool DeleteById(List<int> ids);
 
-        PagedList<UserInfo> Query(UserQueryContext q);
+        PagedList<UserInfo> Query(QueryDescriptor<UserInfo> q);
 
         UserInfo GetById(int id);
 

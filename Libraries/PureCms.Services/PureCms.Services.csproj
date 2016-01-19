@@ -53,7 +53,6 @@
     <Compile Include="Cms\ChannelService.cs" />
     <Compile Include="Cms\SiteService.cs" />
     <Compile Include="Cms\ThemeService.cs" />
-    <Compile Include="Common\ContextHelper.cs" />
     <Compile Include="Common\Uploader.cs" />
     <Compile Include="Configuration\EmailSetting.cs" />
     <Compile Include="Configuration\PlatformSetting.cs" />
@@ -71,9 +70,11 @@
     <Compile Include="Security\PrivilegeService.cs" />
     <Compile Include="Security\RolePrivilegesService.cs" />
     <Compile Include="Security\RoleService.cs" />
+    <Compile Include="Session\SessionService.cs" />
     <Compile Include="User\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Caching\" />
     <Folder Include="Notify\" />
     <Folder Include="Shop\" />
     <Folder Include="Task\" />

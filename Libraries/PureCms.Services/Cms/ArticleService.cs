@@ -43,9 +43,9 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<ArticleInfo> Query(Func<ArticleQueryContext, ArticleQueryContext> container)
+        public PagedList<ArticleInfo> Query(Func<QueryDescriptor<ArticleInfo>, QueryDescriptor<ArticleInfo>> container)
         {
-            ArticleQueryContext q = container(new ArticleQueryContext());
+            QueryDescriptor<ArticleInfo> q = container(new QueryDescriptor<ArticleInfo>());
 
             return _repository.Query(q);
         }

@@ -51,7 +51,7 @@ namespace PureCms.Data.Security
             var result = _repository.DeleteAsync(id);
             return result.Result;
         }
-        public long Count(PrivilegeQueryContext q)
+        public long Count(QueryDescriptor<PrivilegeInfo> q)
         {
             ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
@@ -109,7 +109,7 @@ namespace PureCms.Data.Security
 
             //return (int)ps[4].Value;
         }
-        public PagedList<PrivilegeInfo> Query(PrivilegeQueryContext q)
+        public PagedList<PrivilegeInfo> Query(QueryDescriptor<PrivilegeInfo> q)
         {
             ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
             var result = _repository.PagedAsync(ctx);
@@ -138,13 +138,13 @@ namespace PureCms.Data.Security
             var result = _repository.GetByIdAsync(id);
             return result.Result;
         }
-        public PrivilegeInfo GetOne(PrivilegeQueryContext q)
+        public PrivilegeInfo GetOne(QueryDescriptor<PrivilegeInfo> q)
         {
             ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
             var result = _repository.GetSingleAsync(ctx);
             return result.Result;
         }
-        public List<PrivilegeInfo> GetAll(PrivilegeQueryContext q)
+        public List<PrivilegeInfo> GetAll(QueryDescriptor<PrivilegeInfo> q)
         {
             ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
             var result = _repository.GetAllAsync(ctx);
@@ -158,71 +158,39 @@ namespace PureCms.Data.Security
         #endregion
 
         #region Utilities
-        private Sql ParseSelectSql(PrivilegeQueryContext q, bool isCount = false)
+        private Sql ParseSelectSql(QueryDescriptor<PrivilegeInfo> q, bool isCount = false)
         {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
             return query;
         }
-        private Sql ParseWhereSql(PrivilegeQueryContext q, Sql otherCondition = null)
+        private Sql ParseWhereSql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null)
         {
             Sql query = PetaPoco.Sql.Builder;
             //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ParentPrivilegeId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ParentPrivilegeId=@0", optName, TableName), q.ParentPrivilegeId.Value);
-                optName = " AND ";
-            }
-            if (q.Level.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.Level=@0", optName, TableName), q.Level.Value);
-                optName = " AND ";
-            }
-            if (q.Url.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Url LIKE @0", optName, TableName), "%" + q.Url + "%");
-                optName = " AND ";
-            }
-            if (q.ClassName.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.ClassName=@0", optName, TableName), q.ClassName);
-                optName = " AND ";
-            }
-            if (q.MethodName.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.MethodName=@0", optName, TableName), q.MethodName);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
+            query.Append(PocoHelper.GetConditions<PrivilegeInfo>(q, otherCondition));
             //其它条件
             if (otherCondition != null)
             {
-                query.Append(optName);
+                query.Append("AND");
                 query.Append(otherCondition);
             }
             return query;
         }
-        private Sql ParseQuerySql(PrivilegeQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private Sql ParseQuerySql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q,isCount));
             query.Append(ParseWhereSql(q,otherCondition));
             //排序
             if (isCount == false)
             {
-                query.Append(ContextHelper.GetOrderBy<PrivilegeInfo>(MetaData, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<PrivilegeInfo>(MetaData, q.SortingDescriptor));
             }
 
             return query;
         }
 
-        private Sql ParseUpdateSql(PrivilegeQueryContext q, Sql sets, Sql otherCondition = null)
+        private Sql ParseUpdateSql(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
         {
             Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName);
 
@@ -237,7 +205,7 @@ namespace PureCms.Data.Security
             return query;
         }
 
-        private ExecuteContext<PrivilegeInfo> ParseQueryContext(PrivilegeQueryContext q, Sql otherCondition = null, bool isCount = false)
+        private ExecuteContext<PrivilegeInfo> ParseQueryContext(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
         {
             ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
             {
@@ -250,7 +218,7 @@ namespace PureCms.Data.Security
 
             return ctx;
         }
-        private ExecuteContext<PrivilegeInfo> ParseUpdateContext(PrivilegeQueryContext q, Sql sets, Sql otherCondition = null)
+        private ExecuteContext<PrivilegeInfo> ParseUpdateContext(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
         {
             ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
             {
