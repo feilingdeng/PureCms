@@ -10,12 +10,17 @@ namespace PureCms.Data.Cms
 {
     public class ArticleRepository : IArticleRepository
     {
+        private static readonly DataRepository<ArticleInfo> _repository = new DataRepository<ArticleInfo>();
+
         /// <summary>
         /// 实体元数据
         /// </summary>
-        private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(ArticleInfo));
-        private static readonly IDataProvider<ArticleInfo> _repository = DataProviderFactory<ArticleInfo>.GetInstance(DataProvider.MSSQL);//new MsSqlProvider<ArticleInfo>();
-
+        private PetaPoco.Database.PocoData MetaData {
+            get
+            {
+                return _repository.MetaData;
+            }
+        }
         public ArticleRepository()
         {
         }
@@ -35,11 +40,9 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public long Create(ArticleInfo entity)
+        public int Create(ArticleInfo entity)
         {
-            var result = _repository.CreateAsync(entity);
-            long id = long.Parse(result.Result.ToString());
-            return id;
+            return _repository.Create(entity);
         }
         /// <summary>
         /// 更新记录
@@ -48,18 +51,16 @@ namespace PureCms.Data.Cms
         /// <returns></returns>
         public bool Update(ArticleInfo entity)
         {
-            var result = _repository.UpdateAsync(entity);
-            return result.Result;
+            return _repository.Update(entity);
         }
         /// <summary>
         /// 删除记录
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public bool DeleteById(long id)
+        public bool DeleteById(int id)
         {
-            var result = _repository.DeleteAsync(id);
-            return result.Result;
+            return _repository.Delete(id);
         }
 
         /// <summary>
@@ -67,33 +68,18 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public bool DeleteById(List<long> ids)
+        public bool DeleteById(List<int> ids)
         {
-            List<object> idss = ids.Select(x => x as object).ToList();
-            var result = _repository.DeleteManyAsync(idss);
-            return result.Result;
+            return _repository.Delete(ids);
         }
         /// <summary>
         /// 更新记录
         /// </summary>
-        /// <param name="sets">需要设置的字段和值</param>
-        /// <param name="q">过滤条件</param>
+        /// <param name="context">上下文</param>
         /// <returns></returns>
-        public bool Update(UpdateContext<ArticleInfo> q)
+        public bool Update(UpdateContext<ArticleInfo> context)
         {
-            Guard.ArgumentNotNullOrEmpty<KeyValuePair<string, object>>(q.Sets, "sets");
-
-            Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName + " SET ");
-            string optName = string.Empty;
-            foreach (var item in q.Sets)
-            {
-                query.Append(TableName+"." + item.Key + "=@0", item.Value);
-            }
-            var values = q.Parameters.Select(n => n.Value).ToArray();
-            query.Append("WHERE");
-            query.Append(q.QueryText, values);
-            int result = ((Database)_repository.Client).Execute(query);
-            return result > 0;
+            return _repository.Update(context);
         }
         /// <summary>
         /// 查询记录数
@@ -102,104 +88,30 @@ namespace PureCms.Data.Cms
         /// <returns></returns>
         public long Count(QueryDescriptor<ArticleInfo> q)
         {
-            ExecuteContext<ArticleInfo> ctx = ParseQueryContext(q, null, true);
-            var result = _repository.CountAsync(ctx);
-            return result.Result;
+            return _repository.Count(q);
         }
         /// <summary>
         /// 查询记录
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public PagedList<ArticleInfo> Query(QueryDescriptor<ArticleInfo> q)
+        public PagedList<ArticleInfo> QueryPaged(QueryDescriptor<ArticleInfo> q)
         {
-            ExecuteContext<ArticleInfo> ctx = ParseQueryContext(q);
-            var result = _repository.PagedAsync(ctx);
-            var pageDatas = result.Result;
-            if (pageDatas != null)
-            {
-                PagedList<ArticleInfo> list = new PagedList<ArticleInfo>()
-                {
-                    CurrentPage = pageDatas.CurrentPage
-                    ,
-                    ItemsPerPage = pageDatas.ItemsPerPage
-                    ,
-                    TotalItems = pageDatas.TotalItems
-                    ,
-                    TotalPages = pageDatas.TotalPages
-                    ,
-                    Items = pageDatas.Items
-                };
-                return list;
-            }
-            return null;
+            return _repository.QueryPaged(q);
+        }
+        public List<ArticleInfo> Query(QueryDescriptor<ArticleInfo> q)
+        {
+            return _repository.Query(q);
         }
         /// <summary>
         /// 查询一条记录
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ArticleInfo GetById(long id)
+        public ArticleInfo FindById(int id)
         {
-            var result = _repository.GetByIdAsync(id);
-            return result.Result;
+            return _repository.FindById(id);
         } 
-        #endregion
-
-
-        #region Utilities
-        /// <summary>
-        /// 根据上下文生成查询语句
-        /// </summary>
-        /// <param name="q">上下文</param>
-        /// <param name="isCount">是否统计数量</param>
-        /// <returns></returns>
-        private Sql ParseSelectSql(QueryDescriptor<ArticleInfo> q, bool isCount = false)
-        {
-            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        /// <summary>
-        /// 根据上下文生成查询语句
-        /// </summary>
-        /// <param name="q">上下文</param>
-        /// <param name="otherCondition">其它附加过滤条件</param>
-        /// <param name="isCount">是否统计数量</param>
-        /// <returns></returns>
-        private Sql ParseQuerySql(QueryDescriptor<ArticleInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
-            //过滤条件
-            query.Append(PocoHelper.GetConditions<ArticleInfo>(q, otherCondition));
-            //排序
-            if (isCount == false)
-            {
-                query.Append(PocoHelper.GetOrderBy<ArticleInfo>(MetaData, q.SortingDescriptor));
-            }
-
-            return query;
-        }
-        /// <summary>
-        /// 转换为数据库上下文
-        /// </summary>
-        /// <param name="q">实体上下文</param>
-        /// <param name="otherCondition">其它附加过滤条件</param>
-        /// <param name="isCount">是否统计数量</param>
-        /// <returns></returns>
-        private ExecuteContext<ArticleInfo> ParseQueryContext(QueryDescriptor<ArticleInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            ExecuteContext<ArticleInfo> ctx = new ExecuteContext<ArticleInfo>()
-            {
-                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
-
-            return ctx;
-        }
         #endregion
     }
 }

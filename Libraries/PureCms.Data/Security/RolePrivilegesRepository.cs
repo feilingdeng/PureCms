@@ -16,7 +16,7 @@ namespace PureCms.Data.Security
         /// 实体元数据
         /// </summary>
         private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(RolePrivilegesInfo));
-        private static readonly IDataProvider<RolePrivilegesInfo> _repository = DataProviderFactory<RolePrivilegesInfo>.GetInstance(DataProvider.MSSQL);
+        private static readonly IDataProvider<RolePrivilegesInfo> _repository = DataProviderFactory.GetInstance<RolePrivilegesInfo>(DataProvider.MSSQL);
 
         private string TableName
         {
@@ -67,14 +67,14 @@ namespace PureCms.Data.Security
         }
         public long Count(QueryDescriptor<RolePrivilegesInfo> q)
         {
-            ExecuteContext<RolePrivilegesInfo> ctx = ParseQueryContext(q, null, true);
+            ExecuteContext<RolePrivilegesInfo> ctx = PocoHelper.ParseContext<RolePrivilegesInfo>(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
         public PagedList<RolePrivilegesInfo> Query(QueryDescriptor<RolePrivilegesInfo> q)
         {
-            ExecuteContext<RolePrivilegesInfo> ctx = ParseQueryContext(q);
-            var result = _repository.PagedAsync(ctx);
+            ExecuteContext<RolePrivilegesInfo> ctx = PocoHelper.ParseContext<RolePrivilegesInfo>(q);
+            var result = _repository.QueryPagedAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -102,8 +102,8 @@ namespace PureCms.Data.Security
         }
         public List<RolePrivilegesInfo> GetAll(QueryDescriptor<RolePrivilegesInfo> q)
         {
-            ExecuteContext<RolePrivilegesInfo> ctx = ParseQueryContext(q);
-            var result = _repository.GetAllAsync(ctx);
+            ExecuteContext<RolePrivilegesInfo> ctx = PocoHelper.ParseContext<RolePrivilegesInfo>(q);
+            var result = _repository.QueryAsync(ctx);
             if (result.Result != null)
             {
                 return result.Result.ToList();
@@ -113,42 +113,42 @@ namespace PureCms.Data.Security
 
         #endregion
 
-        #region Utilities
-        private Sql ParseSelectSql(QueryDescriptor<RolePrivilegesInfo> q, bool isCount = false)
-        {
-            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            query.Append("INNER JOIN Roles ON " + TableName + ".RoleId=Roles.RoleId");
-            query.Append("INNER JOIN Privileges ON " + TableName + ".PrivilegeId=Privileges.PrivilegeId");
-            return query;
-        }
-        private Sql ParseQuerySql(QueryDescriptor<RolePrivilegesInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount)); ;
-            //过滤条件
-            query.Append(PocoHelper.GetConditions<RolePrivilegesInfo>(q, otherCondition));
-            //排序
-            if (isCount == false)
-            {
-                query.Append(PocoHelper.GetOrderBy<RolePrivilegesInfo>(MetaData, q.SortingDescriptor));
-            }
+        //#region Utilities
+        //private Sql ParseSelectSql(QueryDescriptor<RolePrivilegesInfo> q, bool isCount = false)
+        //{
+        //    var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+        //    Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
+        //    query.Append("INNER JOIN Roles ON " + TableName + ".RoleId=Roles.RoleId");
+        //    query.Append("INNER JOIN Privileges ON " + TableName + ".PrivilegeId=Privileges.PrivilegeId");
+        //    return query;
+        //}
+        //private Sql ParseQuerySql(QueryDescriptor<RolePrivilegesInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount)); ;
+        //    //过滤条件
+        //    query.Append(PocoHelper.GetConditions<RolePrivilegesInfo>(q, otherCondition));
+        //    //排序
+        //    if (isCount == false)
+        //    {
+        //        query.Append(PocoHelper.GetOrderBy<RolePrivilegesInfo>(MetaData, q.SortingDescriptor));
+        //    }
 
-            return query;
-        }
+        //    return query;
+        //}
 
-        private ExecuteContext<RolePrivilegesInfo> ParseQueryContext(QueryDescriptor<RolePrivilegesInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            ExecuteContext<RolePrivilegesInfo> ctx = new ExecuteContext<RolePrivilegesInfo>()
-            {
-                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
+        //private ExecuteContext<RolePrivilegesInfo> ParseQueryContext(QueryDescriptor<RolePrivilegesInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    ExecuteContext<RolePrivilegesInfo> ctx = new ExecuteContext<RolePrivilegesInfo>()
+        //    {
+        //        ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
+        //        ,
+        //        PagingInfo = q.PagingDescriptor
+        //        ,
+        //        TopCount = q.TopCount
+        //    };
 
-            return ctx;
-        }
-        #endregion
+        //    return ctx;
+        //}
+        //#endregion
     }
 }

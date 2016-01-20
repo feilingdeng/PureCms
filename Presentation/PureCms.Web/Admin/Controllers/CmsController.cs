@@ -12,7 +12,6 @@ namespace PureCms.Web.Admin.Controllers
     public class CmsController : BaseAdminController
     {
         private static ArticleService _articleService = new ArticleService();
-        private static ArticleCategoryService _articleCategoryService = new ArticleCategoryService();
         private static SiteService _siteService = new SiteService();
         private static ThemeService _themeService = new ThemeService();
         private static ChannelService _channelService = new ChannelService();
@@ -81,7 +80,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _siteService.GetById(id);
                 if (entity != null)
                 {
-                    model = typeof(SiteInfo).CopyTo<EditSiteModel>(entity);
+                    typeof(SiteInfo).CopyTo<EditSiteModel>(entity, model);
                 }
             }
             var themes = _themeService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
@@ -97,7 +96,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new SiteInfo();
-                entity = typeof(EditSiteModel).CopyTo<SiteInfo>(model);
+                typeof(EditSiteModel).CopyTo<SiteInfo>(model, entity);
 
                 if (entity.SiteId > 0)
                 {
@@ -153,7 +152,7 @@ namespace PureCms.Web.Admin.Controllers
                 {
                     if (entity != null)
                     {
-                        model = typeof(ChannelInfo).CopyTo<EditChannelModel>(entity);
+                        typeof(ChannelInfo).CopyTo<EditChannelModel>(entity, model);
                     }
                 }
             }
@@ -169,7 +168,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new ChannelInfo();
-                entity = typeof(EditChannelModel).CopyTo<ChannelInfo>(model);
+                typeof(EditChannelModel).CopyTo<ChannelInfo>(model, entity);
 
                 if (entity.ChannelId > 0)
                 {
@@ -341,7 +340,7 @@ namespace PureCms.Web.Admin.Controllers
         }
         [HttpGet]
         [Description("文章编辑")]
-        public ActionResult EditArticle(int channelid, long id = 0)
+        public ActionResult EditArticle(int channelid, int id = 0)
         {
             EditArticleModel model = new EditArticleModel();
             if (id > 0)
@@ -349,7 +348,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _articleService.GetById(id);
                 if (entity != null)
                 {
-                    model = typeof(ArticleInfo).CopyTo<EditArticleModel>(entity);
+                    typeof(ArticleInfo).CopyTo<EditArticleModel>(entity, model);
                 }
                 var channel = _channelService.GetById(entity.ChannelId);
                 model.ChannelName = channel.Name;
@@ -378,7 +377,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new ArticleInfo();
-                entity = typeof(EditArticleModel).CopyTo<ArticleInfo>(model);
+                typeof(EditArticleModel).CopyTo<ArticleInfo>(model, entity);
 
                 if (entity.ArticleId > 0)
                 {
@@ -411,7 +410,7 @@ namespace PureCms.Web.Admin.Controllers
         }
         [Description("删除文章")]
         [HttpPost]
-        public ActionResult DeleteArticle(long[] recordid)
+        public ActionResult DeleteArticle(int[] recordid)
         {
             string msg = string.Empty;
             bool flag = false;
@@ -432,7 +431,7 @@ namespace PureCms.Web.Admin.Controllers
         }
         [Description("设置文章显示状态")]
         [HttpPost]
-        public ActionResult SetArticleShow(long[] recordid, bool isShow)
+        public ActionResult SetArticleShow(int[] recordid, bool isShow)
         {
             string msg = string.Empty;
             bool flag = false;

@@ -107,6 +107,11 @@ namespace PureCms.Core.Context
                     object value = GetValue(binary.Right);
                     return ResolveLinqToObject(binary.Left, value, binary.NodeType);
                 }
+                else if (binary.Left is UnaryExpression)
+                {
+                    object value = GetValue(binary.Right);
+                    return ResolveFunc(binary.Left, value, binary.NodeType);
+                }
             }
             else if (expression is UnaryExpression)//解析一元运算符
             {
@@ -175,7 +180,14 @@ namespace PureCms.Core.Context
 
         private string ResolveFunc(Expression left, object value, ExpressionType expressiontype)
         {
-            var me = left as MemberExpression;
+            MemberExpression me = null;
+            if (left is UnaryExpression)
+            {
+                me = (left as UnaryExpression).Operand as MemberExpression;
+            }
+            else {
+                me = left as MemberExpression;
+            }
             string name = me.Member.Name;
             string operatorName = GetOperatorName(expressiontype);
             return BuildQuery(me.Expression.Type, name, operatorName, value.ToString());
@@ -247,14 +259,15 @@ namespace PureCms.Core.Context
                 }
                 else if (n is MethodCallExpression)
                 {
-                    value = GetMemberValue(((MethodCallExpression)n).Object as MemberExpression);
+                    value = GetMemberValue(GetMemberExpression((MethodCallExpression)n));// (((MethodCallExpression)n).Object as MemberExpression);
                 }
                 string Key = SetArgument(name_para, value);
                 inParas.Add(Key);
                 i++;
             }
-            var me = (MemberExpression)expression.Arguments[0];
-            string name = me.Member.Name;
+            string name = string.Empty;
+            MemberExpression me = GetMemberExpression(expression);
+            name = GetMemberName(expression);
             string operatorName = Convert.ToBoolean(isTrue) ? "IN" : "NOT IN";
             string paraName = string.Join(",", inParas);
             string result = string.Format("{0} {1} ({2})", PocoHelper.FormatColumn(me.Expression.Type, name), operatorName, paraName);
@@ -265,8 +278,9 @@ namespace PureCms.Core.Context
         {
             object val = GetValue(expression.Arguments[1]);
             string value = string.Format("%{0}%", val);
-            var me = (MemberExpression)expression.Arguments[0];
-            string name = me.Member.Name;
+            string name = string.Empty;
+            MemberExpression me = GetMemberExpression(expression);
+            name = GetMemberName(expression);
             string paraName = SetArgument(name, value);
             string result = string.Format("{0} LIKE {1}", PocoHelper.FormatColumn(me.Expression.Type, name), paraName);
             return result;
@@ -274,8 +288,9 @@ namespace PureCms.Core.Context
 
         private string Len(MethodCallExpression expression, object value, ExpressionType expressiontype)
         {
-            var me = expression.Arguments[0] as MemberExpression;
-            string name = me.Member.Name;
+            string name = string.Empty;
+            MemberExpression me = GetMemberExpression(expression);
+            name = GetMemberName(expression);
             string operatorName = GetOperatorName(expressiontype);
             string paraName = SetArgument(name, value.ToString());
             string result = string.Format("LEN({0}){1}{2}", PocoHelper.FormatColumn(me.Expression.Type, name), operatorName, paraName);
@@ -285,19 +300,43 @@ namespace PureCms.Core.Context
         private string IsNull(MethodCallExpression expression, bool isNull = true)
         {
             string name = string.Empty;
+            MemberExpression me = GetMemberExpression(expression);
+            name = GetMemberName(expression);
+            string result = string.Format("{0} IS{1}NULL", PocoHelper.FormatColumn(me.Expression.Type, name), isNull ? " " : " NOT ");
+            return result;
+        }
+
+        private string GetMemberName(MethodCallExpression expression)
+        {
+            string name = string.Empty;
+            if (expression.Arguments[0] is UnaryExpression)
+            {
+                name = (((UnaryExpression)expression.Arguments[0]).Operand as MemberExpression).Member.Name;
+            }
+            else {
+                name = ((MemberExpression)expression.Arguments[0]).Member.Name;
+            }
+            return name;
+        }
+
+        private MemberExpression GetMemberExpression(MethodCallExpression expression)
+        {
             MemberExpression me = null;
 
             if (expression.Arguments[0] is MemberExpression)
             {
                 me = expression.Arguments[0] as MemberExpression;
             }
-            else if(expression.Arguments[0] is UnaryExpression)
+            else if (expression.Arguments[0] is UnaryExpression)
             {
                 me = ((UnaryExpression)expression.Arguments[0]).Operand as MemberExpression;
             }
-            name = me.Member.Name;
-            string result = string.Format("{0} IS{1}NULL", PocoHelper.FormatColumn(me.Expression.Type, name), isNull ? " " : " NOT ");
-            return result;
+            else if(expression.Object is MemberExpression)
+            {
+                me = expression.Object as MemberExpression;
+            }
+
+            return me;
         }
     }
 }

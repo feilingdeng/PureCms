@@ -64,7 +64,7 @@ namespace PureCms.Web.Admin.Controllers
             {
                 PrivilegeInfo entity = (model.PrivilegeId.HasValue && model.PrivilegeId.Value > 0) ? _privilegeService.GetById(model.PrivilegeId.Value) : new PrivilegeInfo();
 
-                entity = typeof(EditPrivilegeModel).CopyTo<PrivilegeInfo>(model);
+                typeof(EditPrivilegeModel).CopyTo<PrivilegeInfo>(model, entity);
 
                 if (entity.PrivilegeId > 0)
                 {
@@ -164,7 +164,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _roleService.GetById(id);
                 if (entity != null)
                 {
-                    model = typeof(RoleInfo).CopyTo<EditRoleModel>(entity);
+                    typeof(RoleInfo).CopyTo<EditRoleModel>(entity, model);
                 }
             }
             return View(model);
@@ -177,7 +177,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 RoleInfo entity = new RoleInfo();
-                entity = typeof(EditRoleModel).CopyTo<RoleInfo>(model);
+                typeof(EditRoleModel).CopyTo<RoleInfo>(model, entity);
 
                 if (entity.RoleId > 0)
                 {

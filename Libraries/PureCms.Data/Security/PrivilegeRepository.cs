@@ -20,7 +20,7 @@ namespace PureCms.Data.Security
         /// 实体元数据
         /// </summary>
         private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(PrivilegeInfo));
-        private static readonly IDataProvider<PrivilegeInfo> _repository = DataProviderFactory<PrivilegeInfo>.GetInstance(DataProvider.MSSQL);
+        private static readonly IDataProvider<PrivilegeInfo> _repository = DataProviderFactory.GetInstance<PrivilegeInfo>(DataProvider.MSSQL);
 
         private string TableName{
             get
@@ -53,7 +53,7 @@ namespace PureCms.Data.Security
         }
         public long Count(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q, null, true);
+            ExecuteContext<PrivilegeInfo> ctx = PocoHelper.ParseContext<PrivilegeInfo>(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
@@ -111,8 +111,8 @@ namespace PureCms.Data.Security
         }
         public PagedList<PrivilegeInfo> Query(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
-            var result = _repository.PagedAsync(ctx);
+            ExecuteContext<PrivilegeInfo> ctx = PocoHelper.ParseContext<PrivilegeInfo>(q);
+            var result = _repository.QueryPagedAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -140,14 +140,14 @@ namespace PureCms.Data.Security
         }
         public PrivilegeInfo GetOne(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
+            ExecuteContext<PrivilegeInfo> ctx = PocoHelper.ParseContext<PrivilegeInfo>(q);
             var result = _repository.GetSingleAsync(ctx);
             return result.Result;
         }
         public List<PrivilegeInfo> GetAll(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
-            var result = _repository.GetAllAsync(ctx);
+            ExecuteContext<PrivilegeInfo> ctx = PocoHelper.ParseContext<PrivilegeInfo>(q);
+            var result = _repository.QueryAsync(ctx);
             if (result.Result != null)
             {
                 return result.Result.ToList();
@@ -157,81 +157,81 @@ namespace PureCms.Data.Security
         
         #endregion
 
-        #region Utilities
-        private Sql ParseSelectSql(QueryDescriptor<PrivilegeInfo> q, bool isCount = false)
-        {
-            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        private Sql ParseWhereSql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            query.Append(PocoHelper.GetConditions<PrivilegeInfo>(q, otherCondition));
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append("AND");
-                query.Append(otherCondition);
-            }
-            return query;
-        }
-        private Sql ParseQuerySql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q,isCount));
-            query.Append(ParseWhereSql(q,otherCondition));
-            //排序
-            if (isCount == false)
-            {
-                query.Append(PocoHelper.GetOrderBy<PrivilegeInfo>(MetaData, q.SortingDescriptor));
-            }
+        //#region Utilities
+        //private Sql ParseSelectSql(QueryDescriptor<PrivilegeInfo> q, bool isCount = false)
+        //{
+        //    var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+        //    Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
+        //    return query;
+        //}
+        //private Sql ParseWhereSql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null)
+        //{
+        //    Sql query = PetaPoco.Sql.Builder;
+        //    //过滤条件
+        //    query.Append(PocoHelper.GetConditions<PrivilegeInfo>(q, otherCondition));
+        //    //其它条件
+        //    if (otherCondition != null)
+        //    {
+        //        query.Append("AND");
+        //        query.Append(otherCondition);
+        //    }
+        //    return query;
+        //}
+        //private Sql ParseQuerySql(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q,isCount));
+        //    query.Append(ParseWhereSql(q,otherCondition));
+        //    //排序
+        //    if (isCount == false)
+        //    {
+        //        query.Append(PocoHelper.GetOrderBy<PrivilegeInfo>(MetaData, q.SortingDescriptor));
+        //    }
 
-            return query;
-        }
+        //    return query;
+        //}
 
-        private Sql ParseUpdateSql(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName);
+        //private Sql ParseUpdateSql(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
+        //{
+        //    Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName);
 
-            if (sets.SQL.IsNotEmpty())
-            {
-                query.Append(" SET ");
-                query.Append(sets);
-            }
+        //    if (sets.SQL.IsNotEmpty())
+        //    {
+        //        query.Append(" SET ");
+        //        query.Append(sets);
+        //    }
 
-            query.Append(ParseWhereSql(q, otherCondition));
+        //    query.Append(ParseWhereSql(q, otherCondition));
 
-            return query;
-        }
+        //    return query;
+        //}
 
-        private ExecuteContext<PrivilegeInfo> ParseQueryContext(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
-            {
-                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
+        //private ExecuteContext<PrivilegeInfo> ParseQueryContext(QueryDescriptor<PrivilegeInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
+        //    {
+        //        ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
+        //        ,
+        //        PagingInfo = q.PagingDescriptor
+        //        ,
+        //        TopCount = q.TopCount
+        //    };
 
-            return ctx;
-        }
-        private ExecuteContext<PrivilegeInfo> ParseUpdateContext(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
-        {
-            ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
-            {
-                ExecuteContainer = ParseUpdateSql(q, sets, otherCondition)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
+        //    return ctx;
+        //}
+        //private ExecuteContext<PrivilegeInfo> ParseUpdateContext(QueryDescriptor<PrivilegeInfo> q, Sql sets, Sql otherCondition = null)
+        //{
+        //    ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
+        //    {
+        //        ExecuteContainer = ParseUpdateSql(q, sets, otherCondition)
+        //        ,
+        //        PagingInfo = q.PagingDescriptor
+        //        ,
+        //        TopCount = q.TopCount
+        //    };
 
-            return ctx;
-        }
-        #endregion
+        //    return ctx;
+        //}
+        //#endregion
     }
 
    

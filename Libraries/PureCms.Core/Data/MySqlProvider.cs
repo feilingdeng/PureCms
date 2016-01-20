@@ -3,6 +3,7 @@ using PureCms.Core.Domain;
 using PetaPoco;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace PureCms.Core.Data
 {
@@ -12,121 +13,97 @@ namespace PureCms.Core.Data
     /// <typeparam name="T"></typeparam>
     public class MySqlProvider<T> : IDataProvider<T> where T : BaseEntity
     {
-        /// <summary>
-        /// 查询上下文
-        /// </summary>
-        public IExecuteContext<T> CurrentQueryContext { get; private set; }
-        /// <summary>
-        /// 最大查询数
-        /// </summary>
-        public int MaxSearchCount = 25000;
-        protected Database DbContext
-        {
-            get
-            {
-                return new PetaPoco.Database("mysqlconnectionstring");
-            }
-        }
-
         public object Client
         {
             get
             {
-                return DbContext;
+                throw new NotImplementedException();
             }
         }
-        public virtual void BeginTransaction()
-        {
-            DbContext.BeginTransaction();
-        }
-        public virtual void CompleteTransaction()
-        {
-            DbContext.CompleteTransaction();
-        }
-        public virtual void AbortTransaction()
-        {
-            DbContext.AbortTransaction();
-        }
 
-
-        public Task<bool> ExistsAsync(IExecuteContext<T> q)
+        public Task<long> CountAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<long> CountAsync(IExecuteContext<T> q)
-        {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Task<object> CreateAsync(T entity)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Task<bool> CreateManyAsync(IEnumerable<T> entities)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> UpdateAsync(T entity)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> UpdateManyAsync(IEnumerable<T> entities)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> UpdateByQueryAsync(IExecuteContext<T> q)
-        {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Task<bool> DeleteAsync(object id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteByQueryAsync(IExecuteContext<T> context)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<bool> DeleteManyAsync(IEnumerable<object> ids)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteByQueryAsync(IExecuteContext<T> q)
+        public Task<int> ExecuteAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ExistsAsync(IExecuteContext<T> context)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<T> GetByIdAsync(object id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<T> GetSingleAsync(IExecuteContext<T> q)
+        public Task<T> GetSingleAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> q)
+        public Task<IEnumerable<T>> QueryAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<Page<T>> PagedAsync(IExecuteContext<T> q)
+        public Task<Page<T>> QueryPagedAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<T>> TopAsync(IExecuteContext<T> q)
+        public Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<T>> GetAllAsync(IExecuteContext<T> q)
+        public Task<IEnumerable<T>> TopAsync(IExecuteContext<T> context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateAsync(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateByQueryAsync(IExecuteContext<T> context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateManyAsync(IEnumerable<T> entities)
+        {
+            throw new NotImplementedException();
         }
     }
 }

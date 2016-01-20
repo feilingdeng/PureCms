@@ -10,21 +10,23 @@ namespace PureCms.Core.Data
      where T : BaseEntity
     {
         object Client { get; }
-        Task<bool> ExistsAsync(IExecuteContext<T> q);
-        Task<long> CountAsync(IExecuteContext<T> q);
+        Task<bool> ExistsAsync(IExecuteContext<T> context);
+        Task<long> CountAsync(IExecuteContext<T> context);
         Task<object> CreateAsync(T entity);
         Task<bool> CreateManyAsync(IEnumerable<T> entities);
         Task<bool> UpdateAsync(T entity);
         Task<bool> UpdateManyAsync(IEnumerable<T> entities);
-        Task<bool> UpdateByQueryAsync(IExecuteContext<T> q);
+        Task<bool> UpdateByQueryAsync(IExecuteContext<T> context);
         Task<bool> DeleteAsync(object id);
         Task<bool> DeleteManyAsync(IEnumerable<object> ids);
-        Task<bool> DeleteByQueryAsync(IExecuteContext<T> q);
+        Task<bool> DeleteByQueryAsync(IExecuteContext<T> context);
         Task<T> GetByIdAsync(object id);
-        Task<T> GetSingleAsync(IExecuteContext<T> q);
-        Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> q);
-        Task<Page<T>> PagedAsync(IExecuteContext<T> q);
-        Task<IEnumerable<T>> TopAsync(IExecuteContext<T> q);
-        Task<IEnumerable<T>> GetAllAsync(IExecuteContext<T> q);
+        Task<T> GetSingleAsync(IExecuteContext<T> context);
+        Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> context);
+        Task<Page<T>> QueryPagedAsync(IExecuteContext<T> context);
+        Task<IEnumerable<T>> TopAsync(IExecuteContext<T> context);
+        Task<IEnumerable<T>> QueryAsync(IExecuteContext<T> context);
+
+        Task<int> ExecuteAsync(IExecuteContext<T> context);
     }
 }

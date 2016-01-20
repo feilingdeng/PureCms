@@ -42,12 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cms\ArticleCategoryRepository.cs" />
     <Compile Include="Cms\ArticleRepository.cs" />
     <Compile Include="Cms\ChannelRepository.cs" />
     <Compile Include="Cms\SiteRepository.cs" />
     <Compile Include="Cms\ThemeRepository.cs" />
     <Compile Include="Configuration\SettingRepository.cs" />
+    <Compile Include="DataRepository.cs" />
     <Compile Include="Logging\LoggingRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\PrivilegeRepository.cs" />

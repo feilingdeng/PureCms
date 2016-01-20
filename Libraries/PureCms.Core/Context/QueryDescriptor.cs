@@ -149,10 +149,6 @@ namespace PureCms.Core.Context
         /// <returns></returns>
         public QueryDescriptor<T> Where(Expression<Func<T, bool>> predicate)
         {
-            //var translator = new QueryTranslator();
-            //QueryText = translator.Translate(predicate);
-            //Parameters = translator.Parameters;
-            
             ResolveExpression resolve = new ResolveExpression();
             resolve.ResolveToSql(predicate);
             QueryText = resolve.QueryText;
@@ -181,12 +177,17 @@ namespace PureCms.Core.Context
             {
                 if (item.Body is NewExpression)
                 {
-                    var m = ((NewExpression)item.Body).Members;
+                    var m = (item.Body as NewExpression).Members;
                     _columns.AddRange(m.AsEnumerable().Select(f => f.Name));
                 }
                 else if (item.Body is MemberExpression)
                 {
-                    _columns.Add(((MemberExpression)item.Body).Member.Name);
+                    _columns.Add((item.Body as MemberExpression).Member.Name);
+                }
+                else if (item.Body is UnaryExpression)
+                {
+                    var me = (item.Body as UnaryExpression).Operand as MemberExpression;
+                    _columns.Add(me.Member.Name);
                 }
             }
             return this;

@@ -2,6 +2,7 @@
 using PureCms.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace PureCms.Core.Context
@@ -12,7 +13,7 @@ namespace PureCms.Core.Context
     /// <typeparam name="T"></typeparam>
     public class UpdateContext<T> where T : BaseEntity
     {
-        private QueryTranslator _translator = new QueryTranslator();
+        private ResolveExpression _resolver = new ResolveExpression();
         private string _queryText = string.Empty;
         public string QueryText { get { return this._queryText; } }
         private List<QueryParameter> _parameters = new List<QueryParameter>();
@@ -28,8 +29,9 @@ namespace PureCms.Core.Context
 
         public UpdateContext<T> Where(Expression<Func<T, bool>> predicate)
         {
-            this._queryText = _translator.Translate(predicate);
-            this._parameters = _translator.Parameters;
+            _resolver.ResolveToSql(predicate);
+            this._queryText = _resolver.QueryText;
+            this._parameters = _resolver.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }
 

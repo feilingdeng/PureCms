@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cms\ArticleCategoryService.cs" />
     <Compile Include="Cms\ArticleService.cs" />
     <Compile Include="Cms\ChannelService.cs" />
     <Compile Include="Cms\SiteService.cs" />

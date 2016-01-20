@@ -13,9 +13,9 @@ namespace PureCms
         }
 
 
-        public static T CopyTo<T>(this Type sourceType, object sourceInstance) where T : class , new()
+        public static void CopyTo<T>(this Type sourceType, object sourceInstance, T targetInstance) where T : class , new()
         {
-            T target = new T();
+            //T target = new T();
             var targetType = typeof(T);
             var targetProps = targetType.GetProperties().ToList();
             foreach (var item in targetProps)
@@ -25,11 +25,11 @@ namespace PureCms
                     var sourceProp = sourceType.GetProperty(item.Name);
                     if (null != sourceProp && sourceProp.CanRead)
                     {
-                        targetType.SetPropertyValue(target, item.Name, sourceProp.GetValue(sourceInstance));
+                        targetType.SetPropertyValue(targetInstance, item.Name, sourceProp.GetValue(sourceInstance));
                     }
                 }
             }
-            return target;
+            //return targetInstance;
         }
         /// <summary>
         /// 设置对象的属性值

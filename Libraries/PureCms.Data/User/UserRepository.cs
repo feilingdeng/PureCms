@@ -1,25 +1,24 @@
 ﻿using PureCms.Core.User;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PureCms.Core.Domain.User;
-using PureCms.Core.Data;
-using PetaPoco;
 using PureCms.Core.Context;
-using PureCms.Core;
-using PureCms.Core.Domain;
 
 namespace PureCms.Data.User
 {
     public class UserRepository : IUserRepository
     {
+        private static readonly DataRepository<UserInfo> _repository = new DataRepository<UserInfo>();
+
         /// <summary>
         /// 实体元数据
         /// </summary>
-        private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(UserInfo));
-        private static readonly IDataProvider<UserInfo> _repository = DataProviderFactory<UserInfo>.GetInstance(DataProvider.MSSQL);
+        private PetaPoco.Database.PocoData MetaData
+        {
+            get
+            {
+                return _repository.MetaData;
+            }
+        }
 
         private string TableName
         {
@@ -35,61 +34,53 @@ namespace PureCms.Data.User
         public bool ExistsEmail(string email, int currentUserId = 0)
         {
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.EmailAddress == email);
-            var otherCondition = PetaPoco.Sql.Builder;
+            FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
+            filter.And(w => w.EmailAddress == email);
             if (currentUserId > 0)
             {
-                otherCondition.Append("UserId != @0", currentUserId);
+                filter.And(w => w.UserId != currentUserId);
             }
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q, otherCondition);
-            var result = _repository.ExistsAsync(ctx);
-            return result.Result;
+            q.Where(filter);
+            return _repository.Exists(q);
         }
         public bool ExistsUserName(string userName, int currentUserId = 0)
         {
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.UserName == userName);
-            var otherCondition = PetaPoco.Sql.Builder;
+            FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
+            filter.And(w => w.UserName == userName);
             if (currentUserId > 0)
             {
-                otherCondition.Append("UserId != @0", currentUserId);
+                filter.And(w => w.UserId != currentUserId);
             }
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q, otherCondition);
-            var result = _repository.ExistsAsync(ctx);
-            return result.Result;
+            q.Where(filter);
+            return _repository.Exists(q);
         }
         public bool ExistsMobile(string mobileNumber, int currentUserId = 0)
         {
-
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.MobileNumber == mobileNumber);
-            var otherCondition = PetaPoco.Sql.Builder;
+            FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
+            filter.And(w => w.MobileNumber == mobileNumber);
             if (currentUserId > 0)
             {
-                otherCondition.Append("UserId != @0", currentUserId);
+                filter.And(w=>w.UserId != currentUserId);
             }
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q, otherCondition);
-            var result = _repository.ExistsAsync(ctx);
-            return result.Result;
+            q.Where(filter);
+            return _repository.Exists(q);
         }
 
         public int Create(UserInfo entity)
         {
-            var result = _repository.CreateAsync(entity);
-            int id = int.Parse(result.Result.ToString());
-            return (int)id;
+            return _repository.Create(entity);
         }
 
         public bool Update(UserInfo entity)
         {
-            var result = _repository.UpdateAsync(entity);
-            return result.Result;
+            return _repository.Update(entity);
         }
 
         public bool DeleteById(int id)
         {
-            var result = _repository.DeleteAsync(id);
-            return result.Result;
+            return _repository.Delete(id);
         }
         /// <summary>
         /// 删除记录
@@ -98,123 +89,55 @@ namespace PureCms.Data.User
         /// <returns></returns>
         public bool DeleteById(List<int> ids)
         {
-            List<object> idss = ids.Select(x => x as object).ToList();
-            var result = _repository.DeleteManyAsync(idss);
-            return result.Result;
+            return _repository.Delete(ids);
         }
 
-        public PagedList<UserInfo> Query(QueryDescriptor<UserInfo> q)
+        public PagedList<UserInfo> QueryPaged(QueryDescriptor<UserInfo> q)
         {
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.PagedAsync(ctx);
-            var pageDatas = result.Result;
-            if (pageDatas != null)
-            {
-                PagedList<UserInfo> list = new PagedList<UserInfo>()
-                {
-                    CurrentPage = pageDatas.CurrentPage
-                    ,
-                    ItemsPerPage = pageDatas.ItemsPerPage
-                    ,
-                    TotalItems = pageDatas.TotalItems
-                    ,
-                    TotalPages = pageDatas.TotalPages
-                    ,
-                    Items = pageDatas.Items
-                };
-                return list;
-            }
-            return null;
+            return _repository.QueryPaged(q);
+        }
+        public List<UserInfo> Query(QueryDescriptor<UserInfo> q)
+        {
+            return _repository.Query(q);
         }
 
-        public UserInfo GetById(int id)
+        public UserInfo FindById(int id)
         {
-            var result = _repository.GetByIdAsync(id);
-            return result.Result;
+            return _repository.FindById(id);
         }
 
-        public UserInfo GetByEmail(string email)
+        public UserInfo FindByEmail(string email)
         {
-            QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.EmailAddress == email);
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(w => w.EmailAddress == email);
         }
 
-        public UserInfo GetByUserName(string userName)
+        public UserInfo FindByUserName(string userName)
         {
-            QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.UserName == userName);
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(w => w.UserName == userName);
         }
 
-        public UserInfo GetByMobile(string mobileNumber)
+        public UserInfo FindByMobile(string mobileNumber)
         {
-            QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.MobileNumber == mobileNumber);
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(w => w.MobileNumber == mobileNumber);
         }
 
-        public UserInfo GetByLoginName(string loginName)
+        public UserInfo FindByLoginName(string loginName)
         {
-            QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w => w.LoginName == loginName);
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(w => w.LoginName == loginName);
         }
 
-        public UserInfo GetByLoginNameAndPassword(string loginName, string password)
+        public UserInfo FindByLoginNameAndPassword(string loginName, string password)
         {
-            QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
-            q.Where(w=>w.LoginName == loginName && w.Password == password);
-            ExecuteContext<UserInfo> ctx = PocoHelper.ParseContext<UserInfo>(ParseSql, q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(w => w.LoginName == loginName && w.Password == password);
         }
         /// <summary>
         /// 更新记录
         /// </summary>
-        /// <param name="sets">需要设置的字段和值</param>
-        /// <param name="q">过滤条件</param>
+        /// <param name="context">上下文</param>
         /// <returns></returns>
-        public bool Update(UpdateContext<UserInfo> q)
+        public bool Update(UpdateContext<UserInfo> context)
         {
-            Guard.ArgumentNotNullOrEmpty<KeyValuePair<string, object>>(q.Sets, "sets");
-
-            Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName + " SET ");
-            string optName = string.Empty;
-            foreach (var item in q.Sets)
-            {
-                query.Append("["+TableName + "].[" + item.Key + "]=@0", item.Value);
-            }
-            query.Append(PocoHelper.GetConditions(q.QueryText, q.Parameters));
-            int result = ((Database)_repository.Client).Execute(query);
-            return result > 0;
-        }
-        #endregion
-
-        #region Utilities
-        private Sql ParseSql(QueryDescriptor<UserInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM [" + TableName + "]");
-
-            //过滤条件
-            query.Append(PocoHelper.GetConditions<UserInfo>(q, otherCondition));
-
-            //排序
-            if (isCount == false)
-            {
-                query.Append(PocoHelper.GetOrderBy<UserInfo>(MetaData, q.SortingDescriptor));
-            }
-
-            return query;
+            return _repository.Update(context);
         }
         #endregion
     }

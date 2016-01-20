@@ -23,23 +23,23 @@ namespace PureCms.Services.User
 
         public UserInfo GetUserByUserName(string userName)
         {
-            return _repository.GetByUserName(userName);
+            return _repository.FindByUserName(userName);
         }
         public UserInfo GetUserByEmail(string email)
         {
-            return _repository.GetByEmail(email);
+            return _repository.FindByEmail(email);
         }
         public UserInfo GetUserByMobile(string mobileNumber)
         {
-            return _repository.GetByMobile(mobileNumber);
+            return _repository.FindByMobile(mobileNumber);
         }
         public UserInfo GetUserByLoginName(string loginName)
         {
-            return _repository.GetByLoginName(loginName);
+            return _repository.FindByLoginName(loginName);
         }
         public UserInfo GetUserByLoginNameAndPassword(string loginName, string password)
         {
-            return _repository.GetByLoginNameAndPassword(loginName, password);
+            return _repository.FindByLoginNameAndPassword(loginName, password);
         }
         public bool IsValidePassword(string inputPassword, string salt, string userPassword)
         {
@@ -48,7 +48,7 @@ namespace PureCms.Services.User
 
         public UserInfo GetById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.FindById(id);
         }
         public bool DeleteById(int id)
         {
@@ -64,7 +64,7 @@ namespace PureCms.Services.User
         {
             QueryDescriptor<UserInfo> q = container(new QueryDescriptor<UserInfo>());
 
-            return _repository.Query(q);
+            return _repository.QueryPaged(q);
         }
         public bool Update(Func<UpdateContext<UserInfo>, UpdateContext<UserInfo>> context)
         {

@@ -11,7 +11,7 @@ namespace PureCms.Core.Domain.Cms
     [PrimaryKey("ArticleId", autoIncrement = true)]
     public class ArticleInfo : BaseEntity
     {
-        public long ArticleId { get; set; }
+        public int ArticleId { get; set; }
         public int CategoryId { get; set; }
         public int ChannelId { get; set; }
 

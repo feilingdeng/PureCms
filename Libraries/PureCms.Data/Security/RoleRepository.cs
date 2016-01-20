@@ -14,7 +14,7 @@ namespace PureCms.Data.Security
         /// 实体元数据
         /// </summary>
         private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(RoleInfo));
-        private static readonly IDataProvider<RoleInfo> _repository = DataProviderFactory<RoleInfo>.GetInstance(DataProvider.MSSQL);
+        private static readonly IDataProvider<RoleInfo> _repository = DataProviderFactory.GetInstance<RoleInfo>(DataProvider.MSSQL);
 
         private string TableName
         {
@@ -48,14 +48,14 @@ namespace PureCms.Data.Security
         }
         public long Count(QueryDescriptor<RoleInfo> q)
         {
-            ExecuteContext<RoleInfo> ctx = ParseQueryContext(q, null, true);
+            ExecuteContext<RoleInfo> ctx = PocoHelper.ParseContext<RoleInfo>(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
         public PagedList<RoleInfo> Query(QueryDescriptor<RoleInfo> q)
         {
-            ExecuteContext<RoleInfo> ctx = ParseQueryContext(q);
-            var result = _repository.PagedAsync(ctx);
+            ExecuteContext<RoleInfo> ctx = PocoHelper.ParseContext<RoleInfo>(q);
+            var result = _repository.QueryPagedAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -83,8 +83,8 @@ namespace PureCms.Data.Security
         }
         public List<RoleInfo> GetAll(QueryDescriptor<RoleInfo> q)
         {
-            ExecuteContext<RoleInfo> ctx = ParseQueryContext(q);
-            var result = _repository.GetAllAsync(ctx);
+            ExecuteContext<RoleInfo> ctx = PocoHelper.ParseContext<RoleInfo>(q);
+            var result = _repository.QueryAsync(ctx);
             if (result.Result != null)
             {
                 return result.Result.ToList();
@@ -93,40 +93,40 @@ namespace PureCms.Data.Security
         }
         #endregion
 
-        #region Utilities
-        private Sql ParseSelectSql(QueryDescriptor<RoleInfo> q, bool isCount = false)
-        {
-            var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        private Sql ParseQuerySql(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
-            //过滤条件
-            query.Append(PocoHelper.GetConditions<RoleInfo>(q, otherCondition));
-            //排序
-            if (isCount == false)
-            {
-                query.Append(PocoHelper.GetOrderBy<RoleInfo>(MetaData, q.SortingDescriptor));
-            }
+        //#region Utilities
+        //private Sql ParseSelectSql(QueryDescriptor<RoleInfo> q, bool isCount = false)
+        //{
+        //    var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+        //    Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
+        //    return query;
+        //}
+        //private Sql ParseQuerySql(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
+        //    //过滤条件
+        //    query.Append(PocoHelper.GetConditions<RoleInfo>(q, otherCondition));
+        //    //排序
+        //    if (isCount == false)
+        //    {
+        //        query.Append(PocoHelper.GetOrderBy<RoleInfo>(MetaData, q.SortingDescriptor));
+        //    }
 
-            return query;
-        }
+        //    return query;
+        //}
 
-        private ExecuteContext<RoleInfo> ParseQueryContext(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
-        {
-            ExecuteContext<RoleInfo> ctx = new ExecuteContext<RoleInfo>()
-            {
-                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
+        //private ExecuteContext<RoleInfo> ParseQueryContext(QueryDescriptor<RoleInfo> q, Sql otherCondition = null, bool isCount = false)
+        //{
+        //    ExecuteContext<RoleInfo> ctx = new ExecuteContext<RoleInfo>()
+        //    {
+        //        ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
+        //        ,
+        //        PagingInfo = q.PagingDescriptor
+        //        ,
+        //        TopCount = q.TopCount
+        //    };
 
-            return ctx;
-        }
-        #endregion
+        //    return ctx;
+        //}
+        //#endregion
     }
 }
