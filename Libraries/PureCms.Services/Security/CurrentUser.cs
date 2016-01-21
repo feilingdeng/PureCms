@@ -9,7 +9,6 @@ namespace PureCms.Services.Security
 {
     public class CurrentUser
     {
-        public const string SESSION_KEY = "$PureCms.CurrentUser$";
         public int UserId { get; set; }
         public int RoleId { get; set; }
         public string UserName { get; set; }

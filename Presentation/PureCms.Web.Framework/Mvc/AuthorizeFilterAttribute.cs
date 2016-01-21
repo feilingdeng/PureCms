@@ -1,5 +1,4 @@
 ﻿using PureCms.Services.Security;
-using PureCms.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,23 +27,18 @@ namespace PureCms.Web.Framework.Mvc
             var path = filterContext.HttpContext.Request.Path.ToLower();
             if (path == "/" || path == "/admin/home/signin".ToLower() || path == "/account/signin".ToLower())
                 return;//忽略对Login登录页的权限判定
-            
-            _authenticationService = new FormsAuthenticationService(filterContext.HttpContext);
+
             //未登录时转到登录页
             if (!filterContext.HttpContext.User.Identity.IsAuthenticated)
             {
-                var result = new RedirectResult(_authenticationService.LoginUrl + "?returnurl=" + WebHelper.GetUrlReferrer());
+                var result = new RedirectResult("/account/signin");
                 filterContext.Result = result;
                 return;
             }
+            
+            _authenticationService = new FormsAuthenticationService(filterContext.HttpContext);
             _currentUser = _authenticationService.GetAuthenticatedUser();//获取当前用户信息
-            if(_currentUser == null)
-            {
-                var result = new RedirectResult(_authenticationService.LoginUrl + "?returnurl=" + WebHelper.GetUrlReferrer());
-                filterContext.Result = result;
-                return;
-            }
-            else if (_currentUser.IsSuperAdmin)//超级管理员不验证权限
+            if (_currentUser.IsSuperAdmin)//超级管理员不验证权限
             {
                 return;
             }

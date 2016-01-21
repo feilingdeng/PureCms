@@ -195,16 +195,6 @@ namespace PureCms.Web.Framework
         {
             return View("prompt", new PromptModel(backUrl, message));
         }
-        /// <summary>
-        /// 提示记录不存在信息视图
-        /// </summary>
-        /// <param name="backUrl">返回地址</param>
-        /// <param name="message">提示信息</param>
-        /// <returns></returns>
-        protected ViewResult NoRecordView()
-        {
-            return View("prompt", new PromptModel(WorkContext.UrlReferrer, "记录不存在"));
-        }
 
         /// <summary>
         /// ajax请求结果

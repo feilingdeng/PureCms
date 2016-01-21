@@ -10,11 +10,11 @@
             var parents = channels.Where(n => n.Level == 1).ToList();
             foreach (var item in parents)
             {
-                var url = (item.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "/admin/cms/articles" : (item.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "/admin/cms/editpagecontent" : item.Url));
+                var url = (item.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "articles" : (item.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "editpagecontent" : item.Url));
                 var otarget = (item.ContentType == PureCms.Core.Domain.Cms.ContentType.Link? "_blank" : "");
             var childs = channels.Where(n => n.ParentChannelId == item.ChannelId).ToList();
                 @:<li id="@item.ChannelId" data-parentid="@item.ParentChannelId">
-                    @:<a href="@url?channelid=@item.ChannelId" class="dropdown-toggle" target="@otarget">
+                    @:<a href="/admin/cms/@url?channelid=@item.ChannelId" class="dropdown-toggle" target="@otarget">
                         @:<span class="glyphicon glyphicon-leaf"></span>
                         @:<span class="menu-text"> @item.Name </span>
                         if ((childs != null && childs.Count > 0)){
@@ -28,9 +28,9 @@
                         foreach (var child in childs)
                         {
                         otarget = (child.ContentType == PureCms.Core.Domain.Cms.ContentType.Link ? "_blank" : "");
-                        url = (child.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "/admin/cms/articles" : (child.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "/admin/cms/editpagecontent" : child.Url));
+                        url = (child.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "articles" : (child.ContentType == PureCms.Core.Domain.Cms.ContentType.Single ? "editpagecontent" : child.Url));
                         @:<li id="@child.ChannelId" data-parentid="@child.ParentChannelId">
-        @:<a href="@url?channelid=@child.ChannelId" target="@otarget">
+        @:<a href="/admin/cms/@url?channelid=@child.ChannelId" target="@otarget">
         @:<i class="icon-double-angle-right"></i>
         @child.Name
         @:</a>

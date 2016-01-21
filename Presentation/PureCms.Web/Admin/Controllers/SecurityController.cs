@@ -64,7 +64,7 @@ namespace PureCms.Web.Admin.Controllers
             {
                 PrivilegeInfo entity = (model.PrivilegeId.HasValue && model.PrivilegeId.Value > 0) ? _privilegeService.GetById(model.PrivilegeId.Value) : new PrivilegeInfo();
 
-                typeof(EditPrivilegeModel).CopyTo<PrivilegeInfo>(model, entity);
+                entity = typeof(EditPrivilegeModel).CopyTo<PrivilegeInfo>(model);
 
                 if (entity.PrivilegeId > 0)
                 {
@@ -134,18 +134,10 @@ namespace PureCms.Web.Admin.Controllers
                 m.SortBy = Utilities.ExpressionHelper.GetPropertyName<RoleInfo>(n => n.Name);
                 m.SortDirection = (int)SortDirection.Desc;
             }
-            FilterContainer<RoleInfo> container = new FilterContainer<RoleInfo>();
-            if (m.Name.IsNotEmpty())
-            {
-                container.And(n => n.Name == m.Name);
-            }
-            if (m.IsEnabled.HasValue)
-            {
-                container.And(n => n.IsEnabled == m.IsEnabled);
-            }
             var result = _roleService.GetAll(x => x
-                .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Where(n => n.Name, m.Name)
+                .Where(n => n.IsEnabled, m.IsEnabled)
+                .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
             );
             m.Items = result;
             if (IsAjaxRequest)
@@ -164,7 +156,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _roleService.GetById(id);
                 if (entity != null)
                 {
-                    typeof(RoleInfo).CopyTo<EditRoleModel>(entity, model);
+                    model = typeof(RoleInfo).CopyTo<EditRoleModel>(entity);
                 }
             }
             return View(model);
@@ -177,7 +169,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 RoleInfo entity = new RoleInfo();
-                typeof(EditRoleModel).CopyTo<RoleInfo>(model, entity);
+                entity = typeof(EditRoleModel).CopyTo<RoleInfo>(model);
 
                 if (entity.RoleId > 0)
                 {
@@ -211,7 +203,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 var result = _rolePrivilegesService.GetAll(x => x
-                    .Where(n => n.RoleId == roleId)
+                    .Where(n => n.RoleId, roleId)
                     .Sort(n => n.SortDescending(f=>f.PrivilegeId))
                 );
                 model.RolePrivileges = result;

@@ -14,7 +14,7 @@ namespace PureCms.Data.Cms
         /// 实体元数据
         /// </summary>
         private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(SiteInfo));
-        private static readonly IDataProvider<SiteInfo> _repository = DataProviderFactory.GetInstance<SiteInfo>(DataProvider.MSSQL);
+        private static readonly IDataProvider<SiteInfo> _repository = DataProviderFactory<SiteInfo>.GetInstance(DataProvider.MSSQL);
 
         public SiteRepository()
         {
@@ -66,9 +66,9 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public long Count(QueryDescriptor<SiteInfo> q)
+        public long Count(SiteQueryContext q)
         {
-            ExecuteContext<SiteInfo> ctx = PocoHelper.ParseContext<SiteInfo>(q, null, true);
+            ExecuteContext<SiteInfo> ctx = ParseQueryContext(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
@@ -77,10 +77,10 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q">上下文</param>
         /// <returns></returns>
-        public PagedList<SiteInfo> Query(QueryDescriptor<SiteInfo> q)
+        public PagedList<SiteInfo> Query(SiteQueryContext q)
         {
-            ExecuteContext<SiteInfo> ctx = PocoHelper.ParseContext<SiteInfo>(q);
-            var result = _repository.QueryPagedAsync(ctx);
+            ExecuteContext<SiteInfo> ctx = ParseQueryContext(q);
+            var result = _repository.PagedAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -105,10 +105,10 @@ namespace PureCms.Data.Cms
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        public List<SiteInfo> GetAll(QueryDescriptor<SiteInfo> q)
+        public List<SiteInfo> GetAll(SiteQueryContext q)
         {
-            ExecuteContext<SiteInfo> ctx = PocoHelper.ParseContext<SiteInfo>(q);
-            var result = _repository.QueryAsync(ctx);
+            ExecuteContext<SiteInfo> ctx = ParseQueryContext(q);
+            var result = _repository.GetAllAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -129,59 +129,109 @@ namespace PureCms.Data.Cms
         #endregion
 
 
-        //#region Utilities
-        ///// <summary>
-        ///// 根据上下文生成查询语句
-        ///// </summary>
-        ///// <param name="q">上下文</param>
-        ///// <param name="isCount">是否统计数量</param>
-        ///// <returns></returns>
-        //private Sql ParseSelectSql(QueryDescriptor<SiteInfo> q, bool isCount = false)
-        //{
-        //    var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-        //    Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-        //    return query;
-        //}
-        ///// <summary>
-        ///// 根据上下文生成查询语句
-        ///// </summary>
-        ///// <param name="q">上下文</param>
-        ///// <param name="otherCondition">其它附加过滤条件</param>
-        ///// <param name="isCount">是否统计数量</param>
-        ///// <returns></returns>
-        //private Sql ParseQuerySql(QueryDescriptor<SiteInfo> q, Sql otherCondition = null, bool isCount = false)
-        //{
-        //    Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount));
-        //    //过滤条件
-        //    query.Append(PocoHelper.GetConditions<SiteInfo>(q, otherCondition));
-        //    //排序
-        //    if (isCount == false)
-        //    {
-        //        query.Append(PocoHelper.GetOrderBy<SiteInfo>(MetaData, q.SortingDescriptor));
-        //    }
+        #region Utilities
+        /// <summary>
+        /// 根据上下文生成查询语句
+        /// </summary>
+        /// <param name="q">上下文</param>
+        /// <param name="isCount">是否统计数量</param>
+        /// <returns></returns>
+        private Sql ParseSelectSql(SiteQueryContext q, bool isCount = false)
+        {
+            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
+            return query;
+        }
+        /// <summary>
+        /// 根据上下文生成过滤条件语句
+        /// </summary>
+        /// <param name="q">上下文</param>
+        /// <param name="otherCondition">其它附加过滤条件</param>
+        /// <returns></returns>
+        private Sql ParseWhereSql(SiteQueryContext q, Sql otherCondition = null)
+        {
+            Sql query = PetaPoco.Sql.Builder;
+            //过滤条件
+            Sql filter = PetaPoco.Sql.Builder;
+            string optName = string.Empty;
 
-        //    return query;
-        //}
-        ///// <summary>
-        ///// 转换为数据库上下文
-        ///// </summary>
-        ///// <param name="q">实体上下文</param>
-        ///// <param name="otherCondition">其它附加过滤条件</param>
-        ///// <param name="isCount">是否统计数量</param>
-        ///// <returns></returns>
-        //private ExecuteContext<SiteInfo> ParseQueryContext(QueryDescriptor<SiteInfo> q, Sql otherCondition = null, bool isCount = false)
-        //{
-        //    ExecuteContext<SiteInfo> ctx = new ExecuteContext<SiteInfo>()
-        //    {
-        //        ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-        //        ,
-        //        PagingInfo = q.PagingDescriptor
-        //        ,
-        //        TopCount = q.TopCount
-        //    };
+            if (q.IsDefault.HasValue)
+            {
+                filter.Append(string.Format("{0} {1}.IsDefault=@0", optName, TableName), q.IsDefault.Value == true ? 1 : 0);
+                optName = " AND ";
+            }
+            if (q.Name.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.Name LIKE @0", optName, TableName), "%" + q.Name + "%");
+                optName = " AND ";
+            }
+            if (q.IsEnabled.HasValue)
+            {
+                filter.Append(string.Format("{0} {1}.IsEnabled=@0", optName, TableName), q.IsEnabled.Value == true ? 1 : 0);
+                optName = " AND ";
+            }
+            if (q.Theme.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.Theme=@0", optName, TableName), q.Theme);
+                optName = " AND ";
+            }
+            if (q.Url.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.Url=@0", optName, TableName), q.Url);
+                optName = " AND ";
+            }
+            if (filter.SQL.IsNotEmpty())
+            {
+                query.Append("WHERE ");
+                query.Append(filter);
+            }
+            //其它条件
+            if (otherCondition != null)
+            {
+                query.Append(optName);
+                query.Append(otherCondition);
+            }
+            return query;
+        }
+        /// <summary>
+        /// 根据上下文生成查询语句
+        /// </summary>
+        /// <param name="q">上下文</param>
+        /// <param name="otherCondition">其它附加过滤条件</param>
+        /// <param name="isCount">是否统计数量</param>
+        /// <returns></returns>
+        private Sql ParseQuerySql(SiteQueryContext q, Sql otherCondition = null, bool isCount = false)
+        {
+            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q, isCount))
+                .Append(ParseWhereSql(q, otherCondition));
+            //排序
+            if (isCount == false)
+            {
+                query.Append(ContextHelper.GetOrderBy<SiteInfo>(MetaData, q.SortingDescriptor));
+            }
 
-        //    return ctx;
-        //}
-        //#endregion
+            return query;
+        }
+        /// <summary>
+        /// 转换为数据库上下文
+        /// </summary>
+        /// <param name="q">实体上下文</param>
+        /// <param name="otherCondition">其它附加过滤条件</param>
+        /// <param name="isCount">是否统计数量</param>
+        /// <returns></returns>
+        private ExecuteContext<SiteInfo> ParseQueryContext(SiteQueryContext q, Sql otherCondition = null, bool isCount = false)
+        {
+            ExecuteContext<SiteInfo> ctx = new ExecuteContext<SiteInfo>()
+            {
+                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
+                ,
+                PagingInfo = q.PagingDescriptor
+                ,
+                TopCount = q.TopCount
+            };
+
+            return ctx;
+        }
+        #endregion
     }
 }

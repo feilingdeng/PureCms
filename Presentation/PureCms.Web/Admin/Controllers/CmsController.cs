@@ -12,6 +12,7 @@ namespace PureCms.Web.Admin.Controllers
     public class CmsController : BaseAdminController
     {
         private static ArticleService _articleService = new ArticleService();
+        private static ArticleCategoryService _articleCategoryService = new ArticleCategoryService();
         private static SiteService _siteService = new SiteService();
         private static ThemeService _themeService = new ThemeService();
         private static ChannelService _channelService = new ChannelService();
@@ -34,32 +35,13 @@ namespace PureCms.Web.Admin.Controllers
                 m.SortDirection = (int)SortDirection.Desc;
             }
 
-            FilterContainer<SiteInfo> container = new FilterContainer<SiteInfo>();
-            if (m.IsDefault.HasValue)
-            {
-                container.And(n=>n.IsDefault == m.IsDefault);
-            }
-            if (m.IsEnabled.HasValue)
-            {
-                container.And(n => n.IsEnabled == m.IsEnabled);
-            }
-            if (m.Name.IsNotEmpty())
-            {
-                container.And(n => n.Name == m.Name);
-            }
-            if (m.Theme.IsNotEmpty())
-            {
-                container.And(n => n.Theme == m.Theme);
-            }
-            if (m.Url.IsNotEmpty())
-            {
-                container.And(n => n.Url == m.Url);
-            }
             PagedList<SiteInfo> result = _siteService.Query(x => x
                 .Page(m.Page, m.PageSize)
                 .Select(c => c.SiteId, c => c.Name, c => c.CreatedOn, c => c.IsDefault, c => c.Url, c => c.IsEnabled, c => c.Theme)
-                .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Where(n => n.IsDefault, m.IsDefault).Where(n => n.IsEnabled, m.IsEnabled)
+                .Where(n => n.Name, m.Name).Where(n => n.Theme, m.Theme)
+                .Where(n => n.Url, m.Url)
+                .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
                 );
 
             m.Items = result.Items;
@@ -80,7 +62,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _siteService.GetById(id);
                 if (entity != null)
                 {
-                    typeof(SiteInfo).CopyTo<EditSiteModel>(entity, model);
+                    model = typeof(SiteInfo).CopyTo<EditSiteModel>(entity);
                 }
             }
             var themes = _themeService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
@@ -90,13 +72,13 @@ namespace PureCms.Web.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken()]
         [Description("站点信息保存")]
-        public ActionResult EditSite(EditSiteModel model)
+        public ActionResult SaveSite(EditSiteModel model)
         {
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
                 var entity = new SiteInfo();
-                typeof(EditSiteModel).CopyTo<SiteInfo>(model, entity);
+                entity = typeof(EditSiteModel).CopyTo<SiteInfo>(model);
 
                 if (entity.SiteId > 0)
                 {
@@ -129,7 +111,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 var result = _channelService.GetJsonData(x => x
-                    .Where(n => n.SiteId == model.SiteId)
+                    .Where(n => n.SiteId, model.SiteId)
                 .Sort(s => s.SortAscending(ss => ss.DisplayOrder))
                 , wrapRoot: wrapRoot
                 );
@@ -152,13 +134,28 @@ namespace PureCms.Web.Admin.Controllers
                 {
                     if (entity != null)
                     {
-                        typeof(ChannelInfo).CopyTo<EditChannelModel>(entity, model);
+                        model = typeof(ChannelInfo).CopyTo<EditChannelModel>(entity);
                     }
                 }
             }
 
             return View(model);
         }
+        //[HttpGet]
+        //[Description("频道编辑")]
+        //public ActionResult EditChannel(int id = 0)
+        //{
+        //    EditChannelModel model = new EditChannelModel();
+        //    if (id > 0)
+        //    {
+        //        var entity = _siteService.GetById(id);
+        //        if (entity != null)
+        //        {
+        //            model = typeof(ChannelInfo).CopyTo<EditChannelModel>(entity);
+        //        }
+        //    }
+        //    return View(model);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken()]
         [Description("频道信息保存")]
@@ -168,7 +165,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new ChannelInfo();
-                typeof(EditChannelModel).CopyTo<ChannelInfo>(model, entity);
+                entity = typeof(EditChannelModel).CopyTo<ChannelInfo>(model);
 
                 if (entity.ChannelId > 0)
                 {
@@ -263,7 +260,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 _channelService.Update(x => x.Set(n => n.Content, model.Content)
-                    .Where(n=>n.ChannelId == model.ChannelId)
+                    .Filter(w => w.Where(n => n.ChannelId, model.ChannelId))
                     );
                 if (IsAjaxRequest)
                 {
@@ -277,6 +274,82 @@ namespace PureCms.Web.Admin.Controllers
             }
             return View(model);
         }
+        #endregion
+
+
+        #region 分类
+        //[Description("分类列表")]
+        //public ActionResult Categories(ArticleCategoryModel m)
+        //{
+        //    if (m.SortBy.IsEmpty())
+        //    {
+        //        m.SortBy = Utilities.ExpressionHelper.GetPropertyName<ArticleCategoryInfo>(n => n.CreatedOn);
+        //        m.SortDirection = (int)SortDirection.Desc;
+        //    }
+
+        //    //PagedList<ArticleCategoryInfo> result = _articleCategoryService.Query(x => x
+        //    //    .Page(m.Page, m.PageSize)
+        //    //    //.Select(c => c.Name, c => c.CreatedOn, c => c.IsDefault, c => c.Url, c => c.IsEnabled, c => c.Theme)
+        //    //    //.Where(n => n.ChannelId, m.c).Where(n => n.IsEnabled, m.IsEnabled)
+        //    //    .Where(n => n.Name, m.Name)
+        //    //    .Where(n => n.Url, m.Url)
+        //    //    .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
+        //    //    );
+
+        //    //m.Items = result.Items;
+        //    //m.TotalItems = result.TotalItems;
+        //    return View(m);
+        //}
+        //[HttpGet]
+        //[Description("分类编辑")]
+        //public ActionResult EditCategory(int id = 0)
+        //{
+        //    EditSiteModel model = new EditSiteModel();
+        //    if (id > 0)
+        //    {
+        //        var entity = _siteService.GetById(id);
+        //        if (entity != null)
+        //        {
+        //            model = typeof(SiteInfo).CopyTo<EditSiteModel>(entity);
+        //        }
+        //    }
+        //    var themes = _themeService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
+        //    model.Themes = new SelectList(themes, "pathname", "displayname");
+        //    return View(model);
+        //}
+        //[HttpPost]
+        //[ValidateAntiForgeryToken()]
+        //[Description("分类信息保存")]
+        //public ActionResult SaveCategory(EditSiteModel model)
+        //{
+        //    string msg = string.Empty;
+        //    if (ModelState.IsValid)
+        //    {
+        //        var entity = new SiteInfo();
+        //        entity = typeof(EditSiteModel).CopyTo<SiteInfo>(model);
+
+        //        if (entity.SiteId > 0)
+        //        {
+        //            _siteService.Update(entity);
+        //            msg = "保存成功";
+        //        }
+        //        else
+        //        {
+        //            _siteService.Creat(entity);
+        //            msg = "创建成功";
+        //        }
+        //        if (IsAjaxRequest)
+        //        {
+        //            return AjaxResult("success", msg);
+        //        }
+        //        return PromptView(WorkContext.UrlReferrer, msg);
+        //    }
+        //    if (IsAjaxRequest)
+        //    {
+        //        return AjaxResult("error", "保存失败");
+        //    }
+        //    return View("EditSite", model);
+        //}
         #endregion
 
         #region 文章
@@ -297,41 +370,14 @@ namespace PureCms.Web.Admin.Controllers
                 m.SortBy = Utilities.ExpressionHelper.GetPropertyName<ArticleInfo>(n => n.CreatedOn);
                 m.SortDirection = (int)SortDirection.Desc;
             }
-            FilterContainer<ArticleInfo> container = new FilterContainer<ArticleInfo>();
-            if (m.Title.IsNotEmpty())
-            {
-                container.And(n => n.Title == m.Title);
-            }
-            if (m.Author.IsNotEmpty())
-            {
-                container.And(n => n.Author == m.Author);
-            }
-            if (m.IsShow.HasValue)
-            {
-                container.And(n => n.IsShow == m.IsShow);
-            }
-            if (m.ChannelId > 0)
-            {
-                container.And(n => n.ChannelId == m.ChannelId);
-            }
-            if (m.Status.HasValue)
-            {
-                container.And(n => n.Status == m.Status);
-            }
-            if (m.BeginTime.HasValue)
-            {
-                container.And(n => n.CreatedOn >= m.BeginTime);
-            }
-            if (m.EndTime.HasValue)
-            {
-                container.And(n => n.CreatedOn <= m.EndTime);
-            }
 
             PagedList<ArticleInfo> result = _articleService.Query(x => x
                 .Page(m.Page, m.PageSize)
-                .Select(c => c.Title, c => c.CreatedOn, c => c.Author, c => c.Url, c => c.IsShow, c => c.ChannelId)
-                .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Select(c => c.Title, c => c.CreatedOn, c => c.Author, c => c.Url, c => c.IsShow)
+                .Where(n => n.Title, m.Title).Where(n => n.Author, m.Author).Where(n => n.IsShow, m.IsShow)//.Where(n => n.CategoryId, m.CategoryId)
+                .Where(n => n.ChannelId, m.ChannelId).Where(n => n.Status, m.Status)
+                .Where(n => n.BeginTime, m.BeginTime).Where(n => n.EndTime, m.EndTime)
+                .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
                 );
 
             m.Items = result.Items;
@@ -339,8 +385,8 @@ namespace PureCms.Web.Admin.Controllers
             return View(m);
         }
         [HttpGet]
-        [Description("文章编辑")]
-        public ActionResult EditArticle(int channelid, int id = 0)
+        [Description("文章发布")]
+        public ActionResult EditArticle(int channelid, long id = 0)
         {
             EditArticleModel model = new EditArticleModel();
             if (id > 0)
@@ -348,12 +394,10 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _articleService.GetById(id);
                 if (entity != null)
                 {
-                    typeof(ArticleInfo).CopyTo<EditArticleModel>(entity, model);
+                    model = typeof(ArticleInfo).CopyTo<EditArticleModel>(entity);
                 }
                 var channel = _channelService.GetById(entity.ChannelId);
                 model.ChannelName = channel.Name;
-                model.ChannelId = channel.ChannelId;
-                channelid = channel.ChannelId;
             }
             else if (channelid <= 0)
             {
@@ -364,20 +408,19 @@ namespace PureCms.Web.Admin.Controllers
                 var channel = _channelService.GetById(channelid);
                 model.ChannelName = channel.Name;
                 model.ChannelId = channelid;
-                channelid = channel.ChannelId;
             }
             return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        [Description("文章编辑")]
-        public ActionResult EditArticle(EditArticleModel model)
+        [Description("文章信息保存")]
+        public ActionResult SaveArticle(EditArticleModel model)
         {
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
                 var entity = new ArticleInfo();
-                typeof(EditArticleModel).CopyTo<ArticleInfo>(model, entity);
+                entity = typeof(EditArticleModel).CopyTo<ArticleInfo>(model);
 
                 if (entity.ArticleId > 0)
                 {
@@ -397,20 +440,13 @@ namespace PureCms.Web.Admin.Controllers
             }
             if (IsAjaxRequest)
             {
-                foreach (var item in ModelState.Values)
-                {
-                    if(item.Errors.Count > 0)
-                    {
-                        msg += item.Errors[0].ErrorMessage + "\n";
-                    }
-                }
-                return AjaxResult(false, "保存失败: " + msg);
+                return AjaxResult(false, "保存失败");
             }
             return View("EditArticle", model);
         }
         [Description("删除文章")]
         [HttpPost]
-        public ActionResult DeleteArticle(int[] recordid)
+        public ActionResult DeleteArticle(long[] recordid)
         {
             string msg = string.Empty;
             bool flag = false;
@@ -431,14 +467,14 @@ namespace PureCms.Web.Admin.Controllers
         }
         [Description("设置文章显示状态")]
         [HttpPost]
-        public ActionResult SetArticleShow(int[] recordid, bool isShow)
+        public ActionResult SetArticleShow(long[] recordid, bool isShow)
         {
             string msg = string.Empty;
             bool flag = false;
             if (IsAjaxRequest)
             {
                 bool result = _articleService.Update(x => x.Set(n => n.IsShow, isShow)
-                    .Where(n => n.ArticleId.In(recordid.ToList()))
+                    .Filter(w => w.Where(n => n.ArticleIdList, recordid.ToList()))
                     );
                 flag = result;
                 if (flag)

@@ -15,12 +15,10 @@
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in">
         <div class="panel-body">
-            @using (Html.BeginForm("EditArticle", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.ArticleId <= 0 ? "true" : "") }))
+            @using (Html.BeginForm("SaveArticle", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.ArticleId <= 0 ? "true" : "") }))
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(x => x.ArticleId)
-                @Html.HiddenFor(x => x.ChannelId)
-                @Html.ValidationSummary()
                 <div class="form-group col-sm-12">
                     <label class="col-sm-2 control-label" for="Title">标题</label>
                     <div class="col-sm-10">
@@ -46,8 +44,9 @@
                     </div>
                 </div>
                 <div class="form-group col-sm-12">
-                    @Html.LabelFor(x => x.ChannelName, "频道", new { @class = "col-sm-2 control-label" })
-                    <div class="col-sm-10">
+                    @Html.LabelFor(x => x.ChannelId, "频道", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">                        
+                        @Html.HiddenFor(x => x.ChannelId, new { @class = "form-control" })
                         @Html.TextBoxFor(x => x.ChannelName, new { @class = "form-control required", @disabled = true })
                         <div class="input-group">
                             @*<span class="input-group-addon" data-toggle="dropdown">
@@ -96,16 +95,16 @@
         $(function () {
             //表单验证
             purecms.form($("#editform"));
-            //initChannelTree();
+            initChannelTree();
             //初始化编辑器
             var editor = KindEditor.create('.editor', {
                 width: '100%',
                 height: '350px',
                 resizeType: 1,
-                uploadJson: '/admin/tool/upload?op=article',
-                allowFileManager: true,
+                uploadJson: '/admin/tools/upload',
                 fileManagerJson: '/admin/tools/files',
-                afterBlur: function () { this.sync(); }
+                afterBlur: function () { this.sync(); },
+                allowFileManager: true
             });
         });
 

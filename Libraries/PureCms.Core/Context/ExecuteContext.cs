@@ -16,10 +16,6 @@ namespace PureCms.Core.Context
         public ExecuteContext()
         {
         }
-        public ExecuteContext(object executeContainer)
-        {
-            this.ExecuteContainer = executeContainer;
-        }
         /// <summary>
         /// 查询前N条记录
         /// </summary>

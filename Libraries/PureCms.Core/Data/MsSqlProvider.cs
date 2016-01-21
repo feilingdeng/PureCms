@@ -15,7 +15,7 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 查询上下文
         /// </summary>
-        public IExecuteContext<T> CurrentContext { get; private set; }
+        public IExecuteContext<T> CurrentQueryContext { get; private set; }
         /// <summary>
         /// 最大查询数
         /// </summary>
@@ -53,11 +53,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 获取记录数
         /// </summary>
-        /// <param name="context">查询上下文</param>
+        /// <param name="q">查询上下文</param>
         /// <returns></returns>
-        public virtual Task<bool> ExistsAsync(IExecuteContext<T> context)
+        public virtual Task<bool> ExistsAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 var result = DbContext.SingleOrDefault<T>(GetExecuteContainer());
@@ -68,11 +68,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 获取记录数
         /// </summary>
-        /// <param name="context">查询上下文</param>
+        /// <param name="q">查询上下文</param>
         /// <returns></returns>
-        public virtual Task<long> CountAsync(IExecuteContext<T> context)
+        public virtual Task<long> CountAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
                 {
                     long count = DbContext.ExecuteScalar<long>(GetExecuteContainer());
@@ -203,11 +203,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 根据条件获取一条记录
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="q"></param>
         /// <returns></returns>
-        public virtual Task<T> GetSingleAsync(IExecuteContext<T> context)
+        public virtual Task<T> GetSingleAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 return DbContext.FirstOrDefault<T>(GetExecuteContainer());
@@ -218,22 +218,22 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 查询记录
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="q"></param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> context)
+        public virtual Task<IEnumerable<T>> SearchAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 IEnumerable<T> result = null;
-                if (null != context.PagingInfo)
+                if (null != q.PagingInfo)
                 {
-                    PageDescriptor p = context.PagingInfo;
+                    PageDescriptor p = q.PagingInfo;
                     result = DbContext.Page<T>(p.PageNumber, p.PageSize, GetExecuteContainer()).Items;
                 }
                 else
                 {
-                    result = DbContext.SkipTake<T>(0, context.TopCount > 0 ? context.TopCount : MaxSearchCount, GetExecuteContainer());
+                    result = DbContext.SkipTake<T>(0, q.TopCount > 0 ? q.TopCount : MaxSearchCount, GetExecuteContainer());
                 }
 
                 return result;
@@ -243,22 +243,22 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 分页查询数据
         /// </summary>
-        /// <param name="context">查询上下文</param>
+        /// <param name="q">查询上下文</param>
         /// <returns></returns>
-        public virtual Task<Page<T>> QueryPagedAsync(IExecuteContext<T> context)
+        public virtual Task<Page<T>> PagedAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 Page<T> result = null;
-                if (null != context.PagingInfo)
+                if (null != q.PagingInfo)
                 {
-                    PageDescriptor p = context.PagingInfo;
+                    PageDescriptor p = q.PagingInfo;
                     result = DbContext.Page<T>(p.PageNumber, p.PageSize, GetExecuteContainer());
                 }
                 else
                 {
-                    result = DbContext.Page<T>(1, context.TopCount > 0 ? context.TopCount : MaxSearchCount, GetExecuteContainer());
+                    result = DbContext.Page<T>(1, q.TopCount > 0 ? q.TopCount : MaxSearchCount, GetExecuteContainer());
                 }
 
                 return result;
@@ -269,15 +269,15 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 查询前N条记录
         /// </summary>
-        /// <param name="context">查询上下文</param>
+        /// <param name="q">查询上下文</param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<T>> TopAsync(IExecuteContext<T> context)
+        public virtual Task<IEnumerable<T>> TopAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 IEnumerable<T> result = null;
-                result = DbContext.SkipTake<T>(0, context.TopCount > 0 ? context.TopCount : MaxSearchCount, GetExecuteContainer());
+                result = DbContext.SkipTake<T>(0, q.TopCount > 0 ? q.TopCount : MaxSearchCount, GetExecuteContainer());
 
                 return result;
             }
@@ -287,11 +287,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 查询所有记录
         /// </summary>
-        /// <param name="context">查询上下文</param>
+        /// <param name="q">查询上下文</param>
         /// <returns></returns>
-        public virtual Task<IEnumerable<T>> QueryAsync(IExecuteContext<T> context)
+        public virtual Task<IEnumerable<T>> GetAllAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 IEnumerable<T> result = null;
@@ -305,11 +305,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 根据条件更新记录
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="q"></param>
         /// <returns></returns>
-        public virtual Task<bool> UpdateByQueryAsync(IExecuteContext<T> context)
+        public virtual Task<bool> UpdateByQueryAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 int result = DbContext.Execute(GetExecuteContainer());
@@ -320,11 +320,11 @@ namespace PureCms.Core.Data
         /// <summary>
         /// 根据条件删除记录
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="q"></param>
         /// <returns></returns>
-        public virtual Task<bool> DeleteByQueryAsync(IExecuteContext<T> context)
+        public virtual Task<bool> DeleteByQueryAsync(IExecuteContext<T> q)
         {
-            this.CurrentContext = context;
+            this.CurrentQueryContext = q;
             return System.Threading.Tasks.Task.Run(() =>
             {
                 int result = DbContext.Execute(GetExecuteContainer());
@@ -333,25 +333,9 @@ namespace PureCms.Core.Data
             );
         }
 
-        /// <summary>
-        /// 直接执行
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public Task<int> ExecuteAsync(IExecuteContext<T> context)
-        {
-            this.CurrentContext = context;
-            return System.Threading.Tasks.Task.Run(() =>
-            {
-                var result = DbContext.Execute(GetExecuteContainer());
-                return result;
-            }
-            );
-        }
-
         public Sql GetExecuteContainer()
         {
-            Sql s = this.CurrentContext.ExecuteContainer as Sql;
+            Sql s = this.CurrentQueryContext.ExecuteContainer as Sql;
             return s;
         }
     }

@@ -58,12 +58,12 @@ namespace PureCms.Core.Context
             this.Direction = SortDirection.Desc;
             return this;
         }
-        public SortDescriptor<T> ByDirection(SortDirection direction)
+        public SortDescriptor<T> Sort(SortDirection direction)
         {
             this.Direction = direction;
             return this;
         } 
-        public SortDescriptor<T> ByDirection(int direction)
+        public SortDescriptor<T> Sort(int direction)
         {
             this.Direction = direction == (int)SortDirection.Desc ? SortDirection.Desc : SortDirection.Asc;
             return this;

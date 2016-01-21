@@ -59,15 +59,15 @@ namespace PureCms.Services.Security
             return _repository.DeleteByRoleId(roleId);
         }
 
-        public PagedList<RolePrivilegesInfo> Query(Func<QueryDescriptor<RolePrivilegesInfo>, QueryDescriptor<RolePrivilegesInfo>> container)
+        public PagedList<RolePrivilegesInfo> Query(Func<RolePrivilegesQueryContext, RolePrivilegesQueryContext> container)
         {
-            QueryDescriptor<RolePrivilegesInfo> q = container(new QueryDescriptor<RolePrivilegesInfo>());
+            RolePrivilegesQueryContext q = container(new RolePrivilegesQueryContext());
 
             return _repository.Query(q);
         }
-        public List<RolePrivilegesInfo> GetAll(Func<QueryDescriptor<RolePrivilegesInfo>, QueryDescriptor<RolePrivilegesInfo>> container)
+        public List<RolePrivilegesInfo> GetAll(Func<RolePrivilegesQueryContext, RolePrivilegesQueryContext> container)
         {
-            QueryDescriptor<RolePrivilegesInfo> q = container(new QueryDescriptor<RolePrivilegesInfo>());
+            RolePrivilegesQueryContext q = container(new RolePrivilegesQueryContext());
             return _repository.GetAll(q);
         }
     }

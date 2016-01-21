@@ -17,11 +17,11 @@ namespace PureCms.Core.Security
 
         bool DeleteById(int id);
 
-        long Count(QueryDescriptor<PrivilegeInfo> q);
-        PagedList<PrivilegeInfo> Query(QueryDescriptor<PrivilegeInfo> q);
+        long Count(PrivilegeQueryContext q);
+        PagedList<PrivilegeInfo> Query(PrivilegeQueryContext q);
 
         PrivilegeInfo GetById(int id);
-        List<PrivilegeInfo> GetAll(QueryDescriptor<PrivilegeInfo> q);
-        PrivilegeInfo GetOne(QueryDescriptor<PrivilegeInfo> q);
+        List<PrivilegeInfo> GetAll(PrivilegeQueryContext q);
+        PrivilegeInfo GetOne(PrivilegeQueryContext q);
     }
 }

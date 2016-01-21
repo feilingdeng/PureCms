@@ -121,9 +121,10 @@ namespace PureCms.Web.Admin.Models
     }
     public class EditArticleModel
     {
-        public int ArticleId { get; set; }
+        public long ArticleId { get; set; }
         [Required]
-        [Range(1,int.MaxValue)]
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
         public int ChannelId { get; set; }
         public string ChannelName { get; set; }
         [Required]

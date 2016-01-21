@@ -3,13 +3,13 @@ using System;
 
 namespace PureCms.Core.Data
 {
-    public static class DataProviderFactory
+    public static class DataProviderFactory<T> where T : BaseEntity
     {
         /// <summary>
         /// 获取数据处理实例
         /// </summary>
         /// <returns></returns>
-        public static IDataProvider<T> GetInstance<T>(DataProvider provider) where T : BaseEntity
+        public static IDataProvider<T> GetInstance(DataProvider provider)
         {
             IDataProvider<T> _repository = null;
             switch(provider)

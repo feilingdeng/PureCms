@@ -21,9 +21,9 @@ namespace PureCms.Services.Logging
             return _loggingRepository.Create(entity);
         }
 
-        public PagedList<LogInfo> Query(Func<QueryDescriptor<LogInfo>, QueryDescriptor<LogInfo>> container)
+        public PagedList<LogInfo> Query(Func<LogQueryContext, LogQueryContext> container)
         {
-            QueryDescriptor<LogInfo> q = container(new QueryDescriptor<LogInfo>());
+            LogQueryContext q = container(new LogQueryContext());
 
             return _loggingRepository.Query(q);
         }

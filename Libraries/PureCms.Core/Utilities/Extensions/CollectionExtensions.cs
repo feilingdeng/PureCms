@@ -12,9 +12,5 @@ namespace PureCms.Core
         {
             return arg != null && arg.Any();
         }
-        public static bool IsNullOrEmpty<T>(this ICollection<T> source)
-        {
-            return (source == null || source.Count == 0);
-        }
     }
 }

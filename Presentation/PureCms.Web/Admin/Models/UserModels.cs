@@ -1,8 +1,5 @@
 ﻿using PureCms.Core.Domain.User;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
 namespace PureCms.Web.Admin.Models
@@ -50,27 +47,7 @@ namespace PureCms.Web.Admin.Models
     public class EditUserPasswordModel
     {
         public int UserId { get; set; }
-        public string UserName { get; set; }
-
-        [Required]
-        [System.Web.Mvc.Compare("ConfirmPassword")]
-        [DisplayName("新密码")]
-        [StringLength(16, MinimumLength = 6, ErrorMessage = "名称长度为6-16")]
-        public string NewPassword { get; set; }
-        [Required]
-        [DisplayName("确认密码")]
+        public string Password { get; set; }
         public string ConfirmPassword { get; set; }
-
-        //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        //{
-        //    List<ValidationResult> errorList = new List<ValidationResult>();
-
-        //    if (NewPassword != ConfirmPassword)
-        //    {
-        //        errorList.Add(new ValidationResult("密码不一致!", new string[] { "ConfirmPassword" }));
-        //    }
-
-        //    return errorList;
-        //}
     }
 }

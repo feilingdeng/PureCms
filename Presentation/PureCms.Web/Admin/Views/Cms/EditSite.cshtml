@@ -15,11 +15,10 @@
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in">
         <div class="panel-body">
-            @using (Html.BeginForm("EditSite", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.SiteId <= 0 ? "true" : "") }))
+            @using (Html.BeginForm("SaveSite", "cms", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = (Model.SiteId <= 0 ? "true" : "") }))
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(x => x.SiteId)
-                @Html.ValidationSummary()
                 <div class="form-group col-sm-12">
                     @Html.LabelFor(x => x.Name, "名称", new { @class = "col-sm-2 control-label" })
                     <div class="col-sm-10">

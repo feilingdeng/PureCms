@@ -18,7 +18,10 @@ namespace PureCms.Utilities
 		private static readonly Regex s_staticExts = new Regex(@"(.*?)\.(css|js|png|jpg|jpeg|gif|bmp|html|htm|xml|pdf|doc|xls|rar|zip|ico|eot|svg|ttf|woff|otf|axd|ashx|less)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		private static readonly Regex s_htmlPathPattern = new Regex(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
 		private static readonly Regex s_cssPathPattern = new Regex(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-        
+
+        private bool? _isCurrentConnectionSecured;
+		private bool? _appPathPossiblyAppended;
+		private bool? _appPathPossiblyAppendedSsl;
 
 
         public static string GetUrlReferrer()
@@ -119,7 +122,7 @@ namespace PureCms.Utilities
 
         public static string MapPath(string path)
         {
-            return CommonHelper.MapPath(path, false);
+			return CommonHelper.MapPath(path, false);
         }
         
         public static void RestartAppDomain(bool makeRedirect = false, string redirectUrl = "", bool aggressive = false)

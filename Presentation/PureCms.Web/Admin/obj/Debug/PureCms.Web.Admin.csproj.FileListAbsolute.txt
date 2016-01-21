@@ -4,9 +4,3 @@ G:\projects\PureCms\Presentation\PureCms.Web\bin\PureCms.Web.Admin.pdb
 G:\projects\PureCms\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.csprojResolveAssemblyReference.cache
 G:\projects\PureCms\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.dll
 G:\projects\PureCms\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.pdb
-G:\projects\PureCms2015\Presentation\PureCms.Web\bin\PureCms.Web.Admin.dll.config
-G:\projects\PureCms2015\Presentation\PureCms.Web\bin\PureCms.Web.Admin.dll
-G:\projects\PureCms2015\Presentation\PureCms.Web\bin\PureCms.Web.Admin.pdb
-G:\projects\PureCms2015\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.csprojResolveAssemblyReference.cache
-G:\projects\PureCms2015\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.dll
-G:\projects\PureCms2015\Presentation\PureCms.Web\Admin\obj\Debug\PureCms.Web.Admin.pdb

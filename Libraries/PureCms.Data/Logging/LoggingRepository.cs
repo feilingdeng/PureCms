@@ -16,7 +16,7 @@ namespace PureCms.Data.Logging
         /// 实体元数据
         /// </summary>
         private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(LogInfo));
-        private static readonly IDataProvider<LogInfo> _repository = DataProviderFactory.GetInstance<LogInfo>(DataProvider.MSSQL);
+        private static readonly IDataProvider<LogInfo> _repository = DataProviderFactory<LogInfo>.GetInstance(DataProvider.MSSQL);
 
         /// <summary>
         /// 实体表名
@@ -48,16 +48,16 @@ namespace PureCms.Data.Logging
             return result.Result;
         }
 
-        public long Count(QueryDescriptor<LogInfo> q)
+        public long Count(LogQueryContext q)
         {
-            ExecuteContext<LogInfo> ctx = PocoHelper.ParseContext<LogInfo>(q, null, true);
+            ExecuteContext<LogInfo> ctx = ParseContext(q, null, true);
             var result = _repository.CountAsync(ctx);
             return result.Result;
         }
 
-        public List<LogInfo> Top(QueryDescriptor<LogInfo> q)
+        public List<LogInfo> Top(LogQueryContext q)
         {
-            ExecuteContext<LogInfo> ctx = PocoHelper.ParseContext<LogInfo>(q);
+            ExecuteContext<LogInfo> ctx = ParseContext(q);
             var result = _repository.TopAsync(ctx);
             var datas = result.Result;
             if (datas != null && datas.Count() > 0)
@@ -67,10 +67,10 @@ namespace PureCms.Data.Logging
             return null;
         }
 
-        public PagedList<LogInfo> Query(QueryDescriptor<LogInfo> q)
+        public PagedList<LogInfo> Query(LogQueryContext q)
         {
-            ExecuteContext<LogInfo> ctx = PocoHelper.ParseContext<LogInfo>(q);
-            var result = _repository.QueryPagedAsync(ctx);
+            ExecuteContext<LogInfo> ctx = ParseContext(q);
+            var result = _repository.PagedAsync(ctx);
             var pageDatas = result.Result;
             if (pageDatas != null)
             {
@@ -99,43 +99,76 @@ namespace PureCms.Data.Logging
         #endregion
 
 
-        //#region Utilities
-        //private Sql ParseSql(QueryDescriptor<LogInfo> q, Sql otherCondition = null, bool isCount = false)
-        //{
-        //    var columns = PocoHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-        //    Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName + " left join users on " + TableName + ".userid = users.userid");
-        //    //过滤条件
-        //    query.Append(PocoHelper.GetConditions<LogInfo>(q, otherCondition));
-        //    //其它条件
-        //    if (otherCondition != null)
-        //    {
-        //        query.Append("AND");
-        //        query.Append(otherCondition);
-        //    }
-        //    //排序
-        //    if (isCount == false)
-        //    {
-        //        query.Append(PocoHelper.GetOrderBy<LogInfo>(MetaData, q.SortingDescriptor));
-        //    }
+        #region Utilities
+        private Sql ParseSql(LogQueryContext q, Sql otherCondition = null, bool isCount = false)
+        {
+            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
+            //var columns = isCount ? "COUNT(1)" : (q.Columns != null && q.Columns.Count > 0 ? string.Join(",",q.Columns) : "log.*,users.username");
+            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName + " left join users on " + TableName + ".userid = users.userid");
+            //过滤条件
+            Sql filter = PetaPoco.Sql.Builder;
+            string optName = string.Empty;
 
-        //    return query;
-        //}
+            if (q.ClientIP.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.ClientIP LIKE @0", optName, TableName), "%" + q.ClientIP + "%");
+                optName = " AND ";
+            }
+            if (q.Description.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.Description LIKE @0", optName, TableName), "%" + q.Description + "%");
+                optName = " AND ";
+            }
+            if (q.Url.IsNotEmpty())
+            {
+                filter.Append(string.Format("{0} {1}.Url LIKE @0", optName, TableName), "%" + q.Url + "%");
+                optName = " AND ";
+            }
+            if (q.BeginTime.HasValue)
+            {
+                filter.Append(string.Format("{0} {1}.CreatedOn>=@0", optName, TableName), q.BeginTime.Value);
+                optName = " AND ";
+            }
+            if (q.EndTime.HasValue)
+            {
+                filter.Append(string.Format("{0} {1}.CreatedOn<=@0", optName, TableName), q.EndTime.Value);
+                optName = " AND ";
+            }
+            if (filter.SQL.IsNotEmpty())
+            {
+                query.Append("WHERE ");
+                query.Append(filter);
+            }
+            //其它条件
+            if (otherCondition != null)
+            {
+                query.Append(optName);
+                query.Append(otherCondition);
+            }
+            //排序
+            if (isCount == false)
+            {
+                query.Append(ContextHelper.GetOrderBy<LogInfo>(MetaData, q.SortingDescriptor));
+            }
 
-        //private ExecuteContext<LogInfo> ParseContext(QueryDescriptor<LogInfo> q, Sql otherCondition = null, bool isCount = false)
-        //{
-        //    ExecuteContext<LogInfo> ctx = new ExecuteContext<LogInfo>()
-        //    {
-        //        ExecuteContainer = ParseSql(q, otherCondition,isCount)
-        //        ,
-        //        PagingInfo = q.PagingDescriptor
-        //        //,
-        //        //SortingInfo = q.SortingDescriptor
-        //        ,
-        //        TopCount = q.TopCount
-        //    };
+            return query;
+        }
 
-        //    return ctx;
-        //}
-        //#endregion
+        private ExecuteContext<LogInfo> ParseContext(LogQueryContext q, Sql otherCondition = null, bool isCount = false)
+        {
+            ExecuteContext<LogInfo> ctx = new ExecuteContext<LogInfo>()
+            {
+                ExecuteContainer = ParseSql(q, otherCondition,isCount)
+                ,
+                PagingInfo = q.PagingDescriptor
+                //,
+                //SortingInfo = q.SortingDescriptor
+                ,
+                TopCount = q.TopCount
+            };
+
+            return ctx;
+        }
+        #endregion
     }
 }

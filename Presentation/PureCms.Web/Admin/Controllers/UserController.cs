@@ -1,6 +1,5 @@
 ﻿using PureCms.Core.Context;
 using PureCms.Core.Domain.User;
-using PureCms.Core.Utilities;
 using PureCms.Services.Security;
 using PureCms.Services.User;
 using PureCms.Web.Admin.Models;
@@ -18,64 +17,32 @@ namespace PureCms.Web.Admin.Controllers
     {
         private static UserService _userService = new UserService();
         private static RoleService _roleService = new RoleService();
-
+        
 
         [Description("用户列表")]
-        public ActionResult Index(UserModel model)
+        public ActionResult Index(UserModel m)
         {
-            if (model.SortBy.IsEmpty())
+            if (m.SortBy.IsEmpty())
             {
-                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<UserInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)SortDirection.Desc;
+                m.SortBy = Utilities.ExpressionHelper.GetPropertyName<UserInfo>(n => n.CreatedOn);
+                m.SortDirection = (int)SortDirection.Desc;
             }
-            //model.IsActive = true; model.IsDeleted = false;
-            //model.UserName = "purecms ";
-            //model.MobileNumber = "13800138000";
-            FilterContainer<UserInfo> container = new FilterContainer<UserInfo>();
-            if (model.IsActive.HasValue)
-            {
-                container.And(f => f.IsActive == model.IsActive);
-            }
-            if (model.IsDeleted.HasValue)
-            {
-                container.And(f => f.IsDeleted == model.IsDeleted);
-            }
-            if (model.LoginName.IsNotEmpty())
-            {
-                container.And(f => f.LoginName == model.LoginName);//like
-            }
-            if (model.BeginTime.HasValue)
-            {
-                container.And(f => f.CreatedOn >= model.BeginTime.Value);
-            }
-            if (model.EndTime.HasValue)
-            {
-                container.And(f => f.CreatedOn <= model.EndTime.Value);
-            }
-            //container.Or(f => f.UserName == model.UserName && f.IsActive == true);
-            //_userService.Query(x => x.Where(container));
-            //_userService.Query(x => x.Where(filter => filter.And(f => f.IsActive == model.IsActive).And(f => f.IsDeleted == model.IsDeleted)));
-
-            //var result = _userService.Query(x => x
-            //.Page(model.Page, model.PageSize)
-            //.Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
-            //.Where(n => n.UserName == model.UserName && (n.MobileNumber.Like("138") || n.MobileNumber == model.MobileNumber)
-            //&& n.UserName.In(model.UserName.TrimEnd(), "u1", "u2") && n.Gender.IsNull() && n.IsActive.IsNotNull() && n.MobileNumber.Count() >= 11)
-            //.Sort(s => s.SortDescending(n => n.CreatedOn)));
 
             PagedList<UserInfo> result = _userService.Query(x => x
-                .Page(model.Page, model.PageSize)
-                .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
-                .Where(container)
-                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
-            );
+                .Page(m.Page, m.PageSize)
+                .Select(c => c.UserName, c => c.CreatedOn, c => c.LoginName, c => c.EmailAddress, c => c.IsActive, c => c.IsDeleted, c => c.MobileNumber)
+                .Where(n => n.LoginName, m.LoginName).Where(n => n.IsActive, m.IsActive).Where(n => n.IsDeleted, m.IsDeleted)
+                .Where(n => n.MobileNumber, m.MobileNumber)
+                .Where(n => n.BeginTime, m.BeginTime).Where(n => n.EndTime, m.EndTime)
+                .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
+                );
 
-            model.Items = result.Items;
-            model.TotalItems = result.TotalItems;
-            return View(model);
+            m.Items = result.Items;
+            m.TotalItems = result.TotalItems;
+            return View(m);
         }
         [HttpGet]
-        [Description("用户编辑")]
+        [Description("用户新增及编辑")]
         public ActionResult EditUser(int id = 0)
         {
             EditUserModel model = new EditUserModel();
@@ -84,7 +51,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _userService.GetById(id);
                 if (entity != null)
                 {
-                    typeof(UserInfo).CopyTo<EditUserModel>(entity, model);
+                    model = typeof(UserInfo).CopyTo<EditUserModel>(entity);
                 }
             }
             var themes = _roleService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
@@ -93,14 +60,14 @@ namespace PureCms.Web.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        [Description("用户编辑")]
+        [Description("用户信息保存")]
         public ActionResult EditUser(EditUserModel model)
         {
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
                 var entity = _userService.GetById(model.UserId);//new UserInfo();
-                typeof(EditUserModel).CopyTo<UserInfo>(model, entity);
+                entity = typeof(EditUserModel).CopyTo<UserInfo>(model);
 
                 if (entity.UserId > 0)
                 {
@@ -110,7 +77,7 @@ namespace PureCms.Web.Admin.Controllers
                 else
                 {
                     _userService.Create(entity);
-                    msg = "新增成功";
+                    msg = "发布成功";
                 }
                 if (IsAjaxRequest)
                 {
@@ -154,7 +121,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 bool result = _userService.Update(x => x.Set(n => n.IsActive, isActive)
-                    .Where(n=>n.UserId.In(recordid))
+                    .Filter(w => w.Where(n => n.UserIdList, recordid.ToList()))
                     );
                 flag = result;
                 if (flag)
@@ -168,67 +135,6 @@ namespace PureCms.Web.Admin.Controllers
                 return AjaxResult(flag, msg);
             }
             return PromptView(WorkContext.UrlReferrer, msg);
-        }
-
-
-        [HttpGet]
-        [Description("用户密码修改")]
-        public ActionResult EditUserPassword(int id)
-        {
-            EditUserPasswordModel model = new EditUserPasswordModel();
-            if (id <= 0)
-            {
-                return NoRecordView();
-            }
-            var entity = _userService.GetById(id);
-            if (entity != null)
-            {
-                model.UserId = id;
-                model.UserName = entity.UserName;
-                model.NewPassword = string.Empty;
-            }
-            else
-            {
-                return NoRecordView();
-            }
-            return View(model);
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken()]
-        [Description("用户密码修改")]
-        public ActionResult EditUserPassword(EditUserPasswordModel model)
-        {
-            string msg = string.Empty;
-            bool flag = false;
-            if (ModelState.IsValid)
-            {
-                var user = _userService.GetById(model.UserId);
-                string password = SecurityHelper.MD5(model.NewPassword + user.Salt);
-                bool result = _userService.Update(x => x
-                    .Set(n => n.Password, password)
-                    .Where(n => n.UserId == model.UserId)
-                );
-
-                flag = result;
-                if (flag)
-                {
-                    msg = "更新成功";
-                }
-                else
-                {
-                    msg = "更新失败";
-                }
-                return AjaxResult(flag, msg);
-            }
-
-            foreach (var item in ModelState.Values)
-            {
-                if (item.Errors.Count > 0)
-                {
-                    msg += item.Errors[0].ErrorMessage + "\n";
-                }
-            }
-            return AjaxResult(flag, msg);
         }
     }
 }

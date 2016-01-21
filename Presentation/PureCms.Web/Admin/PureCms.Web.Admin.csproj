@@ -20,7 +20,6 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -117,7 +116,6 @@
     <Compile Include="Controllers\SecurityController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
-    <Compile Include="Controllers\ToolController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Models\CmsModels.cs" />
     <Compile Include="Models\PlatformModels.cs" />
@@ -225,9 +223,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\NavPath.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\User\EditUserPassword.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -26,9 +26,10 @@ namespace PureCms.Services.Cms
             {
                 entity.Level = parent.Level + 1;
             }
-            var q = new QueryDescriptor<ChannelInfo>();
-            q.Where(n => n.ParentChannelId == entity.ParentChannelId);
-            var count = _repository.Count(q);
+            var count = _repository.Count(new ChannelQueryContext()
+            {
+                ParentChannelId = entity.ParentChannelId
+            });
             entity.DisplayOrder = ((int)count + 1);
             if (entity.Level <= 0)
             {
@@ -40,10 +41,12 @@ namespace PureCms.Services.Cms
         {
             return _repository.Update(entity);
         }
-        public bool Update(Func<UpdateContext<ChannelInfo>, UpdateContext<ChannelInfo>> context)
+        public bool Update(Func<UpdateContext<ChannelInfo, ChannelQueryContext>, UpdateContext<ChannelInfo, ChannelQueryContext>> context)
         {
-            var ctx = context(new UpdateContext<ChannelInfo>());
-            return _repository.Update(ctx);
+            var ctx = context(new UpdateContext<ChannelInfo, ChannelQueryContext>());
+            List<KeyValuePair<string, object>> sets = ctx.Sets;
+            ChannelQueryContext q = ctx.QueryContext;
+            return _repository.Update(sets, q);
         }
 
         public ChannelInfo GetById(int id)
@@ -55,16 +58,16 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(id);
         }
 
-        public PagedList<ChannelInfo> Query(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
+        public PagedList<ChannelInfo> Query(Func<ChannelQueryContext, ChannelQueryContext> container)
         {
-            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
+            ChannelQueryContext q = container(new ChannelQueryContext());
 
             return _repository.Query(q);
         }
 
-        public List<ChannelInfo> GetAll(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
+        public List<ChannelInfo> GetAll(Func<ChannelQueryContext, ChannelQueryContext> container)
         {
-            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
+            ChannelQueryContext q = container(new ChannelQueryContext());
 
             return _repository.GetAll(q);
         }
@@ -105,9 +108,9 @@ namespace PureCms.Services.Cms
         /// <param name="nameLower">属性名称是否转换为小写</param>
         /// <param name="wrapRoot">是否包含于根节点</param>
         /// <returns></returns>
-        public string GetJsonData(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container, bool nameLower = true, bool wrapRoot = true)
+        public string GetJsonData(Func<ChannelQueryContext, ChannelQueryContext> container, bool nameLower = true, bool wrapRoot = true)
         {
-            QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
+            ChannelQueryContext q = container(new ChannelQueryContext());
 
             List<ChannelInfo> list = _repository.GetAll(q);
             string json = string.Empty;

@@ -43,7 +43,10 @@ namespace PureCms.Web.Admin.Controllers
         public ActionResult SideBar()
         {
             var result = _channelService.GetAll(x => x
-                    .Where(n => n.SiteId == 1 && n.IsEnabled == true)
+                    .Where(n => n.SiteId, 1)
+                    .Where(n => n.IsEnabled, true)
+                    //.Where(n => n.ContentType, ContentType.List)
+                    //.Where(n => n.ContentType, ContentType.Single)
                 .Sort(s => s.SortAscending(ss => ss.DisplayOrder))
                 );
             ViewData["channels"] = result;

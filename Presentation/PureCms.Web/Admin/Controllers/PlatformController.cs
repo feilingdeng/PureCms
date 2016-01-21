@@ -24,29 +24,12 @@ namespace PureCms.Web.Admin.Controllers
                 m.SortBy = Utilities.ExpressionHelper.GetPropertyName<LogInfo>(n => n.CreatedOn);
                 m.SortDirection = (int)SortDirection.Desc;
             }
-            FilterContainer<LogInfo> container = new FilterContainer<LogInfo>();
-            if (m.ClientIp.IsNotEmpty())
-            {
-                container.And(n => n.ClientIP == m.ClientIp);
-            }
-            if (m.Url.IsNotEmpty())
-            {
-                container.And(n => n.Url == m.Url);
-            }
-            if (m.BeginTime.HasValue)
-            {
-                container.And(n => n.CreatedOn >= m.BeginTime);
-            }
-            if (m.EndTime.HasValue)
-            {
-                container.And(n => n.CreatedOn <= m.EndTime);
-            }
 
             PagedList<LogInfo> result = _logService.Query(x => x
                 .Page(page, pageSize)
                 .Select(c => c.Title, c => c.CreatedOn, c => c.ClientIP, c => c.UserName, c => c.Url)
-                .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Where(n => n.ClientIP, m.ClientIp).Where(n => n.Url, m.Url).Where(n => n.BeginTime, m.BeginTime).Where(n => n.EndTime, m.EndTime)
+                .Sort(n => n.OnFile(m.SortBy).Sort(m.SortDirection))
                 );
 
             m.Items = result.Items;
