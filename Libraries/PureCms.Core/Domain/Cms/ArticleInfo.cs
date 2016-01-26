@@ -11,7 +11,7 @@ namespace PureCms.Core.Domain.Cms
     [PrimaryKey("ArticleId", autoIncrement = true)]
     public class ArticleInfo : BaseEntity
     {
-        public long ArticleId { get; set; }
+        public int ArticleId { get; set; }
         public int CategoryId { get; set; }
         public int ChannelId { get; set; }
 
@@ -29,8 +29,10 @@ namespace PureCms.Core.Domain.Cms
 
         public DateTime? UpdatedOn { get; set; }
 
-        [ResultColumn]
-        [LinkEntity(typeof(ArticleCategoryInfo), SourceFieldName = "name")]
-        public string CategoryName { get; set; }
+        public string SEOTitle { get; set; }
+
+        public string SEOKeywords { get; set; }
+
+        public string SEODescription { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Security;
+using PureCms.Core.Session;
 
 namespace PureCms.Services.Security
 {
@@ -18,6 +19,7 @@ namespace PureCms.Services.Security
         private readonly HttpContextBase _httpContext;
         private readonly UserService _userService;
         private readonly TimeSpan _expirationTimeSpan;
+        private readonly ISession _session;
 
         private CurrentUser _cachedUser;
 
@@ -28,6 +30,7 @@ namespace PureCms.Services.Security
         {
             this._httpContext = httpContext;
             this._expirationTimeSpan = FormsAuthentication.Timeout;
+            this._session = new AspNetSession(httpContext);
             this._userService = new UserService();
         }
 
@@ -70,16 +73,21 @@ namespace PureCms.Services.Security
 
             _httpContext.Response.Cookies.Add(cookie);
             _cachedUser = new CurrentUser();
+            _cachedUser.LoginName = user.LoginName;
             _cachedUser.RoleId = user.RoleId;
             _cachedUser.UserId = user.UserId;
             _cachedUser.UserName = user.UserName;
             _cachedUser.Privileges = user.Privileges;
+            _cachedUser.IsSuperAdmin = user.LoginName.ToLower() == "purecms";
+
+            _session.Set(CurrentUser.SESSION_KEY, _cachedUser, null);
         }
 
         public virtual void SignOut()
         {
             _cachedUser = null;
             FormsAuthentication.SignOut();
+            _session.Remove(CurrentUser.SESSION_KEY);
         }
 
         public virtual CurrentUser GetAuthenticatedUser()
@@ -96,20 +104,20 @@ namespace PureCms.Services.Security
             }
 
             var formsIdentity = (FormsIdentity)_httpContext.User.Identity;
-            var user = GetAuthenticatedUserFromTicket(formsIdentity.Ticket);
-            if (user != null && user.IsActive && !user.IsDeleted)
-            {
-                _cachedUser = new CurrentUser();
-                _cachedUser.RoleId = user.RoleId;
-                _cachedUser.UserId = user.UserId;
-                _cachedUser.UserName = user.UserName;
-                _cachedUser.IsSuperAdmin = user.LoginName.ToLower() == "purecms";
-                _cachedUser.Privileges = user.Privileges;
-            }
+            _cachedUser = GetAuthenticatedUserFromTicket(formsIdentity.Ticket);
+            //if (user != null && user.IsActive && !user.IsDeleted)
+            //{
+            //    _cachedUser = new CurrentUser();
+            //    _cachedUser.RoleId = user.RoleId;
+            //    _cachedUser.UserId = user.UserId;
+            //    _cachedUser.UserName = user.UserName;
+            //    _cachedUser.IsSuperAdmin = user.LoginName.ToLower() == "purecms";
+            //    _cachedUser.Privileges = user.Privileges;
+            //}
             return _cachedUser;
         }
 
-        public virtual UserInfo GetAuthenticatedUserFromTicket(FormsAuthenticationTicket ticket)
+        public virtual CurrentUser GetAuthenticatedUserFromTicket(FormsAuthenticationTicket ticket)
         {
             if (ticket == null)
                 throw new ArgumentNullException("ticket");
@@ -119,9 +127,18 @@ namespace PureCms.Services.Security
             if (String.IsNullOrWhiteSpace(loginname))
                 return null;
 
-            var User = _userService.GetUserByLoginName(loginname);
+            var user = _session.Get<CurrentUser>(CurrentUser.SESSION_KEY);//_userService.GetUserByLoginName(loginname);
 
-            return User;
+            if (user != null && user.LoginName.IsCaseInsensitiveEqual(loginname))
+            {
+                return user;
+            }
+            else
+            {
+                SignOut();
+            }
+
+            return null;
         }
     }
 }

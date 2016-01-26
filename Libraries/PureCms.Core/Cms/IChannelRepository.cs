@@ -9,15 +9,15 @@ namespace PureCms.Core.Cms
         int Create(ChannelInfo entity);
 
         bool Update(ChannelInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, ChannelQueryContext q);
+        bool Update(UpdateContext<ChannelInfo> context);
 
         bool DeleteById(int id);
 
-        long Count(ChannelQueryContext q);
-        PagedList<ChannelInfo> Query(ChannelQueryContext q);
-        List<ChannelInfo> GetAll(ChannelQueryContext q);
+        long Count(QueryDescriptor<ChannelInfo> q);
+        PagedList<ChannelInfo> QueryPaged(QueryDescriptor<ChannelInfo> q);
+        List<ChannelInfo> Query(QueryDescriptor<ChannelInfo> q);
 
-        ChannelInfo GetById(int id);
+        ChannelInfo FindById(int id);
         int MoveNode(int moveid, int targetid, int parentid, string position);
     }
 }

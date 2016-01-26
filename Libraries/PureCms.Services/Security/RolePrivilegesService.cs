@@ -48,7 +48,7 @@ namespace PureCms.Services.Security
 
         public RolePrivilegesInfo GetById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.FindById(id);
         }
         public bool DeleteById(int id)
         {
@@ -59,16 +59,16 @@ namespace PureCms.Services.Security
             return _repository.DeleteByRoleId(roleId);
         }
 
-        public PagedList<RolePrivilegesInfo> Query(Func<RolePrivilegesQueryContext, RolePrivilegesQueryContext> container)
+        public PagedList<RolePrivilegesInfo> Query(Func<QueryDescriptor<RolePrivilegesInfo>, QueryDescriptor<RolePrivilegesInfo>> container)
         {
-            RolePrivilegesQueryContext q = container(new RolePrivilegesQueryContext());
+            QueryDescriptor<RolePrivilegesInfo> q = container(new QueryDescriptor<RolePrivilegesInfo>());
 
-            return _repository.Query(q);
+            return _repository.QueryPaged(q);
         }
-        public List<RolePrivilegesInfo> GetAll(Func<RolePrivilegesQueryContext, RolePrivilegesQueryContext> container)
+        public List<RolePrivilegesInfo> GetAll(Func<QueryDescriptor<RolePrivilegesInfo>, QueryDescriptor<RolePrivilegesInfo>> container)
         {
-            RolePrivilegesQueryContext q = container(new RolePrivilegesQueryContext());
-            return _repository.GetAll(q);
+            QueryDescriptor<RolePrivilegesInfo> q = container(new QueryDescriptor<RolePrivilegesInfo>());
+            return _repository.Query(q);
         }
     }
 }

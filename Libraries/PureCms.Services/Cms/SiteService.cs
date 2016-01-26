@@ -26,18 +26,18 @@ namespace PureCms.Services.Cms
 
         public SiteInfo GetById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.FindById(id);
         }
         public bool DeleteById(int id)
         {
             return _repository.DeleteById(id);
         }
 
-        public PagedList<SiteInfo> Query(Func<SiteQueryContext, SiteQueryContext> container)
+        public PagedList<SiteInfo> Query(Func<QueryDescriptor<SiteInfo>, QueryDescriptor<SiteInfo>> container)
         {
-            SiteQueryContext q = container(new SiteQueryContext());
+            QueryDescriptor<SiteInfo> q = container(new QueryDescriptor<SiteInfo>());
 
-            return _repository.Query(q);
+            return _repository.QueryPaged(q);
         }
     }
 }

@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Preferences\Newtonsoft.Json.dll</HintPath>
@@ -40,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -54,16 +59,11 @@
   <ItemGroup>
     <Compile Include="Caching\AspNetCache.cs" />
     <Compile Include="Caching\ICache.cs" />
-    <Compile Include="Cms\ArticleCategoryQueryContext.cs" />
-    <Compile Include="Cms\ArticleQueryContext.cs" />
-    <Compile Include="Cms\ChannelQueryContext.cs" />
     <Compile Include="Cms\IArticleCategoryRepository.cs" />
     <Compile Include="Cms\IArticleRepository.cs" />
     <Compile Include="Cms\IChannelRepository.cs" />
     <Compile Include="Cms\ISiteRepository.cs" />
     <Compile Include="Cms\IThemeRepository.cs" />
-    <Compile Include="Cms\SiteQueryContext.cs" />
-    <Compile Include="Cms\ThemeQueryContext.cs" />
     <Compile Include="Configuration\ISetting.cs" />
     <Compile Include="Configuration\ISettingRepository.cs" />
     <Compile Include="Configuration\JsonPersistAttribute.cs" />
@@ -73,6 +73,7 @@
     <Compile Include="Context\PageDescriptor.cs" />
     <Compile Include="Context\ExecuteContext.cs" />
     <Compile Include="Context\QueryDescriptor.cs" />
+    <Compile Include="Context\ExpressionResolver.cs" />
     <Compile Include="Context\SortDescriptor.cs" />
     <Compile Include="Context\UpdateContext.cs" />
     <Compile Include="Data\ColumnMapper.cs" />
@@ -83,14 +84,16 @@
     <Compile Include="Data\MySqlProvider.cs" />
     <Compile Include="Domain\BaseEntity.cs" />
     <Compile Include="Domain\Cms\ArticleAttributeValueInfo.cs" />
-    <Compile Include="Domain\Cms\ArticleCategoryInfo.cs" />
     <Compile Include="Domain\Cms\ArticleCommentInfo.cs" />
     <Compile Include="Domain\Cms\ArticleInfo.cs" />
     <Compile Include="Domain\Cms\ChannelAttributeInfo.cs" />
     <Compile Include="Domain\Cms\ChannelInfo.cs" />
     <Compile Include="Domain\Cms\CustomAttributeInfo.cs" />
     <Compile Include="Domain\Cms\SiteInfo.cs" />
-    <Compile Include="Domain\Cms\ThemeInfo.cs" />
+    <Compile Include="Domain\Theme\PageInfo.cs" />
+    <Compile Include="Domain\Theme\PageLayoutInfo.cs" />
+    <Compile Include="Domain\Theme\PageModuleInfo.cs" />
+    <Compile Include="Domain\Theme\ThemeInfo.cs" />
     <Compile Include="Domain\Configuration\Setting.cs" />
     <Compile Include="Domain\Localization\LanguageInfo.cs" />
     <Compile Include="Domain\Localization\LocaleStringInfo.cs" />
@@ -105,28 +108,27 @@
     <Compile Include="Domain\Shop\OrderDetailInfo.cs" />
     <Compile Include="Domain\Shop\OrderInfo.cs" />
     <Compile Include="Domain\Task\TaskInfo.cs" />
-    <Compile Include="Domain\Theme\ThemeInfo.cs" />
+    <Compile Include="Domain\Theme\ThemeModuleInfo.cs" />
     <Compile Include="Domain\User\UserAddressInfo.cs" />
     <Compile Include="Domain\User\UserInfo.cs" />
     <Compile Include="Domain\User\UserRankInfo.cs" />
-    <Compile Include="Logging\LogQueryContext.cs" />
+    <Compile Include="Logging\ILoggingRepository.cs" />
+    <Compile Include="Data\PocoHelper.cs" />
     <Compile Include="Security\IPrivilegeRepository.cs" />
     <Compile Include="Security\IRolePrivilegesRepository.cs" />
     <Compile Include="Security\IRoleRepository.cs" />
-    <Compile Include="Security\PrivilegeQueryContext.cs" />
-    <Compile Include="Security\RolePrivilegesQueryContext.cs" />
-    <Compile Include="Security\RoleQueryContext.cs" />
+    <Compile Include="Session\AspNetSession.cs" />
+    <Compile Include="Session\ISession.cs" />
     <Compile Include="User\IUserRepository.cs" />
-    <Compile Include="User\UserQueryContext.cs" />
     <Compile Include="Utilities\ExpressionHelper.cs" />
     <Compile Include="Utilities\Extensions\CollectionExtensions.cs" />
+    <Compile Include="Utilities\Extensions\ConversionExtensions.cs" />
     <Compile Include="Utilities\Extensions\ObjectExtensions.cs" />
     <Compile Include="Utilities\Extensions\StringExtensions.cs" />
     <Compile Include="Utilities\Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\Error.cs" />
     <Compile Include="Infrastructure\Guard.cs" />
     <Compile Include="Infrastructure\RegularExpressions.cs" />
-    <Compile Include="Logging\ILoggingRepository.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
     <Compile Include="Plugins\PluginDescriptor.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
@@ -140,18 +142,24 @@
     <Compile Include="Theme\IThemeRepository.cs" />
     <Compile Include="Utilities\CommonHelper.cs" />
     <Compile Include="Utilities\ActionDisposable.cs" />
+    <Compile Include="Utilities\IOHelper.cs" />
     <Compile Include="Utilities\LowercaseContractResolver .cs" />
+    <Compile Include="Utilities\Randoms.cs" />
     <Compile Include="Utilities\SecurityHelper.cs" />
     <Compile Include="Utilities\Threading\LockExtensions.cs" />
     <Compile Include="Utilities\Threading\ReadLockDisposable.cs" />
     <Compile Include="Utilities\Threading\UpgradeableReadLockDisposable.cs" />
     <Compile Include="Utilities\Threading\WriteLockDisposable.cs" />
+    <Compile Include="Utilities\ValidateHelper.cs" />
     <Compile Include="Utilities\WebHelper.cs" />
     <Compile Include="Utilities\XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Async\" />
     <Folder Include="Notify\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

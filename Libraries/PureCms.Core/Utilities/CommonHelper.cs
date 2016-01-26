@@ -148,5 +148,84 @@ namespace PureCms.Utilities
 
             return setting;
         }
+        #region 数组操作
+
+        /// <summary>
+        /// 获得字符串在字符串数组中的位置
+        /// </summary>
+        public static int GetIndexInArray(string s, string[] array, bool ignoreCase)
+        {
+            if (string.IsNullOrEmpty(s) || array == null || array.Length == 0)
+                return -1;
+
+            int index = 0;
+            string temp = null;
+
+            if (ignoreCase)
+                s = s.ToLower();
+
+            foreach (string item in array)
+            {
+                if (ignoreCase)
+                    temp = item.ToLower();
+                else
+                    temp = item;
+
+                if (s == temp)
+                    return index;
+                else
+                    index++;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// 获得字符串在字符串数组中的位置
+        /// </summary>
+        public static int GetIndexInArray(string s, string[] array)
+        {
+            return GetIndexInArray(s, array, false);
+        }
+        /// <summary>
+        /// 判断字符串是否在字符串数组中
+        /// </summary>
+        public static bool IsInArray(string s, string[] array, bool ignoreCase)
+        {
+            return GetIndexInArray(s, array, ignoreCase) > -1;
+        }
+
+        /// <summary>
+        /// 判断字符串是否在字符串数组中
+        /// </summary>
+        public static bool IsInArray(string s, string[] array)
+        {
+            return IsInArray(s, array, false);
+        }
+
+        /// <summary>
+        /// 判断字符串是否在字符串中
+        /// </summary>
+        public static bool IsInArray(string s, string array, string splitStr, bool ignoreCase)
+        {
+            return IsInArray(s, array.SplitSafe(splitStr), ignoreCase);
+        }
+
+        /// <summary>
+        /// 判断字符串是否在字符串中
+        /// </summary>
+        public static bool IsInArray(string s, string array, string splitStr)
+        {
+            return IsInArray(s, array.SplitSafe(splitStr), false);
+        }
+
+        /// <summary>
+        /// 判断字符串是否在字符串中
+        /// </summary>
+        public static bool IsInArray(string s, string array)
+        {
+            return IsInArray(s, array.SplitSafe(","), false);
+        }
+        #endregion
     }
 }

@@ -26,7 +26,7 @@ namespace PureCms.Web.Admin.Controllers
 
             if (entity != null)
             {
-                model = typeof(PlatformSetting).CopyTo<PlatformSettingModel>(entity);
+                typeof(PlatformSetting).CopyTo<PlatformSettingModel>(entity, model);
             }
 
             return View(model);
@@ -34,13 +34,13 @@ namespace PureCms.Web.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken()]
         [Description("编辑系统参数")]
-        public ActionResult SavePlatformSetting(PlatformSettingModel model)
+        public ActionResult EditPlatformSetting(PlatformSettingModel model)
         {
             if (ModelState.IsValid)
             {
                 PlatformSetting entity = new PlatformSetting();
 
-                entity = typeof(PlatformSettingModel).CopyTo<PlatformSetting>(model);
+                typeof(PlatformSettingModel).CopyTo<PlatformSetting>(model, entity);
 
                 _settingService.SavePlatformSetting(entity); 
                 if (IsAjaxRequest)

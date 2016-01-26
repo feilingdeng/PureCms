@@ -17,21 +17,22 @@ namespace PureCms.Core.User
         int Create(UserInfo entity);
 
         bool Update(UserInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, UserQueryContext q);
+        bool Update(UpdateContext<UserInfo> q);
 
         bool DeleteById(int id);
         bool DeleteById(List<int> ids);
 
-        PagedList<UserInfo> Query(UserQueryContext q);
+        PagedList<UserInfo> QueryPaged(QueryDescriptor<UserInfo> q);
+        List<UserInfo> Query(QueryDescriptor<UserInfo> q);
 
-        UserInfo GetById(int id);
+        UserInfo FindById(int id);
 
-        UserInfo GetByEmail(string email);
+        UserInfo FindByEmail(string email);
 
-        UserInfo GetByUserName(string userName);
+        UserInfo FindByUserName(string userName);
 
-        UserInfo GetByLoginName(string loginName);
-        UserInfo GetByMobile(string mobileNumber);
-        UserInfo GetByLoginNameAndPassword(string loginName, string password);
+        UserInfo FindByLoginName(string loginName);
+        UserInfo FindByMobile(string mobileNumber);
+        UserInfo FindByLoginNameAndPassword(string loginName, string password);
     }
 }

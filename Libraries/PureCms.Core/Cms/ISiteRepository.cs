@@ -9,13 +9,14 @@ namespace PureCms.Core.Cms
         int Create(SiteInfo entity);
 
         bool Update(SiteInfo entity);
+        bool Update(UpdateContext<SiteInfo> context);
 
         bool DeleteById(int id);
 
-        long Count(SiteQueryContext q);
-        PagedList<SiteInfo> Query(SiteQueryContext q);
-        List<SiteInfo> GetAll(SiteQueryContext q);
+        long Count(QueryDescriptor<SiteInfo> q);
+        PagedList<SiteInfo> QueryPaged(QueryDescriptor<SiteInfo> q);
+        List<SiteInfo> Query(QueryDescriptor<SiteInfo> q);
 
-        SiteInfo GetById(int id);
+        SiteInfo FindById(int id);
     }
 }

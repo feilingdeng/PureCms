@@ -74,19 +74,6 @@ namespace PureCms.Web.Admin.Models
         public ContentType ContentType { get; set; }
         public bool IsShow { get; set; }
     }
-    public class ArticleCategoryModel :  BasePaged<ArticleCategoryInfo>
-    {
-        public int? ArticleCategoryId { get; set; }
-
-        public string Name { get; set; }
-        public string Url { get; set; }
-
-        public int? ParentArticleCategoryId { get; set; }
-
-        public int? Level { get; set; }
-        public int? DisplayOrder { get; set; }
-        public bool IsEnable { get; set; }
-    }
     public class EditArticleCategoryModel
     {
         public int ArticleCategoryId { get; set; }
@@ -121,10 +108,9 @@ namespace PureCms.Web.Admin.Models
     }
     public class EditArticleModel
     {
-        public long ArticleId { get; set; }
+        public int ArticleId { get; set; }
         [Required]
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
+        [Range(1,int.MaxValue)]
         public int ChannelId { get; set; }
         public string ChannelName { get; set; }
         [Required]
@@ -139,6 +125,12 @@ namespace PureCms.Web.Admin.Models
         public string Content { get; set; }
 
         public bool IsShow { get; set; }
+
+        public string SEOTitle { get; set; }
+
+        public string SEOKeywords { get; set; }
+
+        public string SEODescription { get; set; }
     }
 
     public class EditContentModel

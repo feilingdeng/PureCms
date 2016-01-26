@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PetaPoco;
 
 namespace PureCms.Core.Domain.Theme
 {
-    class ThemeInfo
+    [TableName("themes")]
+    [PrimaryKey("ThemeId", autoIncrement = true)]
+    public class ThemeInfo : BaseEntity
     {
+        public int ThemeId { get; set; }
+
+        public string PathName { get; set; }
+
+        public string DisplayName { get; set; }
+
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public string Picture { get; set; }
+
+        public string Version { get; set; }
+
+        public bool IsEnabled { get; set; }
     }
 }

@@ -10,13 +10,14 @@ namespace PureCms.Core.Security
         int Create(RoleInfo entity);
 
         bool Update(RoleInfo entity);
+        bool Update(UpdateContext<RoleInfo> context);
 
         bool DeleteById(int id);
 
-        long Count(RoleQueryContext q);
-        PagedList<RoleInfo> Query(RoleQueryContext q);
+        long Count(QueryDescriptor<RoleInfo> q);
+        PagedList<RoleInfo> QueryPaged(QueryDescriptor<RoleInfo> q);
+        List<RoleInfo> Query(QueryDescriptor<RoleInfo> q);
 
-        RoleInfo GetById(int id);
-        List<RoleInfo> GetAll(RoleQueryContext q);
+        RoleInfo FindById(int id);
     }
 }

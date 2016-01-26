@@ -1,5 +1,5 @@
 ﻿using PureCms.Core.Context;
-using PureCms.Core.Domain.Cms;
+using PureCms.Core.Domain.Theme;
 using System.Collections.Generic;
 
 namespace PureCms.Core.Cms
@@ -9,13 +9,14 @@ namespace PureCms.Core.Cms
         int Create(ThemeInfo entity);
 
         bool Update(ThemeInfo entity);
+        bool Update(UpdateContext<ThemeInfo> context);
 
         bool DeleteById(int id);
 
-        long Count(ThemeQueryContext q);
-        PagedList<ThemeInfo> Query(ThemeQueryContext q);
-        List<ThemeInfo> GetAll(ThemeQueryContext q);
+        long Count(QueryDescriptor<ThemeInfo> q);
+        PagedList<ThemeInfo> QueryPaged(QueryDescriptor<ThemeInfo> q);
+        List<ThemeInfo> Query(QueryDescriptor<ThemeInfo> q);
 
-        ThemeInfo GetById(int id);
+        ThemeInfo FindById(int id);
     }
 }

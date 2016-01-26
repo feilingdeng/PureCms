@@ -1,4 +1,17 @@
-﻿<!DOCTYPE html>
+﻿@{ 
+    //var currentMenu = new PureCms.Services.Security.PrivilegeService().GetOne(n=>n.Where(w=>w.ClassName,WorkContext.Controller).Where(w=>w.MethodName, WorkContext.Action));
+}
+@{
+    var className = this.WorkContext.Controller;
+    var methodName = this.WorkContext.Action;
+    List<PureCms.Core.Domain.Security.PrivilegeInfo> result = new PureCms.Services.Security.PrivilegeService().GetTreePath(className, methodName);
+    string title = string.Empty;
+    foreach (var item in result)
+    {
+        title += item.DisplayName + "-";
+    }
+}
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
@@ -9,7 +22,8 @@
     <meta name="author" content="purecms">
     <link rel="icon" href="/favicon.ico">
 
-    <title>@ViewBag.Title</title>
+    @*<title>@ViewBag.Title</title>*@
+    <title>@title</title>
 
     <!-- Bootstrap core CSS -->
     <link href="@WorkContext.CSSCDN/admin/content/css/bootstrap3.3.5/bootstrap.min.css?v=@WorkContext.Version" rel="stylesheet">
@@ -17,6 +31,7 @@
     <!-- Custom styles for this template -->
     <link href="@WorkContext.CSSCDN/admin/content/css/dashboard.css?v=@WorkContext.Version" rel="stylesheet">
     <link href="@WorkContext.CSSCDN/admin/content/css/ace.min.css?v=@WorkContext.Version" rel="stylesheet">
+    <link href="@WorkContext.CSSCDN/admin/content/css/font-awesome.min.css?v=@WorkContext.Version" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="/admin/content/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -115,6 +130,21 @@
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-shopping-cart"></span> 商城 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/admin/shop/category"><span class="glyphicon glyphicon-leaf"></span> 商品分类</a></li>
+                            <li><a href="/admin/shop/brand"><span class="glyphicon glyphicon-copyright-mark"></span> 品牌</a></li>
+                            <li><a href="/admin/user/createproduct"><span class="glyphicon glyphicon-file"></span> 发布商品</a></li>
+                            <li class="dropdown-header">商品维护</li>
+                            <li><a href="/admin/shop/products?state=1"><span class="glyphicon glyphicon-list"></span> 在售商品</a></li>
+                            <li><a href="/admin/shop/products?state=0"><span class="glyphicon glyphicon-list"></span> 下架商品</a></li>
+                            <li><a href="/admin/shop/photos"><span class="glyphicon glyphicon-picture"></span> 商品图片</a></li>
+                            <li><a href="/admin/shop/stocks"><span class="glyphicon glyphicon-inbox"></span> 商品库存</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <span class="glyphicon glyphicon-user"></span> 用户 <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
@@ -155,7 +185,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">参数设置</li>
-                            <li><a href="/admin/settings/platformsetting"><span class="glyphicon glyphicon-leaf"></span> 系统参数</a></li>
+                            <li><a href="/admin/settings/editplatformsetting"><span class="glyphicon glyphicon-leaf"></span> 系统参数</a></li>
                             <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> 安全参数</a></li>
                             <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> SEO参数</a></li>
                             <li><a href="#"><span class="glyphicon glyphicon-leaf"></span> 优化参数</a></li>
@@ -223,7 +253,18 @@
                         </ul>
             </div>*@
             <div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2" id="main">
-                @{Html.RenderPartial("navpath");}
+                @*@{Html.RenderPartial("navpath");}*@
+
+                <div class="" style="margin-left: -15px; margin-right: -15px;">
+
+                    <ol class="breadcrumb">
+                        <li>&rsaquo;&rsaquo;</li>
+                        @foreach (var item in result)
+                        {
+                            @:<li><a href="/admin/@item.ClassName/@item.MethodName">@item.DisplayName</a></li>
+                    }
+                    </ol>
+                </div>
                 <div class="" style="margin-bottom: 80px;">
                     <!--main-->
                     @RenderBody()

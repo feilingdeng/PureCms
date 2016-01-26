@@ -10,14 +10,14 @@ namespace PureCms.Core.Logging
 {
     public interface ILoggingRepository
     {
-        long Create(LogInfo entity);
+        int Create(LogInfo entity);
+        
 
-        bool Update(LogInfo entity);
+        bool DeleteById(int id);
 
-        bool DeleteById(long id);
+        PagedList<LogInfo> QueryPaged(QueryDescriptor<LogInfo> q);
+        List<LogInfo> Top(QueryDescriptor<LogInfo> q);
 
-        PagedList<LogInfo> Query(LogQueryContext q);
-
-        LogInfo GetById(long id);
+        LogInfo FindById(int id);
     }
 }

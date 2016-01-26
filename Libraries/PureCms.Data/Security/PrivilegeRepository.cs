@@ -1,27 +1,25 @@
 ﻿using PetaPoco;
-using PureCms.Core;
 using PureCms.Core.Context;
-using PureCms.Core.Data;
 using PureCms.Core.Domain.Security;
 using PureCms.Core.Security;
-using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PureCms.Data.Security
 {
     public class PrivilegeRepository : IPrivilegeRepository
     {
+        private static readonly DataRepository<PrivilegeInfo> _repository = new DataRepository<PrivilegeInfo>();
+
         /// <summary>
         /// 实体元数据
         /// </summary>
-        private static readonly PetaPoco.Database.PocoData MetaData = PetaPoco.Database.PocoData.ForType(typeof(PrivilegeInfo));
-        private static readonly IDataProvider<PrivilegeInfo> _repository = DataProviderFactory<PrivilegeInfo>.GetInstance(DataProvider.MSSQL);
-
+        private PetaPoco.Database.PocoData MetaData
+        {
+            get
+            {
+                return _repository.MetaData;
+            }
+        }
         private string TableName{
             get
             {
@@ -33,37 +31,67 @@ namespace PureCms.Data.Security
             //PetaPoco.Database.Mapper = new ColumnMapper();
         }
         #region Implements
+        /// <summary>
+        /// 创建记录
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public int Create(PrivilegeInfo entity)
         {
-            var result = _repository.CreateAsync(entity);
-            int id = int.Parse(result.Result.ToString());
-            return id;
+            return _repository.Create(entity);
         }
-
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public bool Update(PrivilegeInfo entity)
         {
-            var result = _repository.UpdateAsync(entity);
-            return result.Result;
+            return _repository.Update(entity);
         }
-
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        /// <param name="sets">需要设置的字段和值</param>
+        /// <param name="context">过滤条件</param>
+        /// <returns></returns>
+        public bool Update(UpdateContext<PrivilegeInfo> context)
+        {
+            return _repository.Update(context);
+        }
+        /// <summary>
+        /// 删除记录
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public bool DeleteById(int id)
         {
-            var result = _repository.DeleteAsync(id);
-            return result.Result;
+            return _repository.Delete(id);
         }
-        public long Count(PrivilegeQueryContext q)
+        /// <summary>
+        /// 查询记录数
+        /// </summary>
+        /// <param name="q">上下文</param>
+        /// <returns></returns>
+        public long Count(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q, null, true);
-            var result = _repository.CountAsync(ctx);
-            return result.Result;
+            return _repository.Count(q);
         }
 
 
+        /// <summary>
+        /// 移动节点
+        /// </summary>
+        /// <param name="moveid"></param>
+        /// <param name="targetid"></param>
+        /// <param name="parentid"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
         public int MoveNode(int moveid, int targetid, int parentid, string position)
         {
             int result = 0;
-            var moveNode = GetById(moveid);
-            var targetNode = GetById(targetid);
+            var moveNode = FindById(moveid);
+            var targetNode = FindById(targetid);
             Sql s = Sql.Builder;
             switch (position)
             {
@@ -93,7 +121,7 @@ namespace PureCms.Data.Security
                 s.Append("UPDATE a SET DisplayOrder = b.displayorder FROM [Privileges] a");
                 s.Append("INNER JOIN #tmp b ON a.PrivilegeId=b.PrivilegeId");
                 s.Append("DROP TABLE #tmp");
-                ((Database)_repository.Client).Execute(s);
+                _repository.Execute(s);
                 result = 1;
             }
             return result;
@@ -109,160 +137,24 @@ namespace PureCms.Data.Security
 
             //return (int)ps[4].Value;
         }
-        public PagedList<PrivilegeInfo> Query(PrivilegeQueryContext q)
+        public PagedList<PrivilegeInfo> QueryPaged(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
-            var result = _repository.PagedAsync(ctx);
-            var pageDatas = result.Result;
-            if (pageDatas != null)
-            {
-                PagedList<PrivilegeInfo> list = new PagedList<PrivilegeInfo>()
-                {
-                    CurrentPage = pageDatas.CurrentPage
-                    ,
-                    ItemsPerPage = pageDatas.ItemsPerPage
-                    ,
-                    TotalItems = pageDatas.TotalItems
-                    ,
-                    TotalPages = pageDatas.TotalPages
-                    ,
-                    Items = pageDatas.Items
-                };
-                return list;
-            }
-            return null;
+            return _repository.QueryPaged(q);
         }
 
-        public PrivilegeInfo GetById(int id)
+        public PrivilegeInfo FindById(int id)
         {
-            var result = _repository.GetByIdAsync(id);
-            return result.Result;
+            return _repository.FindById(id);
         }
-        public PrivilegeInfo GetOne(PrivilegeQueryContext q)
+        public PrivilegeInfo Find(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
-            var result = _repository.GetSingleAsync(ctx);
-            return result.Result;
+            return _repository.Find(q);
         }
-        public List<PrivilegeInfo> GetAll(PrivilegeQueryContext q)
+        public List<PrivilegeInfo> Query(QueryDescriptor<PrivilegeInfo> q)
         {
-            ExecuteContext<PrivilegeInfo> ctx = ParseQueryContext(q);
-            var result = _repository.GetAllAsync(ctx);
-            if (result.Result != null)
-            {
-                return result.Result.ToList();
-            }
-            return null;
+            return _repository.Query(q);
         }
         
-        #endregion
-
-        #region Utilities
-        private Sql ParseSelectSql(PrivilegeQueryContext q, bool isCount = false)
-        {
-            var columns = ContextHelper.GetSelectColumns(MetaData, q.Columns, isCount);
-            Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns + " FROM " + TableName);
-            return query;
-        }
-        private Sql ParseWhereSql(PrivilegeQueryContext q, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder;
-            //过滤条件
-            Sql filter = PetaPoco.Sql.Builder;
-            string optName = string.Empty;
-
-            if (q.ParentPrivilegeId.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.ParentPrivilegeId=@0", optName, TableName), q.ParentPrivilegeId.Value);
-                optName = " AND ";
-            }
-            if (q.Level.HasValue)
-            {
-                filter.Append(string.Format("{0} {1}.Level=@0", optName, TableName), q.Level.Value);
-                optName = " AND ";
-            }
-            if (q.Url.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.Url LIKE @0", optName, TableName), "%" + q.Url + "%");
-                optName = " AND ";
-            }
-            if (q.ClassName.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.ClassName=@0", optName, TableName), q.ClassName);
-                optName = " AND ";
-            }
-            if (q.MethodName.IsNotEmpty())
-            {
-                filter.Append(string.Format("{0} {1}.MethodName=@0", optName, TableName), q.MethodName);
-                optName = " AND ";
-            }
-            if (filter.SQL.IsNotEmpty())
-            {
-                query.Append("WHERE ");
-                query.Append(filter);
-            }
-            //其它条件
-            if (otherCondition != null)
-            {
-                query.Append(optName);
-                query.Append(otherCondition);
-            }
-            return query;
-        }
-        private Sql ParseQuerySql(PrivilegeQueryContext q, Sql otherCondition = null, bool isCount = false)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append(ParseSelectSql(q,isCount));
-            query.Append(ParseWhereSql(q,otherCondition));
-            //排序
-            if (isCount == false)
-            {
-                query.Append(ContextHelper.GetOrderBy<PrivilegeInfo>(MetaData, q.SortingDescriptor));
-            }
-
-            return query;
-        }
-
-        private Sql ParseUpdateSql(PrivilegeQueryContext q, Sql sets, Sql otherCondition = null)
-        {
-            Sql query = PetaPoco.Sql.Builder.Append("UPDATE " + TableName);
-
-            if (sets.SQL.IsNotEmpty())
-            {
-                query.Append(" SET ");
-                query.Append(sets);
-            }
-
-            query.Append(ParseWhereSql(q, otherCondition));
-
-            return query;
-        }
-
-        private ExecuteContext<PrivilegeInfo> ParseQueryContext(PrivilegeQueryContext q, Sql otherCondition = null, bool isCount = false)
-        {
-            ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
-            {
-                ExecuteContainer = ParseQuerySql(q, otherCondition, isCount)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
-
-            return ctx;
-        }
-        private ExecuteContext<PrivilegeInfo> ParseUpdateContext(PrivilegeQueryContext q, Sql sets, Sql otherCondition = null)
-        {
-            ExecuteContext<PrivilegeInfo> ctx = new ExecuteContext<PrivilegeInfo>()
-            {
-                ExecuteContainer = ParseUpdateSql(q, sets, otherCondition)
-                ,
-                PagingInfo = q.PagingDescriptor
-                ,
-                TopCount = q.TopCount
-            };
-
-            return ctx;
-        }
         #endregion
     }
 

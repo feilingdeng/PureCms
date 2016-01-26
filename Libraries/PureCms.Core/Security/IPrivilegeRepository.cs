@@ -13,15 +13,16 @@ namespace PureCms.Core.Security
         int Create(PrivilegeInfo entity);
 
         bool Update(PrivilegeInfo entity);
+        bool Update(UpdateContext<PrivilegeInfo> context);
         int MoveNode(int moveid, int targetid, int parentid, string position);
 
         bool DeleteById(int id);
 
-        long Count(PrivilegeQueryContext q);
-        PagedList<PrivilegeInfo> Query(PrivilegeQueryContext q);
+        long Count(QueryDescriptor<PrivilegeInfo> q);
+        PagedList<PrivilegeInfo> QueryPaged(QueryDescriptor<PrivilegeInfo> q);
 
-        PrivilegeInfo GetById(int id);
-        List<PrivilegeInfo> GetAll(PrivilegeQueryContext q);
-        PrivilegeInfo GetOne(PrivilegeQueryContext q);
+        PrivilegeInfo FindById(int id);
+        List<PrivilegeInfo> Query(QueryDescriptor<PrivilegeInfo> q);
+        PrivilegeInfo Find(QueryDescriptor<PrivilegeInfo> q);
     }
 }

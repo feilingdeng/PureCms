@@ -2,6 +2,7 @@
 using PureCms.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace PureCms.Core.Context
@@ -10,8 +11,13 @@ namespace PureCms.Core.Context
     /// 更新上下文
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class UpdateContext<T,TQ> where T : BaseEntity where TQ : class,new()
+    public class UpdateContext<T> where T : BaseEntity
     {
+        private ExpressionResolver _resolver = new ExpressionResolver();
+        private string _queryText = string.Empty;
+        public string QueryText { get { return this._queryText; } }
+        private List<QueryParameter> _parameters = new List<QueryParameter>();
+        public List<QueryParameter> Parameters { get { return this._parameters; } }
         private List<KeyValuePair<string, object>> _sets = new List<KeyValuePair<string, object>>();
         public List<KeyValuePair<string, object>> Sets
         {
@@ -19,38 +25,31 @@ namespace PureCms.Core.Context
             {
                 return _sets;
             }
-            set
-            {
-                _sets = value;
-            }
         }
-        private TQ _q = new TQ();
-        public TQ QueryContext
+
+        public UpdateContext<T> Where(Expression<Func<T, bool>> predicate)
         {
-            get { return _q; }
-            set { _q = value; }
-        }
-        public UpdateContext<T, TQ> Filter(Expression<Func<TQ, object>> q)
-        {
-            q.Compile().Invoke(QueryContext);
+            _resolver.ResolveToSql(predicate);
+            this._queryText = _resolver.QueryText;
+            this._parameters = _resolver.Arguments;//.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }
 
-        public UpdateContext<T,TQ> Set(Expression<Func<T, object>> fieldPath, object value)
+        public UpdateContext<T> Set(Expression<Func<T, object>> fieldPath, object value)
         {
             var field = ExpressionHelper.GetPropertyName<T>(fieldPath);
             _sets.Add(new KeyValuePair<string, object>(field, value));
             return this;
         }
-        public UpdateContext<T,TQ> Set(params Action<T>[] modifier)
+    }
+
+    public static class UpdateExtensions
+    {
+        public const string Tips = "此方法只能用于本框架";
+
+        public static void Val(this object member, object value)
         {
-            foreach (var item in modifier)
-            {
-            //var field = ExpressionHelper.GetPropertyName<T>(item);
-            //_sets.Add(new KeyValuePair<string, object>(field, value));
-                
-            }
-            return this;
+            throw new Exception(Tips);
         }
     }
 }

@@ -35,9 +35,9 @@
 <body class="bg-info">
     <div class="container">
 
-        <form class="form-horizontal" action="/account/signin" method="post">            
+        <form class="form-horizontal" action="/account/signin" method="post">
             @Html.AntiForgeryToken()
-            @Html.HiddenFor(x=>x.ReturnUrl)
+            @Html.HiddenFor(x => x.ReturnUrl)
             <h2 class="form-signin-heading">登录</h2>
             <div class="form-group">
                 <label for="loginname" class="sr-only">帐号</label>
@@ -51,10 +51,11 @@
             </div>
             <div class="form-group">
                 <label for="validcode" class="sr-only">验证码</label>
-                <input type="text" name="validcode" class="form-control" placeholder="验证码" required>
-                <span class="input-group-addon">
-                    aaa
-                </span>
+                @*<input type="text" name="validcode" class="form-control" placeholder="验证码" required>*@
+                <input type="text" name="validcode" class="form-control" autocomplete="off"  placeholder="验证码" required />
+                <img id="verifyImage" style="cursor:pointer;" title="点击刷新验证码" onclick="this.src='/tool/verifyimage?time=' + new Date()" src="/tool/verifyimage" height="34" class="left" />
+                <div class="clear"></div>
+
                 @Html.ValidationMessageFor(x => x.ValidCode)
             </div>
             <div class="form-group">

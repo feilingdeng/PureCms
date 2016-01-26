@@ -24,9 +24,8 @@ namespace PureCms.Web.Controllers
         public ActionResult Nav()
         {
             var result = _channelService.Query(x => x
-                    .Where(n => n.SiteId, 1)
-                    .Where(n => n.IsEnabled, true)
-                    .Where(n => n.IsShow, true)
+                    .Where(n => n.SiteId == 1)
+                    .Where(n => n.IsEnabled == true && n.IsShow == true)
                 .Sort(s => s.SortAscending(ss => ss.DisplayOrder))
                 );
             ViewData["channels"] = result.Items;

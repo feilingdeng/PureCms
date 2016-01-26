@@ -53,5 +53,29 @@ namespace PureCms.Services.Configuration
                 _cache.Set(SecuritySetting.CACHE_KEY, s, null);
             }
         }
+
+        public UploadSetting GetUploadSetting()
+        {
+            UploadSetting s = new UploadSetting();
+            if (_cache.Contains(UploadSetting.CACHE_KEY))
+            {
+                s = (UploadSetting)_cache.Get(UploadSetting.CACHE_KEY);
+            }
+            else
+            {
+                s = _settingManager.Get<UploadSetting>();
+                _cache.Set(UploadSetting.CACHE_KEY, s, null);
+            }
+            return s;
+        }
+
+        public void SaveUploadSetting(UploadSetting s)
+        {
+            _settingManager.Save<UploadSetting>(s);
+            if (_cache.Contains(UploadSetting.CACHE_KEY))
+            {
+                _cache.Set(UploadSetting.CACHE_KEY, s, null);
+            }
+        }
     }
 }

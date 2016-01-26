@@ -6,17 +6,18 @@ namespace PureCms.Core.Cms
 {
     public interface IArticleRepository
     {
-        long Create(ArticleInfo entity);
+        int Create(ArticleInfo entity);
 
         bool Update(ArticleInfo entity);
-        bool Update(List<KeyValuePair<string, object>> sets, ArticleQueryContext q);
+        bool Update(UpdateContext<ArticleInfo> context);
 
-        bool DeleteById(long id);
-        bool DeleteById(List<long> ids);
+        bool DeleteById(int id);
+        bool DeleteById(List<int> ids);
 
-        long Count(ArticleQueryContext q);
-        PagedList<ArticleInfo> Query(ArticleQueryContext q);
+        long Count(QueryDescriptor<ArticleInfo> q);
+        PagedList<ArticleInfo> QueryPaged(QueryDescriptor<ArticleInfo> q);
+        List<ArticleInfo> Query(QueryDescriptor<ArticleInfo> q);
 
-        ArticleInfo GetById(long id);
+        ArticleInfo FindById(int id);
     }
 }

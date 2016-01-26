@@ -73,16 +73,16 @@
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
                     <th data-sortname="title">
-                        @Html.ActionLink("标题", "articles", new { title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("标题", "articles", new { channelid = Model.ChannelId, title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="10%" data-sortname="author">
-                        @Html.ActionLink("作者", "articles", new { title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("作者", "articles", new { channelid = Model.ChannelId, title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%" data-sortname="isshow">
-                        @Html.ActionLink("状态", "articles", new { title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("状态", "articles", new { channelid = Model.ChannelId, title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%" data-sortname="createdon">
-                        @Html.ActionLink("发布时间", "articles", new { title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("发布时间", "articles", new { channelid = Model.ChannelId, title = Model.Title, author = Model.Author, isshow = Model.IsShow, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%">操作</th>
                 </tr>
@@ -97,7 +97,7 @@
                         <td>@(item.IsShow ? "<span class=\"label label-info\">显示</span>" : "<span class=\"label label-default\">隐藏</span>")</td>
                         <td>@item.CreatedOn</td>
                         <td>
-                            <a class="btn btn-default btn-sm" href="/admin/cms/editarticle?id=@item.ArticleId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                            <a class="btn btn-default btn-sm" href="/admin/cms/editarticle?channelid=@item.ChannelId&id=@item.ArticleId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
                             <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.ArticleId','/admin/cms/deletearticle')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
                         </td>
                     </tr>

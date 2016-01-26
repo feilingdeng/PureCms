@@ -13,9 +13,8 @@ namespace PureCms
         }
 
 
-        public static T CopyTo<T>(this Type sourceType, object sourceInstance) where T : class , new()
+        public static void CopyTo<T>(this Type sourceType, object sourceInstance, T targetInstance) where T : class , new()
         {
-            T target = new T();
             var targetType = typeof(T);
             var targetProps = targetType.GetProperties().ToList();
             foreach (var item in targetProps)
@@ -25,11 +24,10 @@ namespace PureCms
                     var sourceProp = sourceType.GetProperty(item.Name);
                     if (null != sourceProp && sourceProp.CanRead)
                     {
-                        targetType.SetPropertyValue(target, item.Name, sourceProp.GetValue(sourceInstance));
+                        targetType.SetPropertyValue(targetInstance, item.Name, sourceProp.GetValue(sourceInstance));
                     }
                 }
             }
-            return target;
         }
         /// <summary>
         /// 设置对象的属性值
@@ -74,6 +72,40 @@ namespace PureCms
 
                 return Convert.ChangeType(fieldValue, propType);
             }
+        }
+        /// <summary>
+        /// Gets the underlying type of a <see cref="Nullable{T}" /> type.
+        /// </summary>
+        public static Type GetNonNullableType(this Type type)
+        {
+            if (!IsNullable(type))
+            {
+                return type;
+            }
+            return type.GetGenericArguments()[0];
+        }
+        public static bool IsInteger(this Type type)
+        {
+
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsNullable(this Type type)
+        {
+            return type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
     }
 }

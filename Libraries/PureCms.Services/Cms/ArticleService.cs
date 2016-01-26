@@ -15,7 +15,7 @@ namespace PureCms.Services.Cms
         IArticleRepository _repository = new ArticleRepository();
 
 
-        public long Create(ArticleInfo entity)
+        public int Create(ArticleInfo entity)
         {
             return _repository.Create(entity);
         }
@@ -23,33 +23,31 @@ namespace PureCms.Services.Cms
         {
             return _repository.Update(entity);
         }
-        public bool Update(Func<UpdateContext<ArticleInfo, ArticleQueryContext>, UpdateContext<ArticleInfo, ArticleQueryContext>> context)
+        public bool Update(Func<UpdateContext<ArticleInfo>, UpdateContext<ArticleInfo>> context)
         {
-            var ctx = context(new UpdateContext<ArticleInfo, ArticleQueryContext>());
-            List<KeyValuePair<string, object>> sets = ctx.Sets;
-            ArticleQueryContext q = ctx.QueryContext;
-            return _repository.Update(sets, q);
+            var ctx = context(new UpdateContext<ArticleInfo>());
+            return _repository.Update(ctx);
         }
 
-        public ArticleInfo GetById(long id)
+        public ArticleInfo GetById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.FindById(id);
         }
-        public bool DeleteById(long id)
+        public bool DeleteById(int id)
         {
             return _repository.DeleteById(id);
         }
 
-        public bool DeleteById(List<long> ids)
+        public bool DeleteById(List<int> ids)
         {
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<ArticleInfo> Query(Func<ArticleQueryContext, ArticleQueryContext> container)
+        public PagedList<ArticleInfo> Query(Func<QueryDescriptor<ArticleInfo>, QueryDescriptor<ArticleInfo>> container)
         {
-            ArticleQueryContext q = container(new ArticleQueryContext());
+            QueryDescriptor<ArticleInfo> q = container(new QueryDescriptor<ArticleInfo>());
 
-            return _repository.Query(q);
+            return _repository.QueryPaged(q);
         }
     }
 

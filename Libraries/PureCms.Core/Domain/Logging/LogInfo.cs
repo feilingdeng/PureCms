@@ -12,7 +12,7 @@ namespace PureCms.Core.Domain.Logging
     [PrimaryKey("LogId",autoIncrement = true)]
     public class LogInfo :BaseEntity
     {
-        public long LogId { get; set; }
+        public int LogId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
 

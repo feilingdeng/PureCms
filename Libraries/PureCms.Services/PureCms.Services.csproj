@@ -48,17 +48,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cms\ArticleCategoryService.cs" />
     <Compile Include="Cms\ArticleService.cs" />
     <Compile Include="Cms\ChannelService.cs" />
     <Compile Include="Cms\SiteService.cs" />
-    <Compile Include="Cms\ThemeService.cs" />
-    <Compile Include="Common\ContextHelper.cs" />
+    <Compile Include="Theme\PageLayoutService.cs" />
+    <Compile Include="Theme\PageModuleService.cs" />
+    <Compile Include="Theme\PageService.cs" />
+    <Compile Include="Theme\ThemeModuleService.cs" />
+    <Compile Include="Theme\ThemeService.cs" />
+    <Compile Include="Common\Uploader.cs" />
     <Compile Include="Configuration\EmailSetting.cs" />
     <Compile Include="Configuration\PlatformSetting.cs" />
     <Compile Include="Configuration\SecuritySetting.cs" />
     <Compile Include="Configuration\SettingService.cs" />
     <Compile Include="Configuration\SmsSetting.cs" />
+    <Compile Include="Configuration\UploadSetting.cs" />
     <Compile Include="Logging\LogService.cs" />
     <Compile Include="Plugins\PluginService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,13 +73,14 @@
     <Compile Include="Security\PrivilegeService.cs" />
     <Compile Include="Security\RolePrivilegesService.cs" />
     <Compile Include="Security\RoleService.cs" />
+    <Compile Include="Session\SessionService.cs" />
     <Compile Include="User\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Caching\" />
     <Folder Include="Notify\" />
     <Folder Include="Shop\" />
     <Folder Include="Task\" />
-    <Folder Include="Theme\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PureCms.Core\PureCms.Core.csproj">
