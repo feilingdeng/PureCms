@@ -2,15 +2,15 @@
 @{
     List<PureCms.Core.Domain.Cms.ChannelInfo> channels = ViewData["channels"] as List<PureCms.Core.Domain.Cms.ChannelInfo>;
     @*<nav class="navbar navbar-default navbar-static-top" role="navigation">
-   <div class="navbar-header">
-      <a class="navbar-brand" href="/">PureCms</a>
-   </div>
-   <div>
-      <ul class="nav navbar-nav">          
-      </ul>
-   </div>
-</nav>*@
-    
+           <div class="navbar-header">
+              <a class="navbar-brand" href="/">PureCms</a>
+           </div>
+           <div>
+              <ul class="nav navbar-nav">
+              </ul>
+           </div>
+        </nav>*@
+
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header col-sm-3 col-md-3">
@@ -24,9 +24,38 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse col-sm-8 col-sm-offset-4">
                 <ul class="nav navbar-nav navbar-pill">
-                    @foreach (var item in channels)
+                    @{ 
+                        var channelUrl = string.Empty;
+                    }
+                    @foreach (var item in channels.Where(n=>n.Level == 1))
                     {
-                        <li><a href="/admin/cms/articles?channelid=@item.ChannelId">@item.Name</a></li>
+                        if (!string.IsNullOrEmpty(item.Url))
+                        {
+                            channelUrl = item.Url;
+                        }
+                        else
+                        {
+                            channelUrl = item.ContentType == PureCms.Core.Domain.Cms.ContentType.List ? "/cms/articles?channelid="+item.ChannelId : "/cms/detail?channelid=" + item.ChannelId;
+                        }
+                        var childs = channels.Where(n => n.ParentChannelId == item.ChannelId);
+                        if (childs != null && childs.Count() > 0)
+                        {
+
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <span class="glyphicon glyphicon-th-large"></span> @item.Name <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @foreach (var child in childs)
+                                    {
+                                        <li><a href="/cms/articles?channelid=@child.ChannelId"><span class="glyphicon glyphicon-list"></span> @child.Name</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        else {
+                            <li><a href="/cms/articles?channelid=@item.ChannelId">@item.Name</a></li>
+                        }
                     }
                 </ul>
             </div>

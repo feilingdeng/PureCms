@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace PureCms.Core
+namespace PureCms
 {
     public static class ObjectExtensions
     {
@@ -52,7 +52,7 @@ namespace PureCms.Core
         /// <param name="target">目标对象</param>
         /// <param name="filePath">XML文件路径</param>
         /// <returns>序列对象</returns>
-        public static void DeserializeFromXML<T>(this object target, out T result, string filePath) where T : class
+        public static T DeserializeFromXML<T>(this T target, string filePath) where T : class
         {
             Type type = typeof(T);
             FileStream fs = null;
@@ -60,8 +60,8 @@ namespace PureCms.Core
             {
                 fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 XmlSerializer serializer = new XmlSerializer(type);
-                result = serializer.Deserialize(fs) as T;
-                //return target as T;
+                target = serializer.Deserialize(fs) as T;
+                return target;
             }
             catch (Exception ex)
             {
@@ -94,12 +94,40 @@ namespace PureCms.Core
         /// <param name="target">目标对象</param>
         /// <param name="data">json</param>
         /// <returns>序列对象</returns>
-        public static void DeserializeFromJson<T>(this object target, out T result, string data) where T : class
+        public static T DeserializeFromJson<T>(this T target, string data) where T : class
         {
             var t = Newtonsoft.Json.JsonConvert.DeserializeObjectAsync<T>(data);
-            result = t.Result;
+            target = t.Result;
+            return target;
         }
 
         #endregion
+
+        /// <summary>
+        /// 对象间拷贝
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TDest"></typeparam>
+        /// <param name="sourceInstance"></param>
+        /// <param name="targetInstance"></param>
+        public static void CopyTo<TSource, TDest>(this TSource sourceInstance, TDest targetInstance)
+            where TSource : class, new()
+            where TDest : class, new()
+        {
+            var sourceType = typeof(TSource);
+            var targetType = typeof(TDest);
+            var targetProps = targetType.GetProperties().ToList();
+            foreach (var item in targetProps)
+            {
+                if (item.CanWrite)
+                {
+                    var sourceProp = sourceType.GetProperty(item.Name);
+                    if (null != sourceProp && sourceProp.CanRead)
+                    {
+                        targetType.SetPropertyValue(targetInstance, item.Name, sourceProp.GetValue(sourceInstance));
+                    }
+                }
+            }
+        }
     }
 }

@@ -45,6 +45,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -59,7 +60,6 @@
   <ItemGroup>
     <Compile Include="Caching\AspNetCache.cs" />
     <Compile Include="Caching\ICache.cs" />
-    <Compile Include="Cms\IArticleCategoryRepository.cs" />
     <Compile Include="Cms\IArticleRepository.cs" />
     <Compile Include="Cms\IChannelRepository.cs" />
     <Compile Include="Cms\ISiteRepository.cs" />
@@ -76,7 +76,6 @@
     <Compile Include="Context\ExpressionResolver.cs" />
     <Compile Include="Context\SortDescriptor.cs" />
     <Compile Include="Context\UpdateContext.cs" />
-    <Compile Include="Data\ColumnMapper.cs" />
     <Compile Include="Data\DataProviderFactory.cs" />
     <Compile Include="Data\MsSqlProvider.cs" />
     <Compile Include="Data\IDataProvider.cs" />
@@ -90,6 +89,15 @@
     <Compile Include="Domain\Cms\ChannelInfo.cs" />
     <Compile Include="Domain\Cms\CustomAttributeInfo.cs" />
     <Compile Include="Domain\Cms\SiteInfo.cs" />
+    <Compile Include="Domain\Schema\AttributeInfo.cs" />
+    <Compile Include="Domain\Schema\AttributeTypeIds.cs" />
+    <Compile Include="Domain\Schema\AttributeTypeInfo.cs" />
+    <Compile Include="Domain\Schema\ColumnInfo.cs" />
+    <Compile Include="Domain\Schema\EntityInfo.cs" />
+    <Compile Include="Domain\Schema\OptionSetInfo.cs" />
+    <Compile Include="Domain\Schema\QueryViewInfo.cs" />
+    <Compile Include="Domain\Schema\RelationShipInfo.cs" />
+    <Compile Include="Domain\Schema\OptionSetDetailInfo.cs" />
     <Compile Include="Domain\Theme\PageInfo.cs" />
     <Compile Include="Domain\Theme\PageLayoutInfo.cs" />
     <Compile Include="Domain\Theme\PageModuleInfo.cs" />
@@ -114,6 +122,26 @@
     <Compile Include="Domain\User\UserRankInfo.cs" />
     <Compile Include="Logging\ILoggingRepository.cs" />
     <Compile Include="Data\PocoHelper.cs" />
+    <Compile Include="PureCmsException.cs" />
+    <Compile Include="Query\ColumnSet.cs" />
+    <Compile Include="Query\ConditionExpression.cs" />
+    <Compile Include="Query\ConditionOperator.cs" />
+    <Compile Include="Query\FilterExpression.cs" />
+    <Compile Include="Query\JoinOperator.cs" />
+    <Compile Include="Query\LinkEntity.cs" />
+    <Compile Include="Query\LogicalOperator.cs" />
+    <Compile Include="Query\OrderExpression.cs" />
+    <Compile Include="Query\OrderType.cs" />
+    <Compile Include="Query\PagingInfo.cs" />
+    <Compile Include="Query\QueryExpression.cs" />
+    <Compile Include="Schema\AttributeType.cs" />
+    <Compile Include="Schema\IAttributeRepository.cs" />
+    <Compile Include="Schema\IAttributeTypeRepository.cs" />
+    <Compile Include="Schema\IEntityRepository.cs" />
+    <Compile Include="Schema\IOptionSetDetailRepository.cs" />
+    <Compile Include="Schema\IOptionSetRepository.cs" />
+    <Compile Include="Schema\IQueryViewRepository.cs" />
+    <Compile Include="Schema\IRelationShipRepository.cs" />
     <Compile Include="Security\IPrivilegeRepository.cs" />
     <Compile Include="Security\IRolePrivilegesRepository.cs" />
     <Compile Include="Security\IRoleRepository.cs" />

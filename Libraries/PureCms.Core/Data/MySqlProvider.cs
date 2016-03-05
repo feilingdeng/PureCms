@@ -100,5 +100,20 @@ namespace PureCms.Core.Data
         {
             throw new NotImplementedException();
         }
+
+        public void BeginTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CompleteTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AbortTransaction()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

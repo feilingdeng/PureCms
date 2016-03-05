@@ -8,6 +8,10 @@
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="description" content="@WorkContext.Copyright">
     <meta name="author" content="purecms">
+
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="0"> 
     <link rel="icon" href="/favicon.ico">
 
     <title>@ViewBag.Title</title>
@@ -36,7 +40,9 @@
 <body>    
     @{Html.RenderAction("nav", "home");}
     <div class="container-fluid">
-        @RenderBody()
+        <div class="main">
+            @RenderBody()
+        </div>
     </div>    
     @RenderSection("scripts", required: false)
 </body>

@@ -5,13 +5,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace PureCms.Core
-{ 
+namespace PureCms
+{
     public static class ConversionExtensions
     {
         private readonly static IDictionary<Type, TypeConverter> s_customTypeConverters;

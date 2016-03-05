@@ -87,6 +87,9 @@
             color:white;
             font-weight:bolder;
         }*/
+        th,td,ul,li,div,span,p,label{font-size:13px;}
+        .border-bottom{border-bottom:1px solid #eee;}
+        .padding-bottom{padding-bottom:2px;}
     </style>    
     @if (IsSectionDefined("Header"))
     {
@@ -206,6 +209,14 @@
                             <li><a href="#"><span class="glyphicon glyphicon-link"></span> 支付</a></li>
                             <li><a href="#"><span class="glyphicon glyphicon-link"></span> 登录</a></li>
                             <li><a href="#"><span class="glyphicon glyphicon-link"></span> 微信</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-file"></span> 自定义 <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/admin/customize/entities"><span class="glyphicon glyphicon-list"></span> 实体</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">

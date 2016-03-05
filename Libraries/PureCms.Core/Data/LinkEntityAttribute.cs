@@ -18,12 +18,14 @@ namespace PureCms.Core
             set;
         }
 
-        public string TableName
+        public string AliasName
         {
             get;
             set;
         }
 
-        public string SourceFieldName { get; set; }
+        public string LinkFromFieldName { get; set; }
+        public string LinkToFieldName { get; set; }
+        public string TargetFieldName { get; set; }
     }
 }

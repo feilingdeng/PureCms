@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using PureCms.Core.Caching;
+using System.Data;
 
 namespace PureCms.Data
 {
@@ -27,12 +28,28 @@ namespace PureCms.Data
                     return _cache.Get(EntityType.FullName) as PetaPoco.Database.PocoData;
                 }
 
+                //var md = new PetaPoco.Database.PocoData(EntityType);
                 var md = PetaPoco.Database.PocoData.ForType(EntityType);
                 _cache.Set(EntityType.FullName, md, null);
                 return md;
             }
         }
 
+        public DataRepository(){
+            //PetaPoco.Database.Mapper = new ColumnMapper();
+        }
+        public virtual void BeginTransaction()
+        {
+            _repository.BeginTransaction();
+        }
+        public virtual void CompleteTransaction()
+        {
+            _repository.CompleteTransaction();
+        }
+        public virtual void RollBackTransaction()
+        {
+            _repository.AbortTransaction();
+        }
         #region 创建记录
         /// <summary>
         /// 创建一行记录
@@ -163,6 +180,21 @@ namespace PureCms.Data
                 return list;
             }
             return null;
+        }
+        /// <summary>
+        /// 查询数据
+        /// </summary>
+        /// <returns></returns>
+        public List<T> FindAll()
+        {
+            ExecuteContext<T> ctx = PocoHelper.ParseContext<T>(MetaData, null);
+            var result = _repository.QueryAsync(ctx);
+            var pageDatas = result.Result;
+            if (pageDatas != null)
+            {
+                return pageDatas.ToList();
+            }
+            return new List<T>();
         }
         /// <summary>
         /// 查询数据

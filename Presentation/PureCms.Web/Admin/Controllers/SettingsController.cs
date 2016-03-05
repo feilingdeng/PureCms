@@ -26,7 +26,7 @@ namespace PureCms.Web.Admin.Controllers
 
             if (entity != null)
             {
-                typeof(PlatformSetting).CopyTo<PlatformSettingModel>(entity, model);
+                entity.CopyTo(model);
             }
 
             return View(model);
@@ -39,8 +39,8 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 PlatformSetting entity = new PlatformSetting();
-
-                typeof(PlatformSettingModel).CopyTo<PlatformSetting>(model, entity);
+                
+                model.CopyTo(entity);
 
                 _settingService.SavePlatformSetting(entity); 
                 if (IsAjaxRequest)

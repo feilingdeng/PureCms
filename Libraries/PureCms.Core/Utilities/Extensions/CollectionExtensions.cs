@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PureCms.Core
+namespace PureCms
 {
     public static class CollectionExtensions
     {

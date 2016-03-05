@@ -127,7 +127,8 @@ namespace PureCms.Services.Security
             if (String.IsNullOrWhiteSpace(loginname))
                 return null;
 
-            var user = _session.Get<CurrentUser>(CurrentUser.SESSION_KEY);//_userService.GetUserByLoginName(loginname);
+            var user = _session.Get<CurrentUser>(CurrentUser.SESSION_KEY);
+            //_userService.GetUserByLoginName(loginname);
 
             if (user != null && user.LoginName.IsCaseInsensitiveEqual(loginname))
             {

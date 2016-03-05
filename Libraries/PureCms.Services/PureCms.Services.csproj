@@ -51,6 +51,14 @@
     <Compile Include="Cms\ArticleService.cs" />
     <Compile Include="Cms\ChannelService.cs" />
     <Compile Include="Cms\SiteService.cs" />
+    <Compile Include="Query\FetchDataService.cs" />
+    <Compile Include="Schema\AttributeService.cs" />
+    <Compile Include="Schema\AttributeTypeService.cs" />
+    <Compile Include="Schema\EntityService.cs" />
+    <Compile Include="Schema\OptionSetDetailService.cs" />
+    <Compile Include="Schema\OptionSetService.cs" />
+    <Compile Include="Query\QueryViewService.cs" />
+    <Compile Include="Schema\RelationShipService.cs" />
     <Compile Include="Theme\PageLayoutService.cs" />
     <Compile Include="Theme\PageModuleService.cs" />
     <Compile Include="Theme\PageService.cs" />

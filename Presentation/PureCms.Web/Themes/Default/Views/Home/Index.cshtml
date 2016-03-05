@@ -1,4 +1,50 @@
 ﻿@{
     Layout = "../shared/_layout.cshtml";
 }
-<h2>default Index</h2>
+
+<div class="row">
+    <div class="col-sm-11">
+        <div id="myCarousel" class="carousel slide">
+            <!-- 轮播（Carousel）指标 -->
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>
+            <!-- 轮播（Carousel）项目 -->
+            <div class="carousel-inner">
+                <div class="item active">
+                    <img src="http://picman.jmall360.com/Upload/sa_746015735b06bc9747bbbdefb10db0e1.jpg" alt="First slide">
+                </div>
+                <div class="item">
+                    <img src="http://picman.jmall360.com/Upload/sa_9a5ef6a254097237d823bb4c2b221e62.jpg" alt="Second slide">
+                </div>
+                <div class="item">
+                    <img src="http://picman.jmall360.com/Upload/sa_746015735b06bc9747bbbdefb10db0e1.jpg" alt="Third slide">
+                </div>
+            </div>
+            <!-- 轮播（Carousel）导航 -->
+            <a class="carousel-control left" href="#myCarousel"
+               data-slide="prev">&lsaquo;</a>
+            <a class="carousel-control right" href="#myCarousel"
+               data-slide="next">&rsaquo;</a>
+        </div>
+        <div class="media">
+            <a class="pull-left" href="#"><img class="media-object" src="/content/images/mo.jpg" /> </a>
+            <div class="media-body" contenteditable="true">
+                <h4 class="media-heading">嵌入媒体标题</h4>
+                请尽量使用HTML5兼容的视频格式和视频代码实现视频播放, 以达到更好的体验效果.
+            </div>
+        </div>
+
+    </div>
+</div>
+@section Header {
+}
+@section Scripts {
+    <script>
+        $('#myCarousel').carousel({
+            interval: 2000
+        })
+    </script>
+}

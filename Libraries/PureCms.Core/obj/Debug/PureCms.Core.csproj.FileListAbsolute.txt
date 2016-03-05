@@ -7,6 +7,7 @@ G:\projects\PureCms\Libraries\PureCms.Core\obj\Debug\PureCms.Core.dll
 G:\projects\PureCms\Libraries\PureCms.Core\obj\Debug\PureCms.Core.pdb
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\PureCms.Core.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\PureCms.Core.pdb
+G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\AutoMapper.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\Newtonsoft.Json.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\PetaPoco.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.Mvc.dll
@@ -15,6 +16,7 @@ G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.WebPages.Raz
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.WebPages.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\Microsoft.Web.Infrastructure.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.WebPages.Deployment.dll
+G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\AutoMapper.xml
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.Razor.xml
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.WebPages.Razor.xml
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\Microsoft.Web.Infrastructure.xml
@@ -25,5 +27,3 @@ G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\zh-Hans\System.Web.WebP
 G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.pdb
 G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.csprojResolveAssemblyReference.cache
-G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\AutoMapper.dll
-G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\AutoMapper.xml

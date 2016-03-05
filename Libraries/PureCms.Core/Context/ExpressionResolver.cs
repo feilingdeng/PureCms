@@ -52,6 +52,10 @@ namespace PureCms.Core.Context
             {
                 return GetMemberValue(expression as MemberExpression);
             }
+            else if(expression is MethodCallExpression)
+            {
+                return GetValue((expression as MethodCallExpression).Arguments[0]);
+            }
             throw new Exception("无法获取值" + expression);
         }
         // 获取属性值

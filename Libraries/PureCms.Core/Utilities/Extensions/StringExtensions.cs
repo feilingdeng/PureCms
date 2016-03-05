@@ -782,9 +782,17 @@ namespace PureCms
 				return s.Replace("'", "");
 			}
 			return "";
-		}
+        }
+        /// <summary>
+        /// 如果为空则替换为新值
+        /// </summary>
+        [DebuggerStepThrough]
+        public static string IfEmpty(this string value, string newvalue)
+        {
+            return (!string.IsNullOrWhiteSpace(value)) ? value : newvalue;
+        }
 
-		#endregion
+        #endregion
 
         #region Helper
 

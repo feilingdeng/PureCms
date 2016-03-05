@@ -28,49 +28,49 @@ namespace PureCms.Web.Admin.Controllers
 
         #region 站点
         [Description("站点列表")]
-        public ActionResult Sites(SiteModel m)
+        public ActionResult Sites(SiteModel model)
         {
-            if (m.SortBy.IsEmpty())
+            if (model.SortBy.IsEmpty())
             {
-                m.SortBy = Utilities.ExpressionHelper.GetPropertyName<SiteInfo>(n => n.CreatedOn);
-                m.SortDirection = (int)SortDirection.Desc;
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<SiteInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)SortDirection.Desc;
             }
 
             FilterContainer<SiteInfo> container = new FilterContainer<SiteInfo>();
-            if (m.IsDefault.HasValue)
+            if (model.IsDefault.HasValue)
             {
-                container.And(n=>n.IsDefault == m.IsDefault);
+                container.And(n=>n.IsDefault == model.IsDefault);
             }
-            if (m.IsEnabled.HasValue)
+            if (model.IsEnabled.HasValue)
             {
-                container.And(n => n.IsEnabled == m.IsEnabled);
+                container.And(n => n.IsEnabled == model.IsEnabled);
             }
-            if (m.Name.IsNotEmpty())
+            if (model.Name.IsNotEmpty())
             {
-                container.And(n => n.Name == m.Name);
+                container.And(n => n.Name == model.Name);
             }
-            if (m.Theme.IsNotEmpty())
+            if (model.Theme.IsNotEmpty())
             {
-                container.And(n => n.Theme == m.Theme);
+                container.And(n => n.Theme == model.Theme);
             }
-            if (m.Url.IsNotEmpty())
+            if (model.Url.IsNotEmpty())
             {
-                container.And(n => n.Url == m.Url);
+                container.And(n => n.Url == model.Url);
             }
-            PagedList<SiteInfo> result = _siteService.Query(x => x
-                .Page(m.Page, m.PageSize)
+            PagedList<SiteInfo> result = _siteService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
                 .Select(c => c.SiteId, c => c.Name, c => c.CreatedOn, c => c.IsDefault, c => c.Url, c => c.IsEnabled, c => c.Theme)
                 .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
                 );
 
-            m.Items = result.Items;
-            m.TotalItems = result.TotalItems;
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
             if (IsAjaxRequest)
             {
-                return AjaxResult(true, m);
+                return AjaxResult(true, model);
             }
-            return View(m);
+            return View(model);
         }
         [HttpGet]
         [Description("站点编辑")]
@@ -79,10 +79,10 @@ namespace PureCms.Web.Admin.Controllers
             EditSiteModel model = new EditSiteModel();
             if (id > 0)
             {
-                var entity = _siteService.GetById(id);
+                var entity = _siteService.FindById(id);
                 if (entity != null)
                 {
-                    typeof(SiteInfo).CopyTo<EditSiteModel>(entity, model);
+                    entity.CopyTo(model);
                 }
             }
             var themes = _themeService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
@@ -98,7 +98,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new SiteInfo();
-                typeof(EditSiteModel).CopyTo<SiteInfo>(model, entity);
+                model.CopyTo(entity);
 
                 if (entity.SiteId > 0)
                 {
@@ -145,7 +145,7 @@ namespace PureCms.Web.Admin.Controllers
             EditChannelModel model = new EditChannelModel();
             if (id > 0)
             {
-                ChannelInfo entity = _channelService.GetById(id);
+                ChannelInfo entity = _channelService.FindById(id);
                 if (IsAjaxRequest)
                 {
                     return AjaxResult(true, entity);
@@ -154,7 +154,7 @@ namespace PureCms.Web.Admin.Controllers
                 {
                     if (entity != null)
                     {
-                        typeof(ChannelInfo).CopyTo<EditChannelModel>(entity, model);
+                        entity.CopyTo(model);
                     }
                 }
             }
@@ -170,7 +170,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new ChannelInfo();
-                typeof(EditChannelModel).CopyTo<ChannelInfo>(model, entity);
+                model.CopyTo(entity);
 
                 if (entity.ChannelId > 0)
                 {
@@ -241,7 +241,7 @@ namespace PureCms.Web.Admin.Controllers
             }
             else
             {
-                var entity = _channelService.GetById(channelid);
+                var entity = _channelService.FindById(channelid);
                 if (entity != null)
                 {
                     model.ChannelId = entity.ChannelId;
@@ -251,7 +251,7 @@ namespace PureCms.Web.Admin.Controllers
                 {
                     return PromptView(WorkContext.UrlReferrer, "请先选择频道");
                 }
-                var channel = _channelService.GetById(channelid);
+                var channel = _channelService.FindById(channelid);
                 model.ChannelName = channel.Name;
                 model.ChannelId = channelid;
             }
@@ -283,62 +283,62 @@ namespace PureCms.Web.Admin.Controllers
 
         #region 文章
         [Description("文章列表")]
-        public ActionResult Articles(ArticleModel m)
+        public ActionResult Articles(ArticleModel model)
         {
-            if (m.ChannelId <= 0)
+            if (model.ChannelId <= 0)
             {
                 return PromptView(WorkContext.UrlReferrer, "请先选择频道");
             }
             else
             {
-                var channel = _channelService.GetById(m.ChannelId);
-                m.ChannelName = channel.Name;
+                var channel = _channelService.FindById(model.ChannelId);
+                model.ChannelName = channel.Name;
             }
-            if (m.SortBy.IsEmpty())
+            if (model.SortBy.IsEmpty())
             {
-                m.SortBy = Utilities.ExpressionHelper.GetPropertyName<ArticleInfo>(n => n.CreatedOn);
-                m.SortDirection = (int)SortDirection.Desc;
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<ArticleInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)SortDirection.Desc;
             }
             FilterContainer<ArticleInfo> container = new FilterContainer<ArticleInfo>();
-            if (m.Title.IsNotEmpty())
+            if (model.Title.IsNotEmpty())
             {
-                container.And(n => n.Title == m.Title);
+                container.And(n => n.Title == model.Title);
             }
-            if (m.Author.IsNotEmpty())
+            if (model.Author.IsNotEmpty())
             {
-                container.And(n => n.Author == m.Author);
+                container.And(n => n.Author == model.Author);
             }
-            if (m.IsShow.HasValue)
+            if (model.IsShow.HasValue)
             {
-                container.And(n => n.IsShow == m.IsShow);
+                container.And(n => n.IsShow == model.IsShow);
             }
-            if (m.ChannelId > 0)
+            if (model.ChannelId > 0)
             {
-                container.And(n => n.ChannelId == m.ChannelId);
+                container.And(n => n.ChannelId == model.ChannelId);
             }
-            if (m.Status.HasValue)
+            if (model.Status.HasValue)
             {
-                container.And(n => n.Status == m.Status);
+                container.And(n => n.Status == model.Status);
             }
-            if (m.BeginTime.HasValue)
+            if (model.BeginTime.HasValue)
             {
-                container.And(n => n.CreatedOn >= m.BeginTime);
+                container.And(n => n.CreatedOn >= model.BeginTime);
             }
-            if (m.EndTime.HasValue)
+            if (model.EndTime.HasValue)
             {
-                container.And(n => n.CreatedOn <= m.EndTime);
+                container.And(n => n.CreatedOn <= model.EndTime);
             }
 
-            PagedList<ArticleInfo> result = _articleService.Query(x => x
-                .Page(m.Page, m.PageSize)
+            PagedList<ArticleInfo> result = _articleService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
                 .Select(c => c.Title, c => c.CreatedOn, c => c.Author, c => c.Url, c => c.IsShow, c => c.ChannelId)
                 .Where(container)
-                .Sort(n => n.OnFile(m.SortBy).ByDirection(m.SortDirection))
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
                 );
 
-            m.Items = result.Items;
-            m.TotalItems = result.TotalItems;
-            return View(m);
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
         }
         [HttpGet]
         [Description("文章编辑")]
@@ -347,12 +347,12 @@ namespace PureCms.Web.Admin.Controllers
             EditArticleModel model = new EditArticleModel();
             if (id > 0)
             {
-                var entity = _articleService.GetById(id);
+                var entity = _articleService.FindById(id);
                 if (entity != null)
                 {
-                    typeof(ArticleInfo).CopyTo<EditArticleModel>(entity, model);
+                    entity.CopyTo(model);
                 }
-                var channel = _channelService.GetById(entity.ChannelId);
+                var channel = _channelService.FindById(entity.ChannelId);
                 model.ChannelName = channel.Name;
                 model.ChannelId = channel.ChannelId;
                 channelid = channel.ChannelId;
@@ -363,7 +363,7 @@ namespace PureCms.Web.Admin.Controllers
             }
             else
             {
-                var channel = _channelService.GetById(channelid);
+                var channel = _channelService.FindById(channelid);
                 model.ChannelName = channel.Name;
                 model.ChannelId = channelid;
                 channelid = channel.ChannelId;
@@ -379,7 +379,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = new ArticleInfo();
-                typeof(EditArticleModel).CopyTo<ArticleInfo>(model, entity);
+                model.CopyTo(entity);
 
                 if (entity.ArticleId > 0)
                 {

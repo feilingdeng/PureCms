@@ -1,0 +1,369 @@
+﻿@model PureCms.Web.Admin.Models.EditAttributeModel
+@{
+    ViewBag.Title = "CreateAttribute";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>新建字段</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("createattribute", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = "true" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
+                @Html.HiddenFor(x=>x.EntityId)
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Name, "名称", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control required" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.LocalizedName, "显示名称", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.LocalizedName, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsRequired, "必填", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsRequired, true, new { @class = "required" }) 是
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsRequired, false, new { @class = "required" }) 否
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsLoged, "启用日志", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsLoged, true, new { @class = "required" }) 启用
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsLoged, false, new { @class = "required" }) 禁用
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-2 control-label" for="attributetype">类型</label>
+                    <div class="col-sm-10">
+                        <select name="attributetype" id="attributetype" class="form-control">
+                            <option>请选择</option>
+                            <option value="nvarchar">文本</option>
+                            <option value="ntext">大文本</option>
+                            <option value="int">整数</option>
+                            <option value="float">浮点数</option>
+                            <option value="money">金额</option>
+                            <option value="optionset">选项集</option>
+                            <option value="bit">是/否</option>
+                            <option value="datetime">日期时间</option>
+                            <option value="lookup">引用</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="settings">
+                    <div class="hide" id="nvarcharSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="nvarchar-format">格式</label>
+                            <div class="col-sm-10">
+                                <select name="textformat" id="nvarchar-format" class="form-control">
+                                    <option value="text">文本</option>
+                                    <option value="email">电子邮件</option>
+                                    <option value="url">链接</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="nvarchar-length">最大长度</label>
+                            <div class="col-sm-10">
+                                <input name="textlength" id="nvarchar-length" class="form-control input-sm" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hide" id="intSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="int-minvalue">最小值</label>
+                            <div class="col-sm-10"><input name="intminvalue" id="int-minvalue" class="form-control input-sm" /></div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="int-maxvalue">最大值</label>
+                            <div class="col-sm-10"><input name="intmaxvalue" id="int-maxvalue" class="form-control input-sm" /></div>
+                        </div>
+                    </div>
+                    <div class="hide" id="floatSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="float-precision">小数位数</label>
+                            <div class="col-sm-10">
+                                <input name="floatprecision" id="float-precision" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="float-minvalue">最小值</label>
+                            <div class="col-sm-10">
+                                <input name="floatminvalue" id="float-minvalue" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="float-maxvalue">最大值</label>
+                            <div class="col-sm-10">
+                                <input name="floatmaxvalue" id="float-maxvalue" class="form-control input-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide" id="moneySetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="money-precision">小数位数</label>
+                            <div class="col-sm-10">
+                                <input name="moneyprecision" id="money-precision" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="money-minvalue">最小值</label>
+                            <div class="col-sm-10">
+                                <input name="moneyminvalue" id="money-minvalue" class="form-control input-sm" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="money-maxvalue">最大值</label>
+                            <div class="col-sm-10">
+                                <input name="moneymaxvalue" id="money-maxvalue" class="form-control input-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide" id="optionsetSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="optionset-type">格式</label>
+                            <div class="col-sm-10">
+                                <select name="optionsettype" id="optionset-type" class="form-control">
+                                    <option value="select">下拉</option>
+                                    <option value="checkbox">复选</option>
+                                    <option value="radio">单选</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="optionset-picklist">选项</label>
+                            <div class="col-sm-10">
+                                <label class="control-label"><input type="checkbox" name="iscommonoptionset" onclick="selectOptionset(this)" />选择现有选项集</label>
+                                <div id="optionset-commonarea" class="hide">
+                                    <select name="commonoptionset" id="optionset-common" class="col-sm-8 input-sm"></select>
+                                    <button type="button" class="col-sm-4 btn btn-primary btn-sm" onclick="addOption('optionset-picklist')">
+                                        新建选项集
+                                    </button>
+                                </div>
+                                <div id="optionset-privatearea">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary btn-xs" onclick="addOption('optionset-picklist')">
+                                            增加
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-xs" onclick="clearOption('optionset-picklist')">
+                                            清空
+                                        </button>
+                                    </div>
+                                    <table id="optionset-picklist" class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>显示名称</th>
+                                                <th>值</th>
+                                                <th>默认选中</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><input type="text" name="optionsetname" /></td>
+                                                <td><input type="text" name="optionsetvalue" /></td>
+                                                <td>
+                                                    <input type="checkbox" name="isselectedoption" value="true" />
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-warning btn-xs" onclick="removeOption('optionset-picklist', this)">删除</button>
+                                                    <button type="button" class="btn btn-info btn-xs" onclick="moveOption('optionset-picklist', this, true)">
+                                                        <span class="glyphicon glyphicon-arrow-up"></span>
+                                                    </button>
+                                                    <button type="button" class="btn btn-info btn-xs" onclick="moveOption('optionset-picklist', this, false)">
+                                                        <span class="glyphicon glyphicon-arrow-down"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide" id="bitSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="bit-option">选项</label>
+                            <div class="col-sm-10">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>显示名称</th>
+                                            <th>默认选中</th>
+                                        </tr>
+                                    </thead>
+                                    <tr>
+                                        <td><input type="text" name="bitoptionname" value="是" /></td>
+                                        <td>
+                                            <input type="checkbox" name="bitisdefault" value="true" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="bitoptionname" value="否" /></td>
+                                        <td>
+                                            <input type="checkbox" name="bitisdefault" value="true" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hide" id="datetimeSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="datetime-format">格式</label>
+                            <div class="col-sm-10">
+                                <select name="datetimeformat" id="datetime-format" class="form-control">
+                                    <option value="select">仅日期(yyyy/MM/dd)</option>
+                                    <option value="checkbox">日期和时间(yyyy/MM/dd hh:mm:ss)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide" id="lookupSetting">
+                        <div class="form-group col-sm-12">
+                            <label class="col-sm-2 control-label" for="lookup-entity">实体</label>
+                            <div class="col-sm-10">
+                                <select name="lookupentity" id="lookup-entity" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div class="form-group col-sm-12 text-center" id="form-buttons">
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                        <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                    </div>
+            }
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+            //字段类型
+            $('#attributetype').bind("change", function () {
+                $('#settings').children().addClass('hide');
+                var type = $(this).val();
+                $('#' + type + 'Setting').removeClass('hide');
+            });
+            //选项集
+            purecms.singlecheckbox('#optionset-picklist', 'input[type=checkbox]', 'single');
+            $('#optionset-type').bind("change", function () {
+                var t = $(this).find('option:selected').val();
+                if (t == 'checkbox') {
+                    purecms.singlecheckbox('#optionset-picklist', 'input[type=checkbox]', 'multi');
+                }
+                else {
+                    purecms.singlecheckbox('#optionset-picklist', 'input[type=checkbox]', 'single');
+                }
+            });
+            //复选框设置为单选
+            purecms.singlecheckbox('#bitSetting', 'input[type=checkbox]', 'single');
+        });
+        //选项集-增加选项
+        function addOption(id) {
+            var $target = $("#" + id);
+            var newRow = $target.find('tr:last').clone();
+            newRow.find('input[type=text]').val('');
+            newRow.find('input[type=checkbox]').prop('checked', false);
+            $target.append(newRow);
+        }
+        //选项集-删除选项
+        function removeOption(id, row) {
+            var $target = $("#" + id);
+            if ($(row).parents('tr').siblings().length > 0) {
+                $(row).parents('tr').remove();
+            }
+            else {
+                var newRow = $(row).parents('tr');
+                newRow.find('input[type=text]').val('');
+                newRow.find('input[type=checkbox]').prop('checked', false);
+            }
+        }
+        //选项集-清空选项
+        function clearOption(id) {
+            var $target = $("#" + id);
+            $target.find('tbody').find('tr:gt(1)').remove();
+            var newRow = $target.find('tbody').find('tr:last');
+            newRow.find('input[type=text]').val('');
+            newRow.find('input[type=checkbox]').prop('checked', false);
+        }
+        //选项集-排序选项
+        function moveOption(id, row, isup) {
+            var $target = $("#" + id);
+            var $this = $(row).parents('tr');
+            if (isup == true && $this.prev().length > 0) {
+                $this.insertBefore($this.prev());
+            }
+            else if (isup == false && $this.next().length > 0) {
+                $this.insertAfter($this.next());
+            }
+        }
+        //公共选项集or私有
+        function selectOptionset(o) {
+            var $this = $(o);
+            if ($this.prop('checked') == true) {
+                $('#optionset-commonarea').removeClass('hide');
+                $('#optionset-privatearea').addClass('hide');
+            }
+            else {
+                $('#optionset-privatearea').removeClass('hide');
+                $('#optionset-commonarea').addClass('hide');
+            }
+        }
+        //加载公共选项集
+        function loadOptionSet() {
+            var optionsetSelect = $('#optionset-common');
+            $.get("optionset", function (data) {
+                console.log(data);
+                if (!data) return;
+                var list = purecms.getajaxresult(data).content.items;
+                $(list).each(function (i, n) {
+                    optionsetSelect.append("<option value=\"" + n.optionsetid + "\">" + n.name + "</option>");
+                });
+            });
+        }
+        //加载引用实体
+        function loadEntities() {
+            var entitySelect = $('#lookup-entity');
+            $.get("relatedentities", function (data) {
+                console.log(data);
+                if (!data) return;
+                var list = purecms.getajaxresult(data).content.items;
+                $(list).each(function (i, n) {
+                    entitySelect.append("<option value=\"" + n.optionsetid + "\">" + n.name + "</option>");
+                });
+            });
+        }
+        //新建公共选项集
+        function createOptionSet() {
+
+        }
+    </script>
+}

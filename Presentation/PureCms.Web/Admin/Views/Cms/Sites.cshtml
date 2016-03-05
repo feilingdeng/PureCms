@@ -54,16 +54,16 @@
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
                     <th data-sortname="title">
-                        @Html.ActionLink("名称", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("名称", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="10%" data-sortname="author">
-                        @Html.ActionLink("模板", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("模板", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "theme", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%" data-sortname="isshow">
-                        @Html.ActionLink("默认", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("默认", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "isdefault", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%" data-sortname="isshow">
-                        @Html.ActionLink("状态", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("状态", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "isenabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%" data-sortname="createdon">
                         @Html.ActionLink("创建时间", "sites", new { name = Model.Name, author = Model.IsEnabled, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })

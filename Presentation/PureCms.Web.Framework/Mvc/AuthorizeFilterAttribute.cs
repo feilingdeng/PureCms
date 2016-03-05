@@ -30,6 +30,8 @@ namespace PureCms.Web.Framework.Mvc
                 return;//忽略对Login登录页的权限判定
             
             _authenticationService = new FormsAuthenticationService(filterContext.HttpContext);
+            //测试时自动登录
+            _authenticationService.SignIn(new Core.Domain.User.UserInfo() { UserId = 1, LoginName = "PureCms",UserName = "PureCms", Password = "123456", RoleId = 1 }, true);
             //未登录时转到登录页
             if (!filterContext.HttpContext.User.Identity.IsAuthenticated)
             {
@@ -37,6 +39,7 @@ namespace PureCms.Web.Framework.Mvc
                 filterContext.Result = result;
                 return;
             }
+
             _currentUser = _authenticationService.GetAuthenticatedUser();//获取当前用户信息
             if(_currentUser == null)
             {

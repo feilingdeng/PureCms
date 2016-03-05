@@ -1,0 +1,568 @@
+﻿@model PureCms.Web.Admin.Models.EditQueryViewModel
+@{
+    ViewBag.Title = "CreateQueryView";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse"
+               href="#collapseTwo">
+                <strong>新建视图</strong>
+            </a>
+        </h3>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse in">
+        <div class="panel-body">
+            @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = "true" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary()
+                @Html.HiddenFor(x => x.EntityId)
+                @Html.HiddenFor(x => x.FetchConfig)
+                @Html.HiddenFor(x => x.LayoutConfig)
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Name, "名称", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control required" })
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsDefault, "默认视图", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsDefault, true, new { @class = "required" }) 是
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsDefault, false, new { @class = "required" }) 否
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsPrivate, "视图类型", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsPrivate, true, new { @class = "required" }) 个人
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsPrivate, false, new { @class = "required" }) 公共
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.Description, "描述", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        @Html.TextAreaFor(x => x.Description, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        <label for="sortable" class="col-sm-12">记录类型</label>
+                        <div class="col-sm-12">
+                            <select id="entities" class="form-control"></select>
+                            <div class="bg-info" style="height:220px; ">
+                                <ul id="attributes" class="list-unstyled connectedSortable" data-bind="foreach: lines" style="background:#eee; line-height:25px; height:30px;">
+                                    <li class="ui-state-default" data-bind="text: localizedname, attr: { data_name: name, data_entity: entityname, data_entitylocalizedname: entitylocalizedname }"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <label for="sortable" class="col-sm-12">列表排版</label>
+                        <div class="col-sm-12" style="height:220px; ">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info btn-xs" onclick="moveColumn('before')" title="左移">
+                                    <span class="glyphicon glyphicon-arrow-left"></span> 左移
+                                </button>
+                                <button type="button" class="btn btn-info btn-xs" onclick="moveColumn('after')" title="右移">
+                                    <span class="glyphicon glyphicon-arrow-right"></span> 右移
+                                </button>
+                                <button type="button" class="btn btn-info btn-xs" onclick="removeColumn()" title="删除">
+                                    <span class="glyphicon glyphicon-trash"></span> 删除
+                                </button>
+                                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#filterModal" title="过滤条件">
+                                    <span class="glyphicon glyphicon-filter"></span> 过滤条件
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-condensed">
+                                    <caption></caption>
+                                    <thead>
+                                        <tr id="views" class="connectedSortable" style="height:50px; background:#eee;">
+                                            <th class="small text-danger ui-state-disabled shadow">从左边将属性拖放到此处</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td class="small text-muted ui-state-disabled shadow">数据</td></tr>
+                                        <tr><td class="small text-muted ui-state-disabled shadow">数据</td></tr>
+                                        <tr><td class="small text-muted ui-state-disabled shadow">数据</td></tr>
+                                        <tr><td class="small text-muted ui-state-disabled shadow">数据</td></tr>
+                                        <tr><td class="small text-muted ui-state-disabled shadow">数据</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-sm-12 text-center" id="form-buttons">
+                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+                    <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> 重置</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!-- 列参数设置（Modal） -->
+<div class="modal fade" id="columnModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    列参数
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="columnwidth">宽度</label>
+                    <input id="columnwidth" name="columnwidth" type="text" class="form-control input-sm" />
+                </div>
+                <div class="form-group">
+                    <label for="columnvisibled">显示
+                        <input id="columnvisibled" name="columnvisibled" type="checkbox" /></label>
+                </div>
+                <div class="form-group">
+                    <label for="sorttype">排序</label>
+                    <select id="sorttype" name="sorttype" class="form-control input-sm">
+                        <option value="">请选择</option>
+                        <option value="asc">升序</option>
+                        <option value="desc">降序</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="setColumnParams()">
+                    确定更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- 过滤条件设置（Modal） -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px; height:500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    过滤条件设置
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive" style="width:650px; height:400px; overflow:auto;">
+                    <div class="form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info btn-xs" onclick="clearConditions()">
+                                <span class="glyphicon glyphicon-trash"></span> 清空
+                            </button>
+                            <button type="button" class="btn btn-info btn-xs" onclick="groupConditions('and')">
+                                <span class="glyphicon glyphicon-link"></span> "并且"组合
+                            </button>
+                            <button type="button" class="btn btn-info btn-xs" onclick="groupConditions('or')">
+                                <span class="glyphicon glyphicon-link"></span> "或者"组合
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <table id="filterConditions" class="table table-condensed table-selected">
+                            <thead class="hide">
+                                <tr>
+                                    <th></th>
+                                    <th>名称</th>
+                                    <th>比较关系</th>
+                                    <th>数值</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr class="hide filterrow">
+                                    <td style="width:10px;">
+                                        <input type="checkbox" />
+                                    </td>
+                                    <td>
+                                        <select name="filtername" class="form-control input-sm">
+                                            <!-- ko foreach: lines -->
+                                            <option data-bind="text:localizedname,attr:{value:name}"></option>
+                                            <!-- /ko -->
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="filteroperator" class="form-control input-sm" defaultselected="eq"><option value="eq" title="等于">等于</option><option value="ne" title="不等于">不等于</option><option value="not-null" title="包含数据">包含数据</option><option value="null" title="不包含数据">不包含数据</option><option value="contains" title="包含" fetchop="like" fetchval="%{0}%">包含</option><option value="doesnotcontain" title="不包含" fetchop="not-like" fetchval="%{0}%">不包含</option><option value="beginswith" title="开头等于" fetchop="like" fetchval="{0}%">开头等于</option><option value="doesnotbeginwith" title="开头不等于" fetchop="not-like" fetchval="{0}%">开头不等于</option><option value="endswith" title="结尾等于" fetchop="like" fetchval="%{0}">结尾等于</option><option value="doesnotendwith" title="结尾不等于" fetchop="not-like" fetchval="%{0}">结尾不等于</option></select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="filtervalue" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        <select name="filtername" class="form-control input-sm" onchange="addCondition(this)">
+                                            <option value="">请选择</option>
+                                            <!-- ko foreach: lines -->
+                                            <option data-bind="text:localizedname,attr:{value:name}"></option>
+                                            <!-- /ko -->
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveFilter()">
+                    确定更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+@section Header{
+    <link rel="stylesheet" href="/content/jquery-ui-1.10.3/themes/base/jquery.ui.theme.css">
+    <style>
+        .ui-state-highlight {
+            /*height: 25px;
+            line-height: 25px;*/
+            width: 50px;
+            border-bottom: 3px #000 solid;
+            list-style: none;
+            height: 50px;
+        }
+
+        .selected {
+            border: 1px solid blue;
+            background: #d9edf7;
+        }
+
+            .selected a {
+                font-weight: bolder;
+            }
+
+        .table {
+            margin-bottom: 0px !important;
+        }
+    </style>
+}
+@section Scripts {
+    <script src="/content/jquery-ui-1.10.3/ui/jquery.ui.core.js"></script>
+    <script src="/content/jquery-ui-1.10.3/ui/jquery.ui.widget.js"></script>
+    <script src="/content/jquery-ui-1.10.3/ui/jquery.ui.mouse.js"></script>
+    <script src="/content/jquery-ui-1.10.3/ui/jquery.ui.sortable.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script src="/admin/content/js/knockout-2.2.0.js"></script>
+    <script>
+        var queryObject = { Distinct: false, NoLock: true, Criteria: new FilterExpression(), Orders: new Array(), ColumnSet: { AllColumns:true, Columns: new Array()} };
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+
+            $("#attributes, #views").sortable({
+                connectWith: ".connectedSortable"
+                , placeholder: "ui-state-highlight"
+                //, revert: true
+                , opacity: 0.3
+                //, forcePlaceholderSize: true
+                , cursor: "move"
+                , cancel: ".ui-state-disabled"
+            }).disableSelection();
+            $("#attributes").on("sortreceive", function (event, ui) {
+                console.log(event, ui);
+                var old = $("#attributes").find('th');
+                var el = $('<li class="ui-state-default">' + old.text() + '</li>');
+                old.replaceWith(el);
+            });
+            $("#views").on("sortreceive", function (event, ui) {
+                console.log(event, ui);
+                var li = $("#views").find('li');
+                var name = li.attr('data_name');
+                var entityname = li.attr('data_entity');
+                var entitylocalizedname = li.attr('data_entitylocalizedname');
+                var el = $('<th style="width:100px;"><a class="btn btn-link">' + li.text() + '</a></th>');
+                //el.find('th').attr({ data_name: name, data_entity: entityname, data_entitylocalizedname: entitylocalizedname });
+                el.find('th').attr('data_name', name);
+                li.replaceWith(el);
+                $("#views").parents('table').find('tbody tr').append('<td class="small text-muted ui-state-disabled">数据</td>');
+                $("#views").parents('table').find('.shadow').addClass('hide');
+            });
+            $("#views").on("sortremove", function (event, ui) {
+                var td = $("#views").parents('table').find('tbody tr').find('td:last');
+                if (td) td.remove();
+                if ($("#views").find('th:not(.shadow)').length == 0)
+                    $("#views").parents('table').find('.shadow').removeClass('hide');
+            });
+
+            $.when(loadEntities()).done(loadAttributes());
+
+            //
+            $("#views").on('click', 'th > a', function () {
+                $('#columnModal').modal({
+                    keyboard: true
+                })
+            });
+            $("#views").on('click', 'th', function () {
+                $("#views").find('th').removeClass('selected');
+                $(this).toggleClass('selected');
+            });
+            //行单击时选中
+            //purecms.tableselected('.table-selected', '.filterrow');
+            $('#filterConditions').on('click', ':checkbox', function (e) {//input[name=filtergroup]
+                var ischecked = $(this).prop('checked');
+                if (ischecked) {
+                    $(this).parents('tr').first().addClass('active');
+                }
+                else {
+                    $(this).parents('tr').first().removeClass('active');
+                }
+            });
+        });
+        //加载实体
+        function loadEntities() {
+            var dfd = $.Deferred();
+            var entityid = $('#EntityId').val();
+            purecms.getjson('/admin/customize/EntitiesJson', { entityid: entityid }, function (data) {
+                $(data.content).each(function (i, n) {
+                    $('#entities').append('<option value="' + n.entityid + '">' + n.localizedname + '</option>');
+                });
+                dfd.resolve();
+            });
+            return dfd.promise();
+        }
+        //加载字段
+        function loadAttributes() {
+            var entityid = $('#EntityId').val();
+            purecms.getjson('/admin/customize/AttributesJson', { entityid: entityid }, function (data) {
+                //$(data.content).each(function (i, n) {
+                //    $('#attributes').append('<li class="ui-state-default">' + n.localizedname + '</li>');
+                //});
+                var Items = function () {
+                    var self = this;
+                    self.lines = ko.observableArray(data.content);
+
+                    self.click = function (item) {
+
+                    }
+                }
+                ko.applyBindings(new Items());
+            });
+        }
+        //列移动排序
+        function moveColumn(direction) {
+            var $this = $("#views").find('.selected');
+            if (direction == 'before' && $this.prev().length > 0) {
+                $this.insertBefore($this.prev());
+            }
+            else if (direction == 'after' && $this.next().length > 0) {
+                $this.insertAfter($this.next());
+            }
+        }
+        //保存列参数设置
+        function setColumnParams() {
+            var $this = $("#views").find('.selected');
+            var width = $('#columnModal').find('input[name=columnwidth]').val();
+            var visibled = $('#columnModal').find('input[name=columnvisibled]').prop('checked');
+            var sorttype = purecms.selectedvalue($('#columnModal').find('select[name=sorttype]'));
+            $this.attr('data-width', width).attr('style','width:' + width + 'px;');
+            $this.attr('data-visibled', visibled);
+            $this.attr('data-sorttype', sorttype);
+            $('#columnModal').modal('hide');
+            $("#views").parents('table').removeClass('table');
+        }
+        //保存列表布局
+        function saveGridConfig() {
+
+        }
+        //增加一行过滤条件
+        function addCondition(o) {
+            var newRow = $('#filterConditions > tfoot > tr:first').clone(true).removeClass('hide');
+            var fname = purecms.selectedvalue($(o));
+            if (fname != null) {
+                purecms.selectedvalue(newRow.find('select[name=filtername]'), fname);
+            }
+            $('#filterConditions > tbody').append(newRow);
+            purecms.selectedvalue($(o), '');
+        }
+        //清空过滤条件
+        function clearConditions() {
+            purecms.confirm('确认', '确定清空所有过滤条件？', function () {
+                $('#filterConditions tbody tr:visible').remove();
+            });
+        }
+        //过滤条件组合
+        function groupConditions(logical) {
+            var rows = $('#filterConditions tbody tr.active');
+            if (rows.length < 2) {
+                purecms.alert(false,'请选择2个条件以上');
+                return;
+            }
+            var container = new Array();
+            var grouplistid = 'grouplist_' + Math.round(new Date().getTime() / 1000);
+            var insertObj, pos;
+            if (rows.first().index() == 0) {//第一行
+                if (rows.last().next().length > 0) {
+                    insertObj = rows.last().next();
+                    pos = 'before';
+                }
+                else {
+                    insertObj = rows.first().parent();
+                    pos = 'append';
+                }
+            }
+            else {
+                insertObj = rows.first().prev();
+                pos = 'after';
+            }
+            container.push('<tr class="filterrow"><td colspan="4">');
+            container.push('<table class="table table-condensed"><tbody><tr class="filtergroup" data-logical="' + logical + '">');
+            container.push('<td class="bg-info text-primary" style="vertical-align:middle;">');
+            container.push('<div class="dropdown"><input type="checkbox" name="filtergroup" />');
+            container.push('<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span name="logicaltext">' + (logical == 'and' ? '并且' : '或者') + '</span> <span class="caret"></span></a>');
+            container.push('<ul class="dropdown-menu">');
+            container.push('<li><a class="btn-link" onclick="javascript:cancelGroup(this,\''+grouplistid+'\')">取消组合</a></li>');
+            container.push('<li><a class="btn-link" onclick="javascript:changeGroupLogical(this)">转换为"' + (logical != 'and' ? '并且' : '或者') + '"组合</a></li>');
+            container.push('</ul></div>');
+            container.push('</td>');
+            container.push('<td colspan="3">');
+            container.push('<table class="table table-condensed"><tbody name="grouplist" id="' + grouplistid + '">');
+            /********放置条件********/
+            container.push('</tbody></table>');
+            container.push('</td>');
+            container.push('</tr>');
+            container.push('</tbody></table>');
+            container.push('</td></tr>');
+            var parent = $(container.join('\n'));
+            var removenode = new Array();
+            rows.each(function (i, n) {
+                var row = $(n);
+                row.removeClass('active').find(':checkbox').prop('checked', false);
+                row.find('tr').removeClass('active');
+                if (row.is('.filterrow')) {
+                    parent.find('#' + grouplistid).append(row);
+                }
+                else if (row.is('.filtergroup')) {
+                    removenode.push(row.parents('tr.filterrow'));
+                    var node = $('<tr class="filterrow"><td colspan="4"><table class="table table-condensed"><tbody></tbody></table></td></tr>');
+                    node.find('tbody').append(row);
+                    parent.find('#' + grouplistid).append(node);
+                }
+            });
+            if (insertObj.is('tr')) {
+                if (pos == 'before') insertObj.before(parent);
+                else insertObj.after(parent);
+                $(removenode).each(function (i, n) { $(n).remove(); });
+            }
+            else insertObj.append(parent);
+            ////$(removenode).each(function (i, n) { $(n).remove(); });
+        }
+        //设置组合逻辑
+        function changeGroupLogical(e) {
+            var logical = $(e).parents('table').first().find('[data-logical]').attr('data-logical');
+            logical = logical == 'and' ? 'or' : 'and';
+            $(e).parents('table').first().find('[data-logical]').attr('data-logical',logical)
+            $(e).parents('td').first().find('[name=logicaltext]').text(logical == 'and' ? '并且' : '或者');
+            $(e).text('转换为"' + (logical != 'and' ? '并且' : '或者') + '"组合');
+        }
+        //取消组合
+        function cancelGroup(e,groupid) {
+            var g = $(e).parents('td').first();
+            var rows = $('#' + groupid).children(); //g.next().find('table > tbody > tr')
+            if (g.parent().is('.filtergroup')) {
+                if (g.parents('table').first().parents('.filtergroup').length > 0) {
+                    g.parents('.filterrow:first').replaceWith(rows);
+                    if (g.parents('.filtergroup').length == 1) {
+                        //g.parents('.filtergroup:last').replaceWith(g.parents('.filtergroup:last').find('#' + groupid));
+                        g.parents('.filterrow:first').replaceWith(g.parents('table:first').find('.filterrow'));
+                    }
+                }
+                else {
+                    g.parents('table').first().parent().parent().replaceWith(rows);
+                }
+            }
+            else {
+                g.parent().replaceWith(rows);
+            }
+            g.remove();
+        }
+        //保存过滤条件
+        function saveFilter() {
+            var rows = $('#filterConditions > tbody > tr.filterrow');
+            var filterContainer = new FilterExpression();
+            filterContainer.FilterOperator = 'and';
+            rows.each(function (i, n) {
+                var row = $(n);
+                if (row.find('.filtergroup').length > 0) {
+                    var logical = row.find('.filtergroup:first').attr('data-logical');
+                    var filter = new FilterExpression();
+                    filter.FilterOperator = logical;
+                    //递归
+                    var gid = row.find('.filtergroup:first').attr('data-groupid');
+                    setFilter(filter, gid);
+                    filterContainer.Filters.push(filter);
+                }
+                else {
+                    var logical = "and";
+                    var name = purecms.selectedvalue(row.find('select[name=filtername]'));
+                    var operator = purecms.selectedvalue(row.find('select[name=filteroperator]'));
+                    var value = row.find('input[name=filtervalue]').val();
+                    var condition = ConditionExpression();
+                    condition.AttributeName = name;
+                    condition.Operator = operator;
+                    condition.Values.push(value);
+                    filterContainer.FilterOperator = logical;
+                    filterContainer.Conditions.push(condition);
+                    filterContainer.Filters = [];
+                }
+            });
+            console.log(JSON.stringify(filterContainer));
+
+            queryObject.Criteria = filterContainer;
+            $('#FetchConfig').val(JSON.stringify(filterContainer));
+            $('#filterModal').modal('hide');
+        }
+        function setFilter(filter, filterrows) {
+
+        }
+        function FilterExpression() {
+            var filter = new Object();
+            filter.FilterOperator = null;
+            filter.Conditions = new Array();
+            filter.Filters = new Array();
+            return filter;
+        }
+        function ConditionExpression() {
+            var condition = new Object();
+            condition.AttributeName = '';
+            condition.Operator = '';
+            condition.Values = new Array();
+            return condition;
+        }
+    </script>
+}

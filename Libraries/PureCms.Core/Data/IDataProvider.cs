@@ -10,6 +10,9 @@ namespace PureCms.Core.Data
      where T : BaseEntity
     {
         object Client { get; }
+        void BeginTransaction();
+        void CompleteTransaction();
+        void AbortTransaction();
         Task<bool> ExistsAsync(IExecuteContext<T> context);
         Task<long> CountAsync(IExecuteContext<T> context);
         Task<object> CreateAsync(T entity);

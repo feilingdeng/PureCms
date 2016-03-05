@@ -32,7 +32,8 @@ namespace PureCms.Core.Data
             var columns = PocoHelper.GetSelectColumns(poco, q.Columns, out froms, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns);// + " FROM [" + TableName + "]");
             //from，由select中反推
-            query.From(froms.ToArray());
+            //query.From(froms.ToArray());
+            query.From(string.Join("\n", froms));
 
             //过滤条件
             query.Append(PocoHelper.GetConditions<T>(q, otherCondition));
@@ -89,18 +90,21 @@ namespace PureCms.Core.Data
         /// <returns></returns>
         public static string FormatColumn(PetaPoco.Database.PocoData poco, string name, out string fromTable)
         {
+            var column = poco.Columns.First(n=>n.Key == name);
             Type entityType = poco.type;
-            BindingFlags flag = BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance;
-            var p = entityType.GetProperty(name, flag);
-            var attrs = p.GetCustomAttributes(typeof(LinkEntityAttribute), true);
-            if (attrs.Length > 0)
+            //BindingFlags flag = BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance;
+            var p = column.Value.PropertyInfo;//entityType.GetProperty(name, flag);
+            var attrs = p.GetCustomAttribute(typeof(LinkEntityAttribute), true);
+            if (attrs != null)
             {
-                var leAttr = (LinkEntityAttribute)attrs[0];
+                var leAttr = (LinkEntityAttribute)attrs;
                 var linkTarget = leAttr.Target;
                 var linkPoco = new Database.PocoData(linkTarget);
-                var fieldName = (leAttr.SourceFieldName.IsNotEmpty() ? leAttr.SourceFieldName : name);
-                name = "[" + linkPoco.TableInfo.TableName + "].[" + fieldName + "]";//关联表字段
-                fromTable = linkPoco.TableInfo.TableName;
+                leAttr.AliasName = leAttr.AliasName.IfEmpty(linkPoco.TableInfo.TableName);
+                var fieldName = leAttr.TargetFieldName.IfEmpty(name);
+                name = "[" + leAttr.AliasName + "].[" + fieldName + "]";//关联表字段
+                fromTable = string.Format("LEFT JOIN {0} AS {1} ON {1}.[{2}]={3}.[{4}]"
+                    , linkPoco.TableInfo.TableName, leAttr.AliasName, leAttr.LinkToFieldName, poco.TableInfo.TableName, leAttr.LinkFromFieldName);
             }
             else
             {
@@ -145,12 +149,33 @@ namespace PureCms.Core.Data
             {
                 if (columns.Count == 0)
                 {
-                    columns.AddRange(poco.QueryColumns);
+                    //添加所有列
+                    foreach (var item in poco.Columns)
+                    {
+                        var c = item.Value;
+                        string name = item.Key;
+                        if (c.ResultColumn)
+                        {
+                            LinkEntityAttribute leAttr = c.PropertyInfo.GetCustomAttribute(typeof(LinkEntityAttribute)) as LinkEntityAttribute;
+                            if (leAttr != null)
+                            {
+                                name = leAttr.TargetFieldName;
+                            }
+                            else
+                            {
+                                name = string.Empty;
+                            }
+                        }
+                        if(name.IsNotEmpty()) columns.Add(name);
+                    }
+                    //columns.AddRange(poco.QueryColumns);
                 }
                 else if (!columns.Contains(poco.TableInfo.PrimaryKey))
                 {
+                    //添加主键列
                     columns.Add(poco.TableInfo.PrimaryKey);
                 }
+                //格式化列名
                 for (int i = 0; i < columns.Count; i++)
                 {
                     var item = columns[i];

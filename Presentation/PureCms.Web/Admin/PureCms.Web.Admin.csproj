@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="AdminArea.cs" />
     <Compile Include="Controllers\CmsController.cs" />
+    <Compile Include="Controllers\CustomizeController.cs" />
     <Compile Include="Controllers\OrgController.cs" />
     <Compile Include="Controllers\PlatformController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Controllers\ToolController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Models\CmsModels.cs" />
+    <Compile Include="Models\CustomizeModels.cs" />
     <Compile Include="Models\PlatformModels.cs" />
     <Compile Include="Models\SettingModels.cs" />
     <Compile Include="Models\SecurityModels.cs" />
@@ -228,6 +230,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\User\EditUserPassword.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\Entities.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\CreateEntity.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\Attributes.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\CreateAttribute.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\QueryViews.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\CreateQueryView.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

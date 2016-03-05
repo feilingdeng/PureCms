@@ -280,5 +280,18 @@ namespace PureCms.Web.Framework
                 CreatedOn = DateTime.Now
             });
         }
+
+        public string GetModelErrors(ModelStateDictionary state)
+        {
+            StringBuilder msg = new StringBuilder();
+            foreach (var item in ModelState.Values)
+            {
+                if (item.Errors.Count > 0)
+                {
+                    msg.Append(item.Errors[0].ErrorMessage + "\n");
+                }
+            }
+            return msg.ToString();
+        }
     }
 }

@@ -1,12 +1,9 @@
 ﻿using PureCms.Core.Context;
 using PureCms.Core.Domain.Cms;
 using PureCms.Core.Cms;
-using PureCms.Core.Utilities;
 using PureCms.Data.Cms;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 
 namespace PureCms.Services.Cms
 {
@@ -29,7 +26,7 @@ namespace PureCms.Services.Cms
             return _repository.Update(ctx);
         }
 
-        public ArticleInfo GetById(int id)
+        public ArticleInfo FindById(int id)
         {
             return _repository.FindById(id);
         }
@@ -43,7 +40,7 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<ArticleInfo> Query(Func<QueryDescriptor<ArticleInfo>, QueryDescriptor<ArticleInfo>> container)
+        public PagedList<ArticleInfo> QueryPaged(Func<QueryDescriptor<ArticleInfo>, QueryDescriptor<ArticleInfo>> container)
         {
             QueryDescriptor<ArticleInfo> q = container(new QueryDescriptor<ArticleInfo>());
 

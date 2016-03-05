@@ -11,24 +11,32 @@ namespace PureCms
         {
             return target.IsDefined(typeof(TAttribute), inherits);
         }
-
-
-        public static void CopyTo<T>(this Type sourceType, object sourceInstance, T targetInstance) where T : class , new()
-        {
-            var targetType = typeof(T);
-            var targetProps = targetType.GetProperties().ToList();
-            foreach (var item in targetProps)
-            {
-                if (item.CanWrite)
-                {
-                    var sourceProp = sourceType.GetProperty(item.Name);
-                    if (null != sourceProp && sourceProp.CanRead)
-                    {
-                        targetType.SetPropertyValue(targetInstance, item.Name, sourceProp.GetValue(sourceInstance));
-                    }
-                }
-            }
-        }
+        /// <summary>
+        /// 对象间拷贝
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TDest"></typeparam>
+        /// <param name="sourceType"></param>
+        /// <param name="sourceInstance"></param>
+        /// <param name="targetInstance"></param>
+        //public static void CopyTo<TSource, TDest>(this Type sourceType, TSource sourceInstance, TDest targetInstance) 
+        //    where TSource : class , new()
+        //    where TDest : class, new()
+        //{
+        //    var targetType = typeof(TDest);
+        //    var targetProps = targetType.GetProperties().ToList();
+        //    foreach (var item in targetProps)
+        //    {
+        //        if (item.CanWrite)
+        //        {
+        //            var sourceProp = sourceType.GetProperty(item.Name);
+        //            if (null != sourceProp && sourceProp.CanRead)
+        //            {
+        //                targetType.SetPropertyValue(targetInstance, item.Name, sourceProp.GetValue(sourceInstance));
+        //            }
+        //        }
+        //    }
+        //}
         /// <summary>
         /// 设置对象的属性值
         /// </summary>

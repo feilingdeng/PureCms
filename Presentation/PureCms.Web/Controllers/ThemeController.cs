@@ -56,7 +56,7 @@ namespace PureCms.Web.Controllers
             if (layoutId.HasValue)
             {
                 PageLayoutInfo entity = _pageLayoutService.FindById(layoutId.Value);
-                typeof(PageLayoutInfo).CopyTo<EditLayoutModel>(entity, model);
+                entity.CopyTo(model);
             }
             return View(model);
         }
@@ -75,13 +75,13 @@ namespace PureCms.Web.Controllers
                 if (isUpdate)
                 {
                     entity = _pageLayoutService.FindById(model.LayoutId.Value);
-                    typeof(EditLayoutModel).CopyTo<PageLayoutInfo>(model, entity);
+                    model.CopyTo(entity);
                     _pageLayoutService.Update(entity);
                 }
                 else {
                     entity = new PageLayoutInfo();
                     entity.LayoutId = Guid.NewGuid();
-                    typeof(EditLayoutModel).CopyTo<PageLayoutInfo>(model, entity);
+                    model.CopyTo(entity);
                     _pageLayoutService.Create(entity);
                 }
             }

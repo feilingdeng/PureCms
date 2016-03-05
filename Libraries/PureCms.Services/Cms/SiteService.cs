@@ -24,7 +24,7 @@ namespace PureCms.Services.Cms
             return _repository.Update(entity);
         }
 
-        public SiteInfo GetById(int id)
+        public SiteInfo FindById(int id)
         {
             return _repository.FindById(id);
         }
@@ -33,7 +33,7 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(id);
         }
 
-        public PagedList<SiteInfo> Query(Func<QueryDescriptor<SiteInfo>, QueryDescriptor<SiteInfo>> container)
+        public PagedList<SiteInfo> QueryPaged(Func<QueryDescriptor<SiteInfo>, QueryDescriptor<SiteInfo>> container)
         {
             QueryDescriptor<SiteInfo> q = container(new QueryDescriptor<SiteInfo>());
 

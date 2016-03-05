@@ -84,7 +84,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = _userService.GetById(id);
                 if (entity != null)
                 {
-                    typeof(UserInfo).CopyTo<EditUserModel>(entity, model);
+                    entity.CopyTo(model);
                 }
             }
             var themes = _roleService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
@@ -100,7 +100,7 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entity = _userService.GetById(model.UserId);//new UserInfo();
-                typeof(EditUserModel).CopyTo<UserInfo>(model, entity);
+                model.CopyTo(entity);
 
                 if (entity.UserId > 0)
                 {

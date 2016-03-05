@@ -21,7 +21,7 @@ namespace PureCms.Services.Cms
 
         public long Create(ChannelInfo entity)
         {
-            var parent = GetById(entity.ParentChannelId);
+            var parent = FindById(entity.ParentChannelId);
             if (parent != null)
             {
                 entity.Level = parent.Level + 1;
@@ -46,7 +46,7 @@ namespace PureCms.Services.Cms
             return _repository.Update(ctx);
         }
 
-        public ChannelInfo GetById(int id)
+        public ChannelInfo FindById(int id)
         {
             return _repository.FindById(id);
         }
@@ -55,7 +55,7 @@ namespace PureCms.Services.Cms
             return _repository.DeleteById(id);
         }
 
-        public PagedList<ChannelInfo> Query(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
+        public PagedList<ChannelInfo> QueryPaged(Func<QueryDescriptor<ChannelInfo>, QueryDescriptor<ChannelInfo>> container)
         {
             QueryDescriptor<ChannelInfo> q = container(new QueryDescriptor<ChannelInfo>());
 
@@ -72,7 +72,7 @@ namespace PureCms.Services.Cms
         public List<ChannelInfo> GetAll()
         {
             List<ChannelInfo> result = null;
-            if (_cache.Contains(CACHE_KEY) != null)
+            if (_cache.Contains(CACHE_KEY))
             {
                 result = _cache.Get(CACHE_KEY) as List<ChannelInfo>;
             }

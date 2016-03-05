@@ -36,6 +36,9 @@ namespace PureCms.Core.Data
                 return DbContext;
             }
         }
+        public MsSqlProvider(){
+            DbContext.OpenSharedConnection();
+        }
         public virtual void BeginTransaction()
         {
             DbContext.BeginTransaction();
