@@ -88,7 +88,7 @@
         //列表排序样式
         var sortby = target.attr("data-sortby");
         var sortdirect = target.attr("data-sortdirection");
-        var current = target.find("th[data-name=" + sortby + "]");
+        var current = target.find("th[data-name='" + sortby + "']");
         current.addClass("success");
         if (sortdirect == 0) {
             current.find("a").append('<span class="glyphicon glyphicon-sort-by-attributes"></span>');
@@ -402,8 +402,9 @@
         var target = typeof (selector) == 'object' ? selector : $(selector);
         //设置值
         if (value != undefined) {
+            if (value == '') value = '""';
             target.find('option').prop('selected', false);
-            target.find('option[value="' + value + '"]').prop('selected', true);
+            target.find('option[value=' + value + ']').prop('selected', true);
         }
         //获取值
         else {

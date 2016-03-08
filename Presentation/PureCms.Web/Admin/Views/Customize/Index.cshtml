@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div id="components">
+    <h5><span class="glyphicon glyphicon-th-large"></span> <strong>组件</strong></h5>
+    <div id="entities" data-url="EntitiesJsonTree"></div>
+</div>
+<div class="table-responsive">
+    @Html.GridView(null)
+    <table class="table table-hover table-condensed" id="datatable" data-sortby="" data-sortdirection="">
+        <thead>
+            <tr>
+                <th width="2%"><input type="checkbox" name="checkall" /></th>
+                <th data-sortname="name">
+
+                </th>
+                <th width="15%" data-name="createdon">
+
+                </th>
+                <th width="15%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td></td></tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="active">
+                    <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/customize/deleteoptionset" data-role="delete" data-tooltip="确认要删除？请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+@section Header {
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+}
+@section Scripts {
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.cookie.js"></script>
+    <script>
+        var $tree = $('#entities');
+        $(function () {
+            $('#sidebar').empty().append($('#components'));
+            initTree();
+            purecms.datatable($("#datatable"));
+        });
+        function initTree() {
+            $tree.tree({
+                onCreateLi: function (node, $li) {
+                    if (node.id != '') {
+                        $li.find('.jqtree-title').addClass("glyphicon glyphicon-file");//.before('<span class="glyphicon glyphicon-file"></span>');
+                    }
+                }
+                , dataFilter: function (data) {
+                    var results = purecms.getajaxresult(data).content;
+                    for (var i = 0; i < results[0].children.length; i++) {
+                        var id = results[0].children[i].id;
+                        results[0].children[i].type = 'entity';
+                        results[0].children[i].children = [
+                            { id: id, label: '表单', type: 'form' }
+                            , { id: id, label: '视图', type: 'view' }
+                            , { id: id, label: '字段', type: 'attribute' }
+                        ];
+                    }
+                    return results;
+                }
+                , selectable: true
+            });
+            $tree.bind(
+            'tree.select',
+            function (event) {
+                if (event.node) {
+                    // node was selected
+                    var node = event.node;
+                    $tree.tree('openNode', node);
+                    //加载组件数据
+                    var type = node.attr('data-type');
+                    if (type == 'entity') {
+
+                    }
+                    if (type == 'form') {
+
+                    }
+                    if (type == 'view') {
+                        loadViews();
+                    }
+                    if (type == 'attribute') {
+
+                    }
+                }
+            }
+            );
+        }
+        function loadViews() {
+
+        }
+    </script>
+}

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace PureCms.Services.Schema
 {
-    public class OptionSetServic
+    public class OptionSetService
     {
         IOptionSetRepository _repository = new OptionSetRepository();
 
@@ -30,7 +30,7 @@ namespace PureCms.Services.Schema
             return _repository.Update(ctx);
         }
 
-        public OptionSetInfo GetById(Guid id)
+        public OptionSetInfo FindById(Guid id)
         {
             return _repository.FindById(id);
         }
@@ -44,11 +44,17 @@ namespace PureCms.Services.Schema
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<OptionSetInfo> Query(Func<QueryDescriptor<OptionSetInfo>, QueryDescriptor<OptionSetInfo>> container)
+        public PagedList<OptionSetInfo> QueryPaged(Func<QueryDescriptor<OptionSetInfo>, QueryDescriptor<OptionSetInfo>> container)
         {
             QueryDescriptor<OptionSetInfo> q = container(new QueryDescriptor<OptionSetInfo>());
 
             return _repository.QueryPaged(q);
+        }
+        public List<OptionSetInfo> Query(Func<QueryDescriptor<OptionSetInfo>, QueryDescriptor<OptionSetInfo>> container)
+        {
+            QueryDescriptor<OptionSetInfo> q = container(new QueryDescriptor<OptionSetInfo>());
+
+            return _repository.Query(q);
         }
     }
 }

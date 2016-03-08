@@ -1,16 +1,19 @@
-﻿using PureCms.Core.Context;
+﻿using PureCms.Core.Caching;
+using PureCms.Core.Context;
 using PureCms.Core.Domain.Schema;
 using PureCms.Core.Schema;
 using PureCms.Data.Schema;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace PureCms.Services.Schema
 {
     public class EntityService
     {
         IEntityRepository _repository = new EntityRepository();
-
+        private ICache _cache = new AspNetCache();
+        public const string CACHE_KEY = "$Entities$";
 
         public bool Create(EntityInfo entity)
         {
@@ -52,5 +55,43 @@ namespace PureCms.Services.Schema
 
             return _repository.Query(q);
         }
+
+        #region json相关
+        public string GetJsonData(Func<QueryDescriptor<EntityInfo>, QueryDescriptor<EntityInfo>> container, bool nameLower = true)
+        {
+            QueryDescriptor<EntityInfo> q = container(new QueryDescriptor<EntityInfo>());
+
+            List<EntityInfo> list = _repository.Query(q);
+            string json = string.Empty;
+
+            List<dynamic> dlist = BuildTree(list);
+            dynamic contact = new ExpandoObject();
+            contact.label = "实体";
+            contact.id = "";
+            contact.name = "实体";
+            contact.children = dlist;
+
+            List<dynamic> results = new List<dynamic>();
+            results.Add(contact);
+
+            json = results.SerializeToJson(nameLower);
+            return json;
+        }
+
+        private List<dynamic> BuildTree(List<EntityInfo> dataList)
+        {
+            List<dynamic> dynamicList = new List<dynamic>();
+            dynamic contact = new ExpandoObject();
+            foreach (var item in dataList)
+            {
+                contact = new ExpandoObject();
+                contact.label = item.LocalizedName;
+                contact.id = item.EntityId;
+                contact.name = item.Name;
+                dynamicList.Add(contact);
+            }
+            return dynamicList;
+        }
+        #endregion
     }
 }

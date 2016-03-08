@@ -249,6 +249,15 @@
   <ItemGroup>
     <Content Include="Views\Customize\CreateQueryView.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\OptionSets.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\UserControl\GridView.cshtml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

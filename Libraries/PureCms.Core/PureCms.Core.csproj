@@ -64,6 +64,13 @@
     <Compile Include="Cms\IChannelRepository.cs" />
     <Compile Include="Cms\ISiteRepository.cs" />
     <Compile Include="Cms\IThemeRepository.cs" />
+    <Compile Include="Components\Platform\AttributeTypes.cs" />
+    <Compile Include="Components\Platform\GridSortColumnCollection.cs" />
+    <Compile Include="Components\Grid\CellInfo.cs" />
+    <Compile Include="Components\Grid\GridBuilder.cs" />
+    <Compile Include="Components\Grid\GridInfo.cs" />
+    <Compile Include="Components\Grid\RowInfo.cs" />
+    <Compile Include="Components\Platform\QueryColumnSortInfo.cs" />
     <Compile Include="Configuration\ISetting.cs" />
     <Compile Include="Configuration\ISettingRepository.cs" />
     <Compile Include="Configuration\JsonPersistAttribute.cs" />
@@ -95,7 +102,7 @@
     <Compile Include="Domain\Schema\ColumnInfo.cs" />
     <Compile Include="Domain\Schema\EntityInfo.cs" />
     <Compile Include="Domain\Schema\OptionSetInfo.cs" />
-    <Compile Include="Domain\Schema\QueryViewInfo.cs" />
+    <Compile Include="Domain\Query\QueryViewInfo.cs" />
     <Compile Include="Domain\Schema\RelationShipInfo.cs" />
     <Compile Include="Domain\Schema\OptionSetDetailInfo.cs" />
     <Compile Include="Domain\Theme\PageInfo.cs" />

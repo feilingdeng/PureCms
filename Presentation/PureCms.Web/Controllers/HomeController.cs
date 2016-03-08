@@ -21,7 +21,7 @@ namespace PureCms.Web.Controllers
 
             var _fetchService = new FetchDataService();
             //var s = _fetchService.ToJsonString();
-            var o = new QueryViewService().FindById(Guid.Parse("00000000-0000-0000-00aa-000010001002"));
+            var o = new QueryViewService().FindById(Guid.Parse("2705E0B7-24A7-4C4F-B00E-A8EA608786D5"));
             var sql = _fetchService.ToSqlString(_fetchService.ToQueryExpression(o.FetchConfig));
             //new QueryViewService().Update(x=>x.Set(f=>f.FetchConfig, s).Where(w=>w.QueryViewId == Guid.Parse("00000000-0000-0000-00aa-000010001002")));
             return View();

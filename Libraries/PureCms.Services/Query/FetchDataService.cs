@@ -50,6 +50,7 @@ namespace PureCms.Services.Query
         }
         public string ToSqlString(QueryExpression queryExpression)
         {
+            _queryExpression = queryExpression;
             StringBuilder sqlString = new StringBuilder();
             List<string> tableList = new List<string>();
             List<string> attrList = new List<string>();
@@ -107,7 +108,7 @@ namespace PureCms.Services.Query
         {
             if (filterList.IsNotNullOrEmpty())
             {
-                filterList.Add(filter.FilterOperator == LogicalOperator.And ? "and" : "or");
+                filterList.Add(filter.FilterOperator == LogicalOperator.And ? "AND" : "OR");
             }
             bool flag = false;
             filterList.Add("(");
@@ -115,7 +116,7 @@ namespace PureCms.Services.Query
             {
                 if (flag)
                 {
-                    filterList.Add(filter.FilterOperator == LogicalOperator.And ? "and" : "or");
+                    filterList.Add(filter.FilterOperator == LogicalOperator.And ? "AND" : "OR");
                 }
                 filterList.Add(MakeCondition(entityAlias, cd));
                 flag = true;
@@ -137,27 +138,161 @@ namespace PureCms.Services.Query
 
             switch (conditionNode.Operator)
             {
-                case ConditionOperator.In:
-                    var valueNodes = conditionNode.Values;
-                    List<string> values = new List<string>();
-                    foreach (var item in valueNodes)
-                    {
-                        values.Add("'" + item + "'");
-                    }
-                    string value2 = string.Join(",", values);
-                    condition = attrName + " in(" + value2 + ")";
-                    break;
-                case ConditionOperator.Like:
-                    condition = attrName + " like '%" + value + "%'";
-                    break;
                 case ConditionOperator.Equal:
-                    condition = attrName + " = '" + value + "'";
+                    condition = string.Format("{0}='{1}'", attrName, value);
                     break;
                 case ConditionOperator.EqualUserId:
-                    condition = attrName + " = '" + value + "'";
+                    condition = string.Format("{0}='{1}'", attrName, value);
+                    break;
+                case ConditionOperator.NotEqual:
+                    condition = string.Format("{0}<>'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.NotEqualUserId:
+                    condition = string.Format("{0}<>'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.NotEqualBusinessId:
+                    condition = string.Format("{0}<>'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.BeginsWith:
+                    condition = string.Format("{0} LIKE '{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.DoesNotBeginWith:
+                    condition = string.Format("{0} NOT LIKE '{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.DoesNotContain:
+                    condition = string.Format("{0} NOT LIKE'%{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.DoesNotEndWith:
+                    condition = string.Format("{0} NOT LIKE '%{1}'", attrName, value);
+                    break;
+                case ConditionOperator.EndsWith:
+                    condition = string.Format("{0} LIKE '%{1}'", attrName, value);
+                    break;
+                case ConditionOperator.GreaterEqual:
+                    condition = string.Format("{0}>='{1}'", attrName, value);
+                    break;
+                case ConditionOperator.GreaterThan:
+                    condition = string.Format("{0}>'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.LessEqual:
+                    condition = string.Format("{0}<='{1}'", attrName, value);
+                    break;
+                case ConditionOperator.LessThan:
+                    condition = string.Format("{0}<'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.Last7Days:
+                    condition = string.Format("(DATEDIFF(DAY, {0}, GETDATE())>0 AND DATEDIFF(DAY, {0}, GETDATE())<=7)", attrName);
+                    break;
+                case ConditionOperator.LastMonth:
+                    condition = string.Format("DATEDIFF(MONTH, {0}, GETDATE())=1", attrName);
+                    break;
+                case ConditionOperator.LastWeek:
+                    condition = string.Format("DATEDIFF(WEEK, {0}, GETDATE())=1", attrName);
+                    break;
+                case ConditionOperator.LastXDays:
+                    condition = string.Format("(DATEDIFF(DAY, {0}, GETDATE())>0 AND DATEDIFF(DAY, {0}, GETDATE())<={1})", attrName, value);
+                    break;
+                case ConditionOperator.LastXHours:
+                    condition = string.Format("(DATEDIFF(HH, {0}, GETDATE())>0 AND DATEDIFF(HH, {0}, GETDATE())<={1})", attrName, value);
+                    break;
+                case ConditionOperator.LastXMonths:
+                    condition = string.Format("(DATEDIFF(MONTH, {0}, GETDATE())>0 AND DATEDIFF(MONTH, {0}, GETDATE())<={1})", attrName, value);
+                    break;
+                case ConditionOperator.LastXWeeks:
+                    condition = string.Format("(DATEDIFF(WEEK, {0}, GETDATE())>0 AND DATEDIFF(WEEK, {0}, GETDATE())<={1})", attrName, value);
+                    break;
+                case ConditionOperator.LastXYears:
+                    condition = string.Format("(DATEDIFF(YEAR, {0}, GETDATE())>0 AND DATEDIFF(YEAR, {0}, GETDATE())<={1})", attrName, value);
+                    break;
+                case ConditionOperator.LastYear:
+                    condition = string.Format("DATEDIFF(YEAR, {0}, GETDATE())=1", attrName);
+                    break;
+                case ConditionOperator.Next7Days:
+                    condition = string.Format("(DATEDIFF(DAY, GETDATE(), {0})>0 AND DATEDIFF(DAY, GETDATE(), {0})<=7)", attrName);
+                    break;
+                case ConditionOperator.NextMonth:
+                    condition = string.Format("DATEDIFF(MONTH, GETDATE(), {0})=1", attrName);
+                    break;
+                case ConditionOperator.NextWeek:
+                    condition = string.Format("DATEDIFF(WEEK, GETDATE(), {0})=1", attrName);
+                    break;
+                case ConditionOperator.NextXDays:
+                    condition = string.Format("(DATEDIFF(DAY, GETDATE(), {0})>0 AND DATEDIFF(DAY, GETDATE(), {0})<={1})", attrName, value);
+                    break;
+                case ConditionOperator.NextXHours:
+                    condition = string.Format("(DATEDIFF(HOUR, GETDATE(), {0})>0 AND DATEDIFF(HOUR, GETDATE(), {0})<={1})", attrName, value);
+                    break;
+                case ConditionOperator.NextXMonths:
+                    condition = string.Format("(DATEDIFF(MONTH, GETDATE(), {0})>0 AND DATEDIFF(MONTH, GETDATE(), {0})<={1})", attrName, value);
+                    break;
+                case ConditionOperator.NextXWeeks:
+                    condition = string.Format("(DATEDIFF(WEEK, GETDATE(), {0})>0 AND DATEDIFF(WEEK, GETDATE(), {0})<={1})", attrName, value);
+                    break;
+                case ConditionOperator.NextXYears:
+                    condition = string.Format("(DATEDIFF(YEAR, GETDATE(), {0})>0 AND DATEDIFF(YEAR, GETDATE(), {0})<={1})", attrName, value);
+                    break;
+                case ConditionOperator.NextYear:
+                    condition = string.Format("DATEDIFF(YEAR, GETDATE(), {0})=1", attrName);
                     break;
                 case ConditionOperator.Today:
-                    condition = "datediff(d," + attrName + ",getdate())=0";
+                    condition = string.Format("DATEDIFF(DAY,{0},GETDATE())=0", attrName);
+                    break;
+                case ConditionOperator.NotBetween:
+                    condition = string.Format("{0} NOT BETWEEN '{1}' AND '{2}'", attrName, conditionNode.Values[0], conditionNode.Values[1]);
+                    break;
+                case ConditionOperator.OlderThanXMonths:
+                    condition = string.Format("DATEDIFF(MONTH, {0}, GETDATE())>={1}", attrName, value);
+                    break;
+                case ConditionOperator.On:
+                    condition = string.Format("{0}='{1}'", attrName, value);
+                    break;
+                case ConditionOperator.NotOn:
+                    condition = string.Format("{0}<>'{1}'", attrName, value);
+                    break;
+                case ConditionOperator.OnOrAfter:
+                    condition = string.Format("DATEDIFF(DAY, '{1}', {0})>=0", attrName, value);
+                    break;
+                case ConditionOperator.OnOrBefore:
+                    condition = string.Format("DATEDIFF(DAY, '{1}', {0})<=0", attrName, value);
+                    break;
+                case ConditionOperator.ThisMonth:
+                    condition = string.Format("DATEDIFF(MONTH, {0}, GETDATE())=0", attrName);
+                    break;
+                case ConditionOperator.ThisWeek:
+                    condition = string.Format("DATEDIFF(WEEK, {0}, GETDATE())=0", attrName);
+                    break;
+                case ConditionOperator.ThisYear:
+                    condition = string.Format("DATEDIFF(YEAR, {0}, GETDATE())=0", attrName);
+                    break;
+                case ConditionOperator.Tomorrow:
+                    condition = string.Format("DATEDIFF(MONTH, {0}, GETDATE())=-1", attrName);
+                    break;
+                case ConditionOperator.Yesterday:
+                    condition = string.Format("DATEDIFF(MONTH, {0}, GETDATE())=1", attrName);
+                    break;
+                case ConditionOperator.NotIn:
+                    condition = string.Format("{0} NOT IN({1})", attrName, conditionNode.Values.CollectionToString(",", "'"));
+                    break;
+                case ConditionOperator.In:
+                    condition = string.Format("{0} IN({1})", attrName, conditionNode.Values.CollectionToString(",", "'"));
+                    break;
+                case ConditionOperator.Like:
+                    condition = string.Format("{0} LIKE '%{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.Contains:
+                    condition = string.Format("{0} LIKE '%{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.NotLike:
+                    condition = string.Format("{0} NOT LIKE '%{1}%'", attrName, value);
+                    break;
+                case ConditionOperator.NotNull:
+                    condition = string.Format("{0} IS NOT NULL", attrName);
+                    break;
+                case ConditionOperator.Null:
+                    condition = string.Format("{0} IS NULL", attrName);
+                    break;
+                case ConditionOperator.EqualBusinessId:
+                    condition = string.Format("{0}='{1}'", attrName, value);
                     break;
                 default:
                     break;
@@ -167,17 +302,17 @@ namespace PureCms.Services.Query
         }
         private string GetLinkType(JoinOperator joinOperator)
         {
-            string join = "left join";
+            string join = "LEFT JOIN";
             switch (joinOperator)
             {
                 case JoinOperator.Inner:
-                    join = "inner join";
+                    join = "INNER JOIN";
                     break;
                 case JoinOperator.LeftOuter:
-                    join = "left join";
+                    join = "LEFT JOIN";
                     break;
                 case JoinOperator.Natural:
-                    join = "inner join";
+                    join = "INNER JOIN";
                     break;
             }
             return join;

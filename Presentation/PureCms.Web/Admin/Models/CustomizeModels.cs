@@ -1,4 +1,5 @@
-﻿using PureCms.Core.Domain.Schema;
+﻿using PureCms.Core.Domain.Query;
+using PureCms.Core.Domain.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,5 +127,22 @@ namespace PureCms.Web.Admin.Models
         public bool IsDisabled { get; set; }
 
         public Guid EntityId { get; set; }
+        public EntityInfo EntityInfo { get; set; }
+    }
+    public class OptionSetModel : BasePaged<OptionSetInfo>
+    {
+        public Guid OptionSetId { get; set; }
+        public string Name { get; set; }
+        public bool IsPublic { get; set; }
+
+        public List<OptionSetDetailInfo> Details { get; set; }
+    }
+
+    public class EditOptionSetModel
+    {
+        public Guid OptionSetId { get; set; }
+        public string Name { get; set; }
+        public bool IsPublic { get; set; }
+        public List<OptionSetDetailInfo> Details { get; set; }
     }
 }

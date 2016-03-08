@@ -42,7 +42,7 @@ namespace PureCms.Core.Domain.Schema
         public string AttributeTypeName { get; set; }
 
         private string _PickListItem;
-        [ResultColumn]
+        [Ignore]
         public string PickListItem
         {
             get
@@ -72,7 +72,7 @@ namespace PureCms.Core.Domain.Schema
                 //}
             }
         }
-        [ResultColumn]
+        [Ignore]
         public List<OptionSetDetailInfo> PickLists { get; set; }
     }
 }

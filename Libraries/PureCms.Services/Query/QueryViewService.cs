@@ -1,4 +1,5 @@
 ﻿using PureCms.Core.Context;
+using PureCms.Core.Domain.Query;
 using PureCms.Core.Domain.Schema;
 using PureCms.Core.Schema;
 using PureCms.Data.Schema;

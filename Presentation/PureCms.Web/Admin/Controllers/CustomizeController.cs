@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PureCms.Core.Domain.Query;
+using PureCms.Core.Components.Platform;
 
 namespace PureCms.Web.Admin.Controllers
 {
@@ -19,12 +21,14 @@ namespace PureCms.Web.Admin.Controllers
         static AttributeService _attributeService = new AttributeService();
         static AttributeTypeService _attributeTypeService = new AttributeTypeService();
         static QueryViewService _queryViewService = new QueryViewService();
+        static OptionSetService _optionSetService = new OptionSetService();
+        //static OptionSetDetailDetailService _optionSetDetailService = new OptionSetDetailDetailService();
         //
         // GET: /Customize/
 
         public ActionResult Index()
         {
-            return RedirectToAction("Entities");
+            return View();//RedirectToAction("Entities");
         }
 
         #region 实体
@@ -53,14 +57,27 @@ namespace PureCms.Web.Admin.Controllers
             return View(model);
         }
         [Description("实体列表-JSON格式")]
-        public ActionResult EntitiesJson(Guid entityid)
+        public ActionResult EntitiesJson(Guid? entityid)
         {
+            FilterContainer<EntityInfo> filter = new FilterContainer<EntityInfo>();
+            if(entityid.HasValue && !entityid.Equals(Guid.Empty))
+            {
+                filter.And(n => n.EntityId == entityid.Value);
+            }
             List<EntityInfo> result = _entityService.Query(x => x
-            .Select(n=> new { n.EntityId, n.Name, n.LocalizedName})
-                .Where(n => n.EntityId == entityid)
+            .Select(n => new { n.EntityId, n.Name, n.LocalizedName })
+                .Where(filter)
                 .Sort(n => n.SortAscending(f => f.LocalizedName))
                 );
 
+            return AjaxResult(true, result);
+        }
+        [Description("实体列表-JSON树格式")]
+        public ActionResult EntitiesJsonTree(Guid? entityid)
+        {
+             var result = _entityService.GetJsonData(x => x
+            .Select(n => new { n.EntityId, n.Name, n.LocalizedName })
+                .Sort(n => n.SortAscending(f => f.Name)));
             return AjaxResult(true, result);
         }
         [HttpGet]
@@ -146,6 +163,10 @@ namespace PureCms.Web.Admin.Controllers
         [Description("字段列表")]
         public ActionResult Attributes(AttributeModel model)
         {
+            if (model.EntityId.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<AttributeInfo>(n => n.CreatedOn);
@@ -153,6 +174,7 @@ namespace PureCms.Web.Admin.Controllers
             }
 
             FilterContainer<AttributeInfo> container = new FilterContainer<AttributeInfo>();
+            container.And(n => n.EntityId == model.EntityId);
             if (model.Name.IsNotEmpty())
             {
                 container.And(n => n.Name == model.Name);
@@ -172,8 +194,8 @@ namespace PureCms.Web.Admin.Controllers
         {
             List<AttributeInfo> result = _attributeService.GetAll(x => x
             //.Select(n=>new {n.AttributeId,n.AttributeTypeId,n.AttributeTypeName,n.EntityId,n.EntityLocalizedName,n.EntityName,n.LocalizedName,n.Name })
-                .Where(n => n.EntityId == entityid)
-                .Sort(n => n.SortAscending(f=>f.LocalizedName))
+                .Where(n => n.EntityId == entityid && n.Name != "versionnumber")
+                .Sort(n => n.SortAscending(f => f.LocalizedName))
                 );
 
             return AjaxResult(true, result);
@@ -182,6 +204,10 @@ namespace PureCms.Web.Admin.Controllers
         [Description("字段编辑")]
         public ActionResult CreateAttribute(Guid entityid)
         {
+            if (entityid.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
             EditAttributeModel model = new EditAttributeModel();
             //var attrTypes = _attributeTypeService.GetAll(q => q.Sort(s => s.SortAscending(ss => ss.Name)));
             //model.AttributeTypes = new SelectList(attrTypes, "AttributeTypeId", "Name");
@@ -196,8 +222,10 @@ namespace PureCms.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var entityInfo = _entityService.FindById(model.EntityId);
-                var optionsetService = new OptionSetServic();
-                var optionsetDetailService = new OptionSetDetailDetailService();
+                if (entityInfo == null)
+                {
+                    return NoRecordView();
+                }
                 var attrInfo = new AttributeInfo();
                 //model.CopyTo(entity);
                 attrInfo.EntityName = entityInfo.Name;
@@ -256,7 +284,7 @@ namespace PureCms.Web.Admin.Controllers
                                 details.Add(osd);
                                 i++;
                             }
-                            if (optionsetService.Create(os, details))
+                            if (_optionSetService.Create(os, details))
                             {
                                 attrInfo.OptionSetId = os.OptionSetId;
                             }
@@ -285,7 +313,7 @@ namespace PureCms.Web.Admin.Controllers
                             bitdetails.Add(osd);
                             j++;
                         }
-                        if (optionsetService.Create(bitos, bitdetails))
+                        if (_optionSetService.Create(bitos, bitdetails))
                         {
                             attrInfo.OptionSetId = bitos.OptionSetId;
                         }
@@ -315,21 +343,22 @@ namespace PureCms.Web.Admin.Controllers
         }
         [HttpGet]
         [Description("字段编辑")]
-        public ActionResult EditAttribute(Guid? id)
+        public ActionResult EditAttribute(Guid id)
         {
-            EditAttributeModel model = new EditAttributeModel();
-            if (id.HasValue && id != Guid.Empty)
+            if (id.Equals(Guid.Empty))
             {
-                var entity = _attributeService.FindById(id.Value);
-                if (entity != null)
-                {
-                    entity.CopyTo(model);
-                    return View(model);
-                }
+                return NoRecordView();
             }
-            //var themes = _attributeTypeService.GetAll(q => q.Sort(s => s.SortDescending(ss => ss.CreatedOn)));
-            //model.AttributeTypes = new SelectList(themes, "AttributeTypeId", "Name");
-            return NoRecordView();
+            EditAttributeModel model = new EditAttributeModel();
+            var entity = _attributeService.FindById(id);
+            if (entity != null)
+            {
+                entity.CopyTo(model);
+                return View(model);
+            }
+            else {
+                return NoRecordView();
+            }
         }
         [HttpPost]
         [ValidateAntiForgeryToken()]
@@ -369,9 +398,66 @@ namespace PureCms.Web.Admin.Controllers
         #endregion
 
         #region 视图
+        [Description("字段类型对应的操作符")]
+        public ActionResult OperatorJson(string attributeType)
+        {
+            List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
+            switch (attributeType)
+            {
+                case "nvarchar":
+                    result = AttributeTypes.StringOperators;
+                    break;
+                case "int":
+                    result = AttributeTypes.NumberOperators;
+                    break;
+                case "float":
+                    result = AttributeTypes.NumberOperators;
+                    break;
+                case "decimal":
+                    result = AttributeTypes.NumberOperators;
+                    break;
+                case "money":
+                    result = AttributeTypes.NumberOperators;
+                    break;
+                case "picklist":
+                    result = AttributeTypes.PickListOperators;
+                    break;
+                case "bit":
+                    result = AttributeTypes.PickListOperators;
+                    break;
+                case "state":
+                    result = AttributeTypes.PickListOperators;
+                    break;
+                case "status":
+                    result = AttributeTypes.PickListOperators;
+                    break;
+                case "lookup":
+                    result = AttributeTypes.LookUpOperators;
+                    break;
+                case "uniqueidentifier":
+                    result = AttributeTypes.LookUpOperators;
+                    break;
+                case "primarykey":
+                    result = AttributeTypes.LookUpOperators;
+                    break;
+                case "owner":
+                    result = AttributeTypes.LookUpOperators;
+                    break;
+                case "datetime":
+                    result = AttributeTypes.DateTimeOperators;
+                    break;
+            }
+
+            return AjaxResult(true, result);
+        }
         [Description("视图列表")]
         public ActionResult QueryViews(QueryViewModel model)
         {
+            var entity = _entityService.FindById(model.EntityId);
+            if (entity == null)
+            {
+                return NoRecordView();
+            }
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<QueryViewInfo>(n => n.CreatedOn);
@@ -379,6 +465,7 @@ namespace PureCms.Web.Admin.Controllers
             }
 
             FilterContainer<QueryViewInfo> container = new FilterContainer<QueryViewInfo>();
+            container.And(n => n.EntityId == model.EntityId);
             if (model.Name.IsNotEmpty())
             {
                 container.And(n => n.Name == model.Name);
@@ -397,8 +484,18 @@ namespace PureCms.Web.Admin.Controllers
         [Description("新建视图")]
         public ActionResult CreateQueryView(Guid entityid)
         {
+            if (entityid.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
+            var entity = _entityService.FindById(entityid);
+            if (entity == null)
+            {
+                return NoRecordView();
+            }
             EditQueryViewModel model = new EditQueryViewModel();
             model.EntityId = entityid;
+            model.EntityInfo = entity;
             return View(model);
         }
         [HttpPost]
@@ -423,6 +520,10 @@ namespace PureCms.Web.Admin.Controllers
         [Description("视图编辑")]
         public ActionResult EditQueryView(Guid id)
         {
+            if (id.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
             EditQueryViewModel model = new EditQueryViewModel();
             if (!id.Equals(Guid.Empty))
             {
@@ -460,6 +561,130 @@ namespace PureCms.Web.Admin.Controllers
             string msg = string.Empty;
             bool flag = false;
             flag = _queryViewService.DeleteById(recordid.ToList());
+            if (flag)
+            {
+                msg = "删除成功";
+            }
+            else
+            {
+                msg = "删除失败";
+            }
+            return AjaxResult(flag, msg);
+        }
+        #endregion
+
+        #region 选项集
+        [Description("选项集列表")]
+        public ActionResult OptionSets(OptionSetModel model)
+        {
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<OptionSetInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)SortDirection.Desc;
+            }
+
+            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
+            filter.And(n=>n.IsPublic == true);
+            if (model.Name.IsNotEmpty())
+            {
+                filter.And(n => n.Name.Like(model.Name));
+            }
+            PagedList<OptionSetInfo> result = _optionSetService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(filter)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
+        [Description("选项集列表-JSON格式")]
+        public ActionResult OptionSetsJson(Guid? id, bool? ispublic)
+        {
+            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
+            if (id.HasValue && !id.Equals(Guid.Empty))
+            {
+                filter.And(n => n.OptionSetId == id.Value);
+            }
+            if (ispublic.HasValue)
+            {
+                filter.And(n => n.IsPublic == ispublic.Value);
+            }
+            List<OptionSetInfo> result = _optionSetService.Query(x => x
+                .Where(filter)
+                .Sort(n => n.SortAscending(f => f.Name))
+                );
+
+            return AjaxResult(true, result);
+        }
+        [HttpGet]
+        [Description("新建选项集")]
+        public ActionResult CreateOptionSet()
+        {
+            EditOptionSetModel model = new EditOptionSetModel();
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken()]
+        [Description("新建选项集-保存")]
+        public ActionResult CreateOptionSet(EditOptionSetModel model)
+        {
+            string msg = string.Empty;
+            if (ModelState.IsValid)
+            {
+                var entity = new OptionSetInfo();
+                model.CopyTo(entity);
+                entity.OptionSetId = Guid.NewGuid();
+                _optionSetService.Create(entity);
+                msg = "创建成功";
+                return AjaxResult(true, msg);
+            }
+            msg = GetModelErrors(ModelState);
+            return AjaxResult(false, "保存失败: " + msg);
+        }
+        [HttpGet]
+        [Description("选项集编辑")]
+        public ActionResult EditOptionSet(Guid id)
+        {
+            EditOptionSetModel model = new EditOptionSetModel();
+            if (!id.Equals(Guid.Empty))
+            {
+                var entity = _optionSetService.FindById(id);
+                if (entity != null)
+                {
+                    entity.CopyTo(model);
+                    return View(model);
+                }
+            }
+            return NoRecordView();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken()]
+        [Description("选项集信息保存")]
+        public ActionResult EditOptionSet(EditOptionSetModel model)
+        {
+            string msg = string.Empty;
+            if (ModelState.IsValid)
+            {
+                var entity = new OptionSetInfo();
+                model.CopyTo(entity);
+
+                _optionSetService.Update(entity);
+                msg = "保存成功";
+                return AjaxResult(true, msg);
+            }
+            msg = GetModelErrors(ModelState);
+            return AjaxResult(false, "保存失败: " + msg);
+        }
+        [Description("删除实体")]
+        [HttpPost]
+        public ActionResult DeleteOptionSet(Guid[] recordid)
+        {
+            string msg = string.Empty;
+            bool flag = false;
+            flag = _optionSetService.DeleteById(recordid.ToList());
             if (flag)
             {
                 msg = "删除成功";

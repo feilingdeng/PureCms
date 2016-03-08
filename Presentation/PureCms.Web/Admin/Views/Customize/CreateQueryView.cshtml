@@ -15,11 +15,13 @@
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in">
         <div class="panel-body">
-            @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal", @data_autoreset = "true" }))
+            @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary()
+                @Html.HiddenFor(x => x.QueryViewId)
                 @Html.HiddenFor(x => x.EntityId)
+                @Html.HiddenFor(x => x.EntityInfo.Name)
                 @Html.HiddenFor(x => x.FetchConfig)
                 @Html.HiddenFor(x => x.LayoutConfig)
                 <div class="form-group col-sm-12">
@@ -63,7 +65,7 @@
                             <select id="entities" class="form-control"></select>
                             <div class="bg-info" style="height:220px; ">
                                 <ul id="attributes" class="list-unstyled connectedSortable" data-bind="foreach: lines" style="background:#eee; line-height:25px; height:30px;">
-                                    <li class="ui-state-default" data-bind="text: localizedname, attr: { data_name: name, data_entity: entityname, data_entitylocalizedname: entitylocalizedname }"></li>
+                                    <li class="ui-state-default" data-bind="text: localizedname, attr: { 'data-name': name, 'data-entityname': entityname, 'data-entitylocalizedname': entitylocalizedname }"></li>
                                 </ul>
                             </div>
                         </div>
@@ -90,7 +92,7 @@
                                     <caption></caption>
                                     <thead>
                                         <tr id="views" class="connectedSortable" style="height:50px; background:#eee;">
-                                            <th class="small text-danger ui-state-disabled shadow">从左边将属性拖放到此处</th>
+                                            <th class="small text-danger ui-state-disabled shadow">从左边将属性拖放到这里</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -133,8 +135,10 @@
                     <input id="columnwidth" name="columnwidth" type="text" class="form-control input-sm" />
                 </div>
                 <div class="form-group">
-                    <label for="columnvisibled">显示
-                        <input id="columnvisibled" name="columnvisibled" type="checkbox" /></label>
+                    <label for="columnvisibled">
+                        显示
+                        <input id="columnvisibled" name="columnvisibled" type="checkbox" />
+                    </label>
                 </div>
                 <div class="form-group">
                     <label for="sorttype">排序</label>
@@ -150,7 +154,7 @@
                         data-dismiss="modal">
                     关闭
                 </button>
-                <button type="button" class="btn btn-primary" onclick="setColumnParams()">
+                <button type="button" class="btn btn-primary" onclick="saveColumnParams()">
                     确定更改
                 </button>
             </div>
@@ -196,22 +200,22 @@
                                     <th>数值</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody></tbody>
                             <tfoot>
                                 <tr class="hide filterrow">
                                     <td style="width:10px;">
                                         <input type="checkbox" />
                                     </td>
                                     <td>
-                                        <select name="filtername" class="form-control input-sm">
+                                        <select name="filtername" class="form-control input-sm" onchange="onChangeAttribute(this)">
                                             <!-- ko foreach: lines -->
-                                            <option data-bind="text:localizedname,attr:{value:name}"></option>
+                                            <option data-bind="text:localizedname,attr:{value:name,'data-type':attributetypename}"></option>
                                             <!-- /ko -->
                                         </select>
                                     </td>
                                     <td>
                                         <select name="filteroperator" class="form-control input-sm" defaultselected="eq"><option value="eq" title="等于">等于</option><option value="ne" title="不等于">不等于</option><option value="not-null" title="包含数据">包含数据</option><option value="null" title="不包含数据">不包含数据</option><option value="contains" title="包含" fetchop="like" fetchval="%{0}%">包含</option><option value="doesnotcontain" title="不包含" fetchop="not-like" fetchval="%{0}%">不包含</option><option value="beginswith" title="开头等于" fetchop="like" fetchval="{0}%">开头等于</option><option value="doesnotbeginwith" title="开头不等于" fetchop="not-like" fetchval="{0}%">开头不等于</option><option value="endswith" title="结尾等于" fetchop="like" fetchval="%{0}">结尾等于</option><option value="doesnotendwith" title="结尾不等于" fetchop="not-like" fetchval="%{0}">结尾不等于</option></select>
+
                                     </td>
                                     <td>
                                         <input type="text" name="filtervalue" />
@@ -280,10 +284,13 @@
     <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
     <script src="/admin/content/js/knockout-2.2.0.js"></script>
     <script>
-        var queryObject = { Distinct: false, NoLock: true, Criteria: new FilterExpression(), Orders: new Array(), ColumnSet: { AllColumns:true, Columns: new Array()} };
+        var queryObject = { Distinct: false, NoLock: true, EntityName: $('#EntityInfo_Name').val(), Criteria: new FilterExpression(), Orders: new Array(), ColumnSet: { AllColumns: false, Columns: new Array() } };
         $(function () {
             //表单验证
-            purecms.form($("#editform"));
+            purecms.form($("#editform"), function (response) {
+                $('#FetchConfig').val('');
+                $('#LayoutConfig').val('');
+            });
 
             $("#attributes, #views").sortable({
                 connectWith: ".connectedSortable"
@@ -303,15 +310,15 @@
             $("#views").on("sortreceive", function (event, ui) {
                 console.log(event, ui);
                 var li = $("#views").find('li');
-                var name = li.attr('data_name');
-                var entityname = li.attr('data_entity');
-                var entitylocalizedname = li.attr('data_entitylocalizedname');
+                var name = li.attr('data-name');
+                var entityname = li.attr('data-entityname');
+                var entitylocalizedname = li.attr('data-entitylocalizedname');
                 var el = $('<th style="width:100px;"><a class="btn btn-link">' + li.text() + '</a></th>');
-                //el.find('th').attr({ data_name: name, data_entity: entityname, data_entitylocalizedname: entitylocalizedname });
-                el.find('th').attr('data_name', name);
+                el.attr({ 'data-name': name, 'data-entityname': entityname, 'data-entitylocalizedname': entitylocalizedname, 'data-width': 100, 'data-visibled': true, 'data-sorttype': '' });
                 li.replaceWith(el);
                 $("#views").parents('table').find('tbody tr').append('<td class="small text-muted ui-state-disabled">数据</td>');
                 $("#views").parents('table').find('.shadow').addClass('hide');
+                saveGridConfig();
             });
             $("#views").on("sortremove", function (event, ui) {
                 var td = $("#views").parents('table').find('tbody tr').find('td:last');
@@ -322,17 +329,17 @@
 
             $.when(loadEntities()).done(loadAttributes());
 
-            //
+            //列表列选中
             $("#views").on('click', 'th > a', function () {
-                $('#columnModal').modal({
-                    keyboard: true
-                })
+                $(this).parent().siblings().removeClass('selected');
+                $(this).parent().addClass('selected');
+                editColumnParams();
             });
             $("#views").on('click', 'th', function () {
                 $("#views").find('th').removeClass('selected');
                 $(this).toggleClass('selected');
             });
-            //行单击时选中
+            //过滤条件行单击时选中
             //purecms.tableselected('.table-selected', '.filterrow');
             $('#filterConditions').on('click', ':checkbox', function (e) {//input[name=filtergroup]
                 var ischecked = $(this).prop('checked');
@@ -374,6 +381,22 @@
                 ko.applyBindings(new Items());
             });
         }
+        //加载操作符
+        function loadOperators(target, type) {
+            target.empty();
+            purecms.getjson('/admin/customize/OperatorJson', { attributeType: type }, function (data) {
+                $(data.content).each(function (i, n) {
+                    target.append('<option value="' + n.value + '">' + n.key + '</li>');
+                });
+            });
+        }
+        //字段选择后更改操作符
+        function onChangeAttribute(e) {
+            var $this = $(e);
+            var target = $this.parents('tr').find('select[name=filteroperator]');
+            var type = $this.find('option:selected').attr('data-type');
+            loadOperators(target, type);
+        }
         //列移动排序
         function moveColumn(direction) {
             var $this = $("#views").find('.selected');
@@ -384,31 +407,87 @@
                 $this.insertAfter($this.next());
             }
         }
+        //编辑列参数
+        function editColumnParams() {
+            var $this = $("#views").find('.selected');
+            var width = $this.attr('data-width');
+            var visibled = $this.attr('data-visibled');
+            var sorttype = $this.attr('data-sorttype');
+            $('#columnModal').find('input[name=columnwidth]').val(width);
+            $('#columnModal').find('input[name=columnvisibled]').prop('checked', visibled);
+            purecms.selectedvalue($('#columnModal').find('select[name=sorttype]'), sorttype);
+            $('#columnModal').modal({
+                keyboard: true
+            })
+        }
         //保存列参数设置
-        function setColumnParams() {
+        function saveColumnParams() {
             var $this = $("#views").find('.selected');
             var width = $('#columnModal').find('input[name=columnwidth]').val();
             var visibled = $('#columnModal').find('input[name=columnvisibled]').prop('checked');
             var sorttype = purecms.selectedvalue($('#columnModal').find('select[name=sorttype]'));
-            $this.attr('data-width', width).attr('style','width:' + width + 'px;');
-            $this.attr('data-visibled', visibled);
             $this.attr('data-sorttype', sorttype);
+            $this.attr('data-width', width);
+            $this.attr('data-visibled', visibled);
+            $this.attr('style', 'width:' + width + 'px;');
             $('#columnModal').modal('hide');
             $("#views").parents('table').removeClass('table');
+            //reset form
+            $('#columnModal').find('input[name=columnwidth]').val('');
+            $('#columnModal').find('input[name=columnvisibled]').prop('checked', true);
+            purecms.selectedvalue($('#columnModal').find('select[name=sorttype]'), '');
+            saveGridConfig();
         }
         //保存列表布局
         function saveGridConfig() {
+            var grid = { SortColumns: [], Rows: [] };
+            var sortColumn = { Name: '', SortAscending: false };
+            var row = { Name: '', Id: '', Cells: [] };
+            var cell = { Name: '', EntityName: '', IsHidden: false, IsSortable: false, Width: 0 };
+            var sortColumns = new Array(), cells = new Array(), columns = new Array(), orders = new Array();
+            $("#views").find('th:not(.shadow)').each(function (i, n) {
+                var column = $(n);
+                var name = column.attr('data-name');
+                var entityname = column.attr('data-entityname');
+                var visibled = column.attr('data-visibled');
+                var sorttype = column.attr('data-sorttype');
+                var width = column.attr('data-width');
+                columns.push(name);
+                cell = cell.constructor();//js对象为引用类型，所以需要NEW一个对象
+                cell.Name = name;
+                cell.EntityName = entityname;
+                cell.IsHidden = !visibled;
+                cell.IsSortable = sorttype != '';
+                cell.Width = width;
+                cells.push(cell);
+                if (sorttype != '') {
+                    sortColumn = sortColumn.constructor();
+                    sortColumn.Name = name;
+                    sortColumn.SortAscending = sorttype == 'asc';
+                    sortColumns.push(sortColumn);
+                    var ord = { AttributeName: name, OrderType: sorttype == 'asc' ? 0 : 1 };
+                    orders.push(ord);
+                }
+            });
+            row.Cells = cells;
+            grid.SortColumns = sortColumns;
+            grid.Rows.push(row);
+            $('#LayoutConfig').val(JSON.stringify(grid));
 
+            queryObject.ColumnSet.Columns = columns;
+            queryObject.Orders = orders;
+            $('#FetchConfig').val(JSON.stringify(queryObject));
         }
         //增加一行过滤条件
-        function addCondition(o) {
+        function addCondition(e) {
             var newRow = $('#filterConditions > tfoot > tr:first').clone(true).removeClass('hide');
-            var fname = purecms.selectedvalue($(o));
+            var fname = purecms.selectedvalue($(e));
             if (fname != null) {
                 purecms.selectedvalue(newRow.find('select[name=filtername]'), fname);
             }
+            onChangeAttribute(newRow.find('select[name=filtername]').get(0));
             $('#filterConditions > tbody').append(newRow);
-            purecms.selectedvalue($(o), '');
+            purecms.selectedvalue($(e), '');
         }
         //清空过滤条件
         function clearConditions() {
@@ -420,7 +499,7 @@
         function groupConditions(logical) {
             var rows = $('#filterConditions tbody tr.active');
             if (rows.length < 2) {
-                purecms.alert(false,'请选择2个条件以上');
+                purecms.alert(false, '请选择2个条件以上');
                 return;
             }
             var container = new Array();
@@ -446,7 +525,7 @@
             container.push('<div class="dropdown"><input type="checkbox" name="filtergroup" />');
             container.push('<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span name="logicaltext">' + (logical == 'and' ? '并且' : '或者') + '</span> <span class="caret"></span></a>');
             container.push('<ul class="dropdown-menu">');
-            container.push('<li><a class="btn-link" onclick="javascript:cancelGroup(this,\''+grouplistid+'\')">取消组合</a></li>');
+            container.push('<li><a class="btn-link" onclick="javascript:cancelGroup(this,\'' + grouplistid + '\')">取消组合</a></li>');
             container.push('<li><a class="btn-link" onclick="javascript:changeGroupLogical(this)">转换为"' + (logical != 'and' ? '并且' : '或者') + '"组合</a></li>');
             container.push('</ul></div>');
             container.push('</td>');
@@ -486,12 +565,12 @@
         function changeGroupLogical(e) {
             var logical = $(e).parents('table').first().find('[data-logical]').attr('data-logical');
             logical = logical == 'and' ? 'or' : 'and';
-            $(e).parents('table').first().find('[data-logical]').attr('data-logical',logical)
+            $(e).parents('table').first().find('[data-logical]').attr('data-logical', logical)
             $(e).parents('td').first().find('[name=logicaltext]').text(logical == 'and' ? '并且' : '或者');
             $(e).text('转换为"' + (logical != 'and' ? '并且' : '或者') + '"组合');
         }
         //取消组合
-        function cancelGroup(e,groupid) {
+        function cancelGroup(e, groupid) {
             var g = $(e).parents('td').first();
             var rows = $('#' + groupid).children(); //g.next().find('table > tbody > tr')
             if (g.parent().is('.filtergroup')) {
@@ -544,7 +623,7 @@
             console.log(JSON.stringify(filterContainer));
 
             queryObject.Criteria = filterContainer;
-            $('#FetchConfig').val(JSON.stringify(filterContainer));
+            $('#FetchConfig').val(JSON.stringify(queryObject));
             $('#filterModal').modal('hide');
         }
         function setFilter(filter, filterrows) {

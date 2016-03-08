@@ -125,6 +125,11 @@ namespace PureCms.Data.Schema
             AttributeInfo entity = this.FindById(id);
 
             Sql s = Sql.Builder.Append(string.Format("ALTER TABLE {0} DROP COLUMN {1}", entity.EntityName, entity.Name));
+            //删除对应的非公共optoionset，对应的视图、表单将在对应的加载方法里面处理
+            if (entity.OptionSetId.HasValue)
+            {
+                s.Append(";DELETE OptionSet WHERE OptionSetId='" + entity.OptionSetId.Value + "' AND IsPublic=0");
+            }
             _repository.BeginTransaction();
             var flag = false;
             try {

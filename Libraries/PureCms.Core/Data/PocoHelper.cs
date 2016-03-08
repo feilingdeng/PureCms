@@ -92,6 +92,7 @@ namespace PureCms.Core.Data
         {
             var column = poco.Columns.First(n=>n.Key == name);
             Type entityType = poco.type;
+            string result = name;
             //BindingFlags flag = BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance;
             var p = column.Value.PropertyInfo;//entityType.GetProperty(name, flag);
             var attrs = p.GetCustomAttribute(typeof(LinkEntityAttribute), true);
@@ -102,16 +103,16 @@ namespace PureCms.Core.Data
                 var linkPoco = new Database.PocoData(linkTarget);
                 leAttr.AliasName = leAttr.AliasName.IfEmpty(linkPoco.TableInfo.TableName);
                 var fieldName = leAttr.TargetFieldName.IfEmpty(name);
-                name = "[" + leAttr.AliasName + "].[" + fieldName + "]";//关联表字段
+                result = "[" + leAttr.AliasName + "].[" + fieldName + "] AS " + name;//关联表字段
                 fromTable = string.Format("LEFT JOIN {0} AS {1} ON {1}.[{2}]={3}.[{4}]"
-                    , linkPoco.TableInfo.TableName, leAttr.AliasName, leAttr.LinkToFieldName, poco.TableInfo.TableName, leAttr.LinkFromFieldName);
+                    , linkPoco.TableInfo.TableName, leAttr.AliasName, leAttr.LinkToFieldName.IfEmpty(name), poco.TableInfo.TableName, leAttr.LinkFromFieldName.IfEmpty(name));
             }
             else
             {
-                name = "[" + poco.TableInfo.TableName + "].[" + name + "]";//主表字段
+                result = "[" + poco.TableInfo.TableName + "].[" + name + "]";//主表字段
                 fromTable = poco.TableInfo.TableName;
             }
-            return name;
+            return result;
         }
         /// <summary>
         /// 获取查询列名
@@ -154,18 +155,18 @@ namespace PureCms.Core.Data
                     {
                         var c = item.Value;
                         string name = item.Key;
-                        if (c.ResultColumn)
-                        {
-                            LinkEntityAttribute leAttr = c.PropertyInfo.GetCustomAttribute(typeof(LinkEntityAttribute)) as LinkEntityAttribute;
-                            if (leAttr != null)
-                            {
-                                name = leAttr.TargetFieldName;
-                            }
-                            else
-                            {
-                                name = string.Empty;
-                            }
-                        }
+                        //if (c.ResultColumn)
+                        //{
+                        //    LinkEntityAttribute leAttr = c.PropertyInfo.GetCustomAttribute(typeof(LinkEntityAttribute)) as LinkEntityAttribute;
+                        //    if (leAttr != null)
+                        //    {
+                        //        name = leAttr.TargetFieldName;
+                        //    }
+                        //    //else
+                        //    //{
+                        //    //    name = string.Empty;
+                        //    //}
+                        //}
                         if(name.IsNotEmpty()) columns.Add(name);
                     }
                     //columns.AddRange(poco.QueryColumns);
