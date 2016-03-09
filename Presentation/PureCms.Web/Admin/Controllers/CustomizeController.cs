@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using PureCms.Core.Domain.Query;
 using PureCms.Core.Components.Platform;
+using System.Web.Helpers;
 
 namespace PureCms.Web.Admin.Controllers
 {
@@ -38,7 +39,7 @@ namespace PureCms.Web.Admin.Controllers
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<EntityInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)SortDirection.Desc;
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
             }
 
             FilterContainer<EntityInfo> container = new FilterContainer<EntityInfo>();
@@ -170,7 +171,7 @@ namespace PureCms.Web.Admin.Controllers
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<AttributeInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)SortDirection.Desc;
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
             }
 
             FilterContainer<AttributeInfo> container = new FilterContainer<AttributeInfo>();
@@ -461,7 +462,7 @@ namespace PureCms.Web.Admin.Controllers
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<QueryViewInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)SortDirection.Desc;
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
             }
 
             FilterContainer<QueryViewInfo> container = new FilterContainer<QueryViewInfo>();
@@ -470,7 +471,7 @@ namespace PureCms.Web.Admin.Controllers
             {
                 container.And(n => n.Name == model.Name);
             }
-            PagedList<QueryViewInfo> result = _queryViewService.Query(x => x
+            PagedList<QueryViewInfo> result = _queryViewService.QueryPaged(x => x
                 .Page(model.Page, model.PageSize)
                 .Where(container)
                 .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
@@ -580,7 +581,7 @@ namespace PureCms.Web.Admin.Controllers
             if (model.SortBy.IsEmpty())
             {
                 model.SortBy = Utilities.ExpressionHelper.GetPropertyName<OptionSetInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)SortDirection.Desc;
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
             }
 
             FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
@@ -696,5 +697,36 @@ namespace PureCms.Web.Admin.Controllers
             return AjaxResult(flag, msg);
         }
         #endregion
+
+
+        public ActionResult QueryViewGrid(QueryViewModel model)
+        {
+            var entity = _entityService.FindById(model.EntityId);
+            if (entity == null)
+            {
+                return NoRecordView();
+            }
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<QueryViewInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
+            }
+
+            FilterContainer<QueryViewInfo> container = new FilterContainer<QueryViewInfo>();
+            container.And(n => n.EntityId == model.EntityId);
+            if (model.Name.IsNotEmpty())
+            {
+                container.And(n => n.Name == model.Name);
+            }
+            PagedList<QueryViewInfo> result = _queryViewService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(container)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
     }
 }

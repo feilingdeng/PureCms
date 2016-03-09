@@ -1,13 +1,23 @@
-﻿using PureCms.Core.Domain.Query;
+﻿using PureCms.Core.Domain;
+using PureCms.Core.Domain.Query;
 using PureCms.Core.Domain.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace PureCms.Web.Admin.Models
 {
+    public class ComponentModel : BasePaged<BaseEntity>
+    {
+        public string Type { get; set; }
+
+        public WebGrid Grid { get; set; }
+
+        public IHtmlString Table { get; set; }
+    }
     public class EntityModel : BasePaged<EntityInfo>
     {
         public string Name { get; set; }

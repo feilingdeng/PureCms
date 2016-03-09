@@ -37,3 +37,4 @@ G:\projects\PureCms2015\Presentation\PureCms.Web.Framework\bin\Debug\zh-Hans\Sys
 G:\projects\PureCms2015\Presentation\PureCms.Web.Framework\obj\Debug\PureCms.Web.Framework.csprojResolveAssemblyReference.cache
 G:\projects\PureCms2015\Presentation\PureCms.Web.Framework\obj\Debug\PureCms.Web.Framework.dll
 G:\projects\PureCms2015\Presentation\PureCms.Web.Framework\obj\Debug\PureCms.Web.Framework.pdb
+G:\projects\PureCms2015\Presentation\PureCms.Web.Framework\bin\Debug\System.Web.Helpers.dll

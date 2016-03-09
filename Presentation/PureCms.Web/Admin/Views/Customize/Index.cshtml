@@ -6,8 +6,11 @@
     <h5><span class="glyphicon glyphicon-th-large"></span> <strong>组件</strong></h5>
     <div id="entities" data-url="EntitiesJsonTree"></div>
 </div>
-<div class="table-responsive">
-    @Html.GridView(null)
+<div class="table-responsive" id="datas">
+    <div id="example"></div>
+    <script type="text/javascript" src="js/pym.js"></script>
+    <script>var pymParent = pym.Parent('example', 'child.html', {});</script>
+
     <table class="table table-hover table-condensed" id="datatable" data-sortby="" data-sortdirection="">
         <thead>
             <tr>
@@ -76,7 +79,7 @@
                     var node = event.node;
                     $tree.tree('openNode', node);
                     //加载组件数据
-                    var type = node.attr('data-type');
+                    var type = node.type;
                     if (type == 'entity') {
 
                     }
@@ -84,7 +87,7 @@
 
                     }
                     if (type == 'view') {
-                        loadViews();
+                        loadViews(node.id);
                     }
                     if (type == 'attribute') {
 
@@ -93,8 +96,12 @@
             }
             );
         }
-        function loadViews() {
-
+        function loadViews(entityid) {
+            $.get('queryviewgrid?entityid=' + entityid, function (response) {
+                $('#datas').html(response);
+                //列表排序样式
+                purecms.datatable($("#datatable"));
+            });
         }
     </script>
 }

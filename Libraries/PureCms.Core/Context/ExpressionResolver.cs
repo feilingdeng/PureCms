@@ -10,9 +10,7 @@ namespace PureCms.Core.Context
 {
     public class ExpressionResolver
     {
-        //private Dictionary<string, object> _argument;
-        //public Dictionary<string, object> Argument { get { return _argument; } }
-        private List<QueryParameter> _arguments;
+        private List<QueryParameter> _arguments = new List<QueryParameter>();
         public List<QueryParameter> Arguments
         {
             get { return _arguments; }
@@ -20,21 +18,17 @@ namespace PureCms.Core.Context
 
         private string _queryText;
         public string QueryText { get { return _queryText; } }
-        //public SqlParameter[] Paras;
         private int _index = 0;
         /// <summary>
         /// 解析lamdba，生成Sql查询条件
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public ExpressionResolver ResolveToSql(Expression expression)
+        public string ResolveToSql(Expression expression)
         {
-            this._index = 0;
-            //this._argument = new Dictionary<string, object>();
-            this._arguments = new List<QueryParameter>();
-            this._queryText = Resolve(expression);
-            //this.Paras = Argument.Select(x => new SqlParameter(x.Key, x.Value)).ToArray();
-            return this;
+            var s = Resolve(expression);
+            this._queryText += s;
+            return s;
         }
 
         private object GetValue(Expression expression)

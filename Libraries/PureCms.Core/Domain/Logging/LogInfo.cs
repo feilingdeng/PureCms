@@ -26,7 +26,7 @@ namespace PureCms.Core.Domain.Logging
 
         #region 视图字段
         [ResultColumn()]
-        [LinkEntity(typeof(UserInfo))]
+        [LinkEntity(typeof(UserInfo))]//, LinkFromFieldName = "userid", LinkToFieldName = "userid")]
         public string UserName { get; set; } 
         #endregion
     }

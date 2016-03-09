@@ -223,7 +223,7 @@ namespace PureCms.Core.Context
             }
             //_queryText.Append(_translator.Translate(predicate));
             //_parameters = _translator.Parameters;
-            _queryText.Append(_resolver.ResolveToSql(predicate).QueryText);
+            _queryText.Append(_resolver.ResolveToSql(predicate));
             _parameters = _resolver.Arguments;//.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }
@@ -235,7 +235,7 @@ namespace PureCms.Core.Context
             }
             //_queryText.Append(_translator.Translate(predicate));
             //_parameters = _translator.Parameters;
-            _queryText.Append(_resolver.ResolveToSql(predicate).QueryText);
+            _queryText.Append(_resolver.ResolveToSql(predicate));
             _parameters = _resolver.Arguments;//.Argument.Select(x => new QueryParameter(x.Key, x.Value)).ToList();
             return this;
         }

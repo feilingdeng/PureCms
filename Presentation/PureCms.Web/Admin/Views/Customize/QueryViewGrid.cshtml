@@ -1,0 +1,77 @@
+﻿@model PureCms.Web.Admin.Models.QueryViewModel
+
+@{
+    Layout = null;
+    ViewBag.Title = "QueryViewGrid";
+}
+
+
+@*<div id="gridview">
+    @{
+        WebGrid grid = new WebGrid(ajaxUpdateContainerId: "gridview", rowsPerPage: Model.PageSize, defaultSort: "createdon", sortFieldName: "sortby");
+        //grid.SortDirection = (grid.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending);
+        grid.Bind(Model.Items, rowCount: Model.PagedModel.TotalCount, autoSortAndPage: false);
+    }
+
+        @grid.Table(columns: grid.Columns(
+             grid.Column("name", header: "名称"),
+                 grid.Column("isdefault", header: "是否默认", format: (item) => (item.IsDefault ? "是" : "否")),
+                 grid.Column("createdon", header: "创建日期")
+             ), tableStyle: "table table-hover table-condensed")
+        <div class="col-sm-12 panel-footer">
+            <div class="col-sm-3">@("当前" + @Model.Page + "/" + @Model.PagedModel.TotalPages + "页, 共" + @Model.PagedModel.TotalCount + "行记录")</div>
+            <div class="col-sm-9">
+
+                @grid.PagerList(mode: WebGridPagerModes.All, numericLinksCount: 10)
+            </div>
+        </div>
+</div>*@
+<div id="gridview">
+    <table class="table table-hover table-condensed" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+        <thead>
+            <tr>
+                <th width="2%"><input type="checkbox" name="checkall" /></th>
+                <th data-sortname="name">
+                    @Html.ActionLink("名称", "attributes", new { name = Model.Name, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="20%" data-name="LocalizedName">
+                    @Html.ActionLink("默认", "attributes", new { name = Model.IsDefault, sortby = "IsDefault", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="10%" data-name="IsRequired">
+                    @Html.ActionLink("类型", "attributes", new { name = Model.IsPrivate, sortby = "IsPrivate", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="20%" data-name="IsLoged">
+                    @Html.ActionLink("状态", "attributes", new { name = Model.IsDisabled, sortby = "IsDisabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="15%" data-name="createdon">
+                    @Html.ActionLink("创建时间", "attributes", new { name = Model.Name, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="15%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td><input type="checkbox" value="@item.QueryViewId" name="recordid" /></td>
+                    <td>@item.Name</td>
+                    <td>@(item.IsDefault ? "<span class=\"label label-info\">是</span>" : "<span class=\"label label-default\">否</span>")</td>
+                    <td>@(item.IsPrivate ? "<span class=\"label label-info\">个人</span>" : "<span class=\"label label-default\">公共</span>")</td>
+                    <td>@(item.IsDisabled ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                    <td>@item.CreatedOn</td>
+                    <td>
+                        <a class="btn btn-default btn-sm" href="/admin/customize/editqueryview?id=@item.QueryViewId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                        <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.QueryViewId','/admin/customize/deletequeryview')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="active">
+                    <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/customize/deleteattribute" data-role="delete" data-tooltip="字段删除后相关数据也将一并删除，请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

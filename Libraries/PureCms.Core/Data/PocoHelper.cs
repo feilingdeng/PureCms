@@ -104,8 +104,20 @@ namespace PureCms.Core.Data
                 leAttr.AliasName = leAttr.AliasName.IfEmpty(linkPoco.TableInfo.TableName);
                 var fieldName = leAttr.TargetFieldName.IfEmpty(name);
                 result = "[" + leAttr.AliasName + "].[" + fieldName + "] AS " + name;//关联表字段
-                fromTable = string.Format("LEFT JOIN {0} AS {1} ON {1}.[{2}]={3}.[{4}]"
-                    , linkPoco.TableInfo.TableName, leAttr.AliasName, leAttr.LinkToFieldName.IfEmpty(name), poco.TableInfo.TableName, leAttr.LinkFromFieldName.IfEmpty(name));
+                //如果LinkFromFieldName、LinkToFieldName为空，则查找实体中是否存在字段与被连接实体的主键名称匹配
+                if (leAttr.LinkFromFieldName.IsEmpty())
+                {
+                    if(poco.Columns.Count(n => n.Key.ToLower() == linkPoco.TableInfo.PrimaryKey.ToLower()) > 0)
+                    {
+                        var linkField = poco.Columns.First(n => n.Key.ToLower() == linkPoco.TableInfo.PrimaryKey.ToLower());
+                        leAttr.LinkFromFieldName = linkField.Key;
+                        leAttr.LinkToFieldName = linkPoco.TableInfo.PrimaryKey;
+                    }
+                }
+                string joinCondition = string.Format("{0}.[{1}]={2}.[{3}]"
+                    ,leAttr.AliasName, leAttr.LinkToFieldName.IfEmpty(name), poco.TableInfo.TableName, leAttr.LinkFromFieldName.IfEmpty(name));
+                fromTable = string.Format("LEFT JOIN {0} AS {1} ON {2}"
+                    , linkPoco.TableInfo.TableName, leAttr.AliasName, joinCondition);
             }
             else
             {

@@ -34,6 +34,10 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Preferences\System.Web.Helpers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Preferences\System.Web.Mvc.dll</HintPath>
@@ -54,14 +58,14 @@
     <Compile Include="Controller\BaseAdminController.cs" />
     <Compile Include="Controller\BaseWebController.cs" />
     <Compile Include="Controller\ErrorController.cs" />
-    <Compile Include="Controller\UserControlController.cs" />
     <Compile Include="Mvc\AuthenicationModule.cs" />
     <Compile Include="Mvc\AuthorizeFilterAttribute.cs" />
     <Compile Include="Mvc\ImageResult.cs" />
     <Compile Include="Mvc\JsonResultObject.cs" />
     <Compile Include="Mvc\PluginRouteProvider.cs" />
     <Compile Include="Mvc\PromptModel.cs" />
-    <Compile Include="Mvc\UserControlExtensions.cs" />
+    <Compile Include="Mvc\ViewExtensions.cs" />
+    <Compile Include="Mvc\WebGridExtensions.cs" />
     <Compile Include="Paging\BasePaged.cs" />
     <Compile Include="Paging\PagedModel.cs" />
     <Compile Include="Paging\Pager.cs" />
@@ -71,7 +75,6 @@
     <Compile Include="Theme\ThemeBuildManagerViewEngine .cs" />
     <Compile Include="Theme\ThemeRazorViewEngine.cs" />
     <Compile Include="Theme\ThemeVirtualPathProviderViewEngine.cs" />
-    <Compile Include="UserControl\UserControlModels.cs" />
     <Compile Include="Validators\DateTimeNotLessAttribute.cs" />
     <Compile Include="Validators\DecimailNotLessAttribute.cs" />
     <Compile Include="Validators\EmailAttribute.cs" />

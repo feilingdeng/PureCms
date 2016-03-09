@@ -68,7 +68,7 @@ namespace PureCms.Services.Schema
             dynamic contact = new ExpandoObject();
             contact.label = "实体";
             contact.id = "";
-            contact.name = "实体";
+            contact.entityname = "实体";
             contact.children = dlist;
 
             List<dynamic> results = new List<dynamic>();
@@ -87,7 +87,7 @@ namespace PureCms.Services.Schema
                 contact = new ExpandoObject();
                 contact.label = item.LocalizedName;
                 contact.id = item.EntityId;
-                contact.name = item.Name;
+                contact.entityname = item.Name;
                 dynamicList.Add(contact);
             }
             return dynamicList;

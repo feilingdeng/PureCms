@@ -2,6 +2,7 @@
 using PureCms.Core.Domain;
 using PureCms.Core.Domain.Logging;
 using PureCms.Web.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace PureCms.Web.Admin.Models
@@ -83,6 +84,21 @@ namespace PureCms.Web.Admin.Models
         {
             get;
             set;
+        }
+        private string _sortDir;
+        /// <summary>
+        /// webgrid support
+        /// </summary>
+        public string SortDir
+        {
+            get { return _sortDir; }
+            set {
+                _sortDir = value;
+                if (_sortDir.IsNotEmpty())
+                {
+                    this.SortDirection = (value.ToLower() == "asc" ? 0 : 1);
+                }
+            }
         }
     }
 

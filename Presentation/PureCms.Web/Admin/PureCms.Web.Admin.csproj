@@ -138,6 +138,7 @@
     <Content Include="Content\js\ie8-responsive-file-warning.js" />
     <Content Include="Content\js\jquery.min.js" />
     <Content Include="Content\js\purecms.admin.js" />
+    <Content Include="Content\js\purecms.jquery.js" />
     <Content Include="Content\js\respond.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -257,6 +258,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\UserControl\GridView.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\QueryViewGrid.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -31,7 +31,7 @@ namespace PureCms.Web.Admin.Controllers
             }
             if (m.Url.IsNotEmpty())
             {
-                container.And(n => n.Url == m.Url);
+                container.And(n => n.Url.Like(m.Url));
             }
             if (m.BeginTime.HasValue)
             {
