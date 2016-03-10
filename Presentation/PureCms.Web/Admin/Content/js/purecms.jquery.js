@@ -1,4 +1,12 @@
-﻿var tableToExcel = (function () {
+﻿(function ($) {
+    $.getUrlParam = function (name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+})(jQuery);
+
+var tableToExcel = (function () {
     var uri = 'data:application/vnd.ms-excel;base64,',
         template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
         base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) },
@@ -115,4 +123,61 @@
             });
         }
     };
+})(jQuery);
+
+//ajax
+
+(function ($) {
+    //ajax查询
+    $.fn.ajaxSearch = function (targetId) {
+        var self = $(this); 
+        self.ajaxForm({
+            success: function (response) {
+                $(targetId).html($(response).find(targetId).html());
+            },
+            error: function (XmlHttpRequest, textStatus, errorThrown) {
+                console.log(response);
+                $.messager.popup(response);
+            }
+        });
+    }
+    //ajax加载数据列表
+    $.fn.ajaxTable = function () {
+        //$('table[data-ajax="true"],span[data-ajax="true"]')
+            //$(selector).each(function () {
+            var self = $(this);
+            var containerId = '#' + self.data('ajaxcontainer');
+            var callback = getFunction(self.data('ajaxcallback'));
+
+            $(containerId).parent().delegate(containerId + ' a[data-ajax="true"]', 'click', function () {
+                $(containerId).ajaxLoad($(this).attr('href'), containerId, callback);
+                return false;
+            });
+        //})
+    }
+    $.fn.ajaxLoad = function (url, containerId, callback) {
+        url = url + (url.indexOf('?') == -1 ? '?' : '&') + '__r=' + new Date().getTime();
+        
+        $('<div/>').load(url + ' ' + containerId, function (data, status, xhr) {
+            console.log(data,$(this).html());
+            $(containerId).replaceWith($(this).html());
+            if (typeof (callback) === 'function') {
+                callback.apply(this, arguments);
+            }
+        });
+        return this;
+    }
+
+    function getFunction(code, argNames) {
+        argNames = argNames || [];
+        var fn = window, parts = (code || "").split(".");
+        while (fn && parts.length) {
+            fn = fn[parts.shift()];
+        }
+        if (typeof (fn) === "function") {
+            return fn;
+        }
+        argNames.push(code);
+        return Function.constructor.apply(null, argNames);
+    }
 })(jQuery);

@@ -14,11 +14,11 @@ namespace PureCms.Core.Domain.Security
         public new DateTime CreatedOn { get; set; }
 
         [ResultColumn]
-        [LinkEntity(typeof(RoleInfo), LinkFromFieldName = "RoleId", LinkToFieldName = "ObjectTypeCode")]
+        [LinkEntity(typeof(RoleInfo), LinkFromFieldName = "RoleId", LinkToFieldName = "RoleId", TargetFieldName = "Name")]
         public string RoleName { get; set; }
 
         [ResultColumn]
-        [LinkEntity(typeof(PrivilegeInfo), LinkFromFieldName = "PrivilegeId", LinkToFieldName = "displayname")]
+        [LinkEntity(typeof(PrivilegeInfo), LinkFromFieldName = "PrivilegeId", LinkToFieldName = "PrivilegeId", TargetFieldName = "DisplayName")]
         public string PrivilegeName { get; set; }
     }
 }

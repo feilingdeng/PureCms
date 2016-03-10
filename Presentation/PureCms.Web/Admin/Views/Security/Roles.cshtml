@@ -51,13 +51,13 @@
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th data-sortname="name">
+                    <th data-name="name">
                         @Html.ActionLink("名称", "roles", new { name = Model.Name, isenabled=Model.IsEnabled, sortby = "name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="10%" data-sortname="isenabled">
+                    <th width="10%" data-name="isenabled">
                         @Html.ActionLink("状态", "roles", new { name = Model.Name, isenabled = Model.IsEnabled, sortby = "isenabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="15%" data-sortname="createdon">
+                    <th width="15%" data-name="createdon">
                         @Html.ActionLink("创建日期", "roles", new { name = Model.Name, isenabled = Model.IsEnabled, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%">操作</th>

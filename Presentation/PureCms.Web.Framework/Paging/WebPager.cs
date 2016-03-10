@@ -100,7 +100,7 @@ namespace PureCms.Web.Framework
 
             if (_showsummary)
             {
-                html.AppendFormat("当前{0}/{1}页&nbsp;共{2}条记录", _pagemodel.PageNumber, _pagemodel.TotalPages, _pagemodel.TotalCount);
+                html.AppendFormat("当前{0}/{1}页, 共{2}行记录", _pagemodel.PageNumber, _pagemodel.TotalPages, _pagemodel.TotalCount);
             }
             html.Append("</div>");
             html.Append("<div class=\"col-sm-8\">");
@@ -164,7 +164,7 @@ namespace PureCms.Web.Framework
             {
                 pageStr.Append("<li class=\"active\"><a href=\"javascript:void(0)\">1</a></li>");
             }
-            if (_pagemodel.PageNumber == _pagemodel.TotalPages)
+            else if (_pagemodel.PageNumber == _pagemodel.TotalPages)
             {
                 pageStr.Append("<li class=\"active\"><a href=\"javascript:void(0)\">" + _pagemodel.TotalPages.ToString() + "</a></li>");
             }
@@ -177,7 +177,7 @@ namespace PureCms.Web.Framework
 
             if (_pagemodel.PageNumber >= centSize)
             {
-                pageStr.Append("<li><a href=\"javascript:void(0)\">...</a></li>\n");
+                pageStr.Append("<li><a href=\"" + CreateUrl(firstNum + 1) + "\">...</a></li>\n");
             }
             for (int i = firstNum; i <= lastNum; i++)
             {
@@ -192,7 +192,7 @@ namespace PureCms.Web.Framework
             }
             if (_pagemodel.TotalPages - _pagemodel.PageNumber > centSize - ((centSize / 2)))
             {
-                pageStr.Append("<li><a href=\"javascript:void(0)\">...</a></li>");
+                pageStr.Append("<li><a href=\"" + CreateUrl(lastNum + 1) + "\">...</a></li>");
             }
             //pageStr.Append(_pagemodel.TotalPages == 1 ? lastBtn : lastStr + lastBtn);
             return pageStr.ToString();

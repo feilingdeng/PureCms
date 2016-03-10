@@ -1,6 +1,7 @@
 ﻿@model PureCms.Web.Admin.Models.QueryViewModel
 @{
     ViewBag.Title = "QueryViews";
+    Layout = "../Shared/_CustomizeLayout.cshtml";
 }
 
 <div class="panel panel-default">
@@ -38,25 +39,25 @@
             }
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-hover table-condensed" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+    <div class="table-responsive" id="gridview">
+        <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th data-sortname="name">
-                        @Html.ActionLink("名称", "attributes", new { name = Model.Name, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    <th data-name="name">
+                        @Html.ActionLink("名称", "queryviews", new { name = Model.Name, entityid = Model.EntityId, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%" data-name="LocalizedName">
-                        @Html.ActionLink("默认", "attributes", new { name = Model.IsDefault, sortby = "IsDefault", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("默认", "queryviews", new { name = Model.IsDefault, entityid = Model.EntityId, sortby = "IsDefault", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="10%" data-name="IsRequired">
-                        @Html.ActionLink("类型", "attributes", new { name = Model.IsPrivate, sortby = "IsPrivate", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("类型", "queryviews", new { name = Model.IsPrivate, entityid = Model.EntityId, sortby = "IsPrivate", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%" data-name="IsLoged">
-                        @Html.ActionLink("状态", "attributes", new { name = Model.IsDisabled, sortby = "IsDisabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("状态", "queryviews", new { name = Model.IsDisabled, entityid = Model.EntityId, sortby = "IsDisabled", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%" data-name="createdon">
-                        @Html.ActionLink("创建时间", "attributes", new { name = Model.Name, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("创建时间", "queryviews", new { name = Model.Name, entityid = Model.EntityId, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%">操作</th>
                 </tr>
@@ -96,6 +97,7 @@
     <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
 }
 @section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
@@ -106,8 +108,14 @@
                 , format: "yyyy-mm-dd"
                 , language: "zh-CN"
             });
-            //列表排序样式
-            purecms.datatable($("#datatable"));
+            ajaxgrid_reset();
+            $('#searchForm').ajaxSearch('#gridview');
         });
+        function ajaxgrid_reset() {
+            purecms.datatable($("#datatable"));
+            $("#datatable").ajaxTable();
+            $("#datatable > thead th a").attr('data-ajax', 'true');
+            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+        }
     </script>
 }

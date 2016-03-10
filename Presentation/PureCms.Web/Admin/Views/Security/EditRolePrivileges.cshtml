@@ -85,6 +85,9 @@
                 autoOpen: false
                 , onCreateLi: function (node, $li) {
                     $li.find('.jqtree-title').before('<input type="checkbox" name="privilegeid" onclick="setState(this)" value="' + node.id + '" />&nbsp;&nbsp;');
+                    //if (node.id != '' && node.id > 0) {
+                    //    $tree.tree('openNode', node);
+                    //}
                 }
                 , selectable: false,
                 onCanSelectNode: function (node) {

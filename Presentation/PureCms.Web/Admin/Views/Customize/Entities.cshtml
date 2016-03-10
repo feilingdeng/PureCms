@@ -1,9 +1,10 @@
 ﻿@model PureCms.Web.Admin.Models.EntityModel
 @{
     ViewBag.Title = "Entities";
+    Layout = "../Shared/_CustomizeLayout.cshtml";
 }
 
-<div class="panel panel-default">
+<div id="content" class="panel panel-default">
     <div class="panel-heading">
         <div class="panel-title">
             <strong>实体</strong>
@@ -19,7 +20,7 @@
     <div id="collapseOne" class="panel-collapse collapse">
         <!--in-->
         <div class="panel-body">
-            @using (Html.BeginForm("entities", "customize", FormMethod.Get, new { @class = "form-horizontal", @role = "form" }))
+            @using (Html.BeginForm("entities", "customize", FormMethod.Get, new { @id = "searchForm", @class = "form-horizontal", @role = "form" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary()
@@ -37,24 +38,24 @@
             }
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-hover table-condensed" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+    <div class="table-responsive" id="gridview">
+        <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th data-sortname="title">
+                    <th data-name="title">
                         @Html.ActionLink("名称", "entities", new { name = Model.Name, logicalname = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="20%" data-sortname="isshow">
+                    <th width="20%" data-name="isshow">
                         @Html.ActionLink("显示名称", "entities", new { name = Model.Name, logicalname = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "LocalizedName", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="10%" data-sortname="author">
+                    <th width="10%" data-name="author">
                         @Html.ActionLink("权限", "entities", new { name = Model.Name, logicalname = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "IsCustomizable", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="20%" data-sortname="isshow">
+                    <th width="20%" data-name="isshow">
                         @Html.ActionLink("日志", "entities", new { name = Model.Name, logicalname = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "IsAudited", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="15%" data-sortname="createdon">
+                    <th width="15%" data-name="createdon">
                         @Html.ActionLink("创建时间", "entities", new { name = Model.Name, logicalname = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%">操作</th>
@@ -97,6 +98,7 @@
     <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
 }
 @section Scripts {
+    <script src="/admin/content/js/jquery.form.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
@@ -107,8 +109,14 @@
                 , format: "yyyy-mm-dd"
                 , language: "zh-CN"
             });
-            //列表排序样式
-            purecms.datatable($("#datatable"));
+            ajaxgrid_reset();
+            $('#searchForm').ajaxSearch('#gridview');
         });
+        function ajaxgrid_reset() {
+            purecms.datatable($("#datatable"));
+            $("#datatable").ajaxTable();
+            $("#datatable > thead th a").attr('data-ajax', 'true');
+            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+        }
     </script>
 }

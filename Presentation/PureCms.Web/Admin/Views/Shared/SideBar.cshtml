@@ -80,6 +80,12 @@
             </ul>
         </div>
 <script>
+        jQuery(function () {
+            try { ace.settings.check('sidebar', 'fixed') } catch (e) { }
+            purecms.loading();
+        });
+</script>
+<script>
     $(function () {
         var channelid = $.getUrlParam("channelid");
         var current  = $("#sidebar").find("#" + channelid);

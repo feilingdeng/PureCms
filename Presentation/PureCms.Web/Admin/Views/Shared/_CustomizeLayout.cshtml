@@ -1,0 +1,257 @@
+﻿@{
+    Layout = null;
+}
+@{
+    var className = this.WorkContext.Controller;
+    var methodName = this.WorkContext.Action;
+    List<PureCms.Core.Domain.Security.PrivilegeInfo> result = new PureCms.Services.Security.PrivilegeService().GetTreePath(className, methodName);
+    string title = string.Empty;
+    foreach (var item in result)
+    {
+        title += item.DisplayName + "-";
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="@WorkContext.Copyright">
+    <meta name="author" content="purecms">
+    <link rel="icon" href="/favicon.ico">
+
+    @*<title>@ViewBag.Title</title>*@
+    <title>@title</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="@WorkContext.CSSCDN/admin/content/css/bootstrap3.3.5/bootstrap.min.css?v=@WorkContext.Version" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="@WorkContext.CSSCDN/admin/content/css/dashboard.css?v=@WorkContext.Version" rel="stylesheet">
+    <link href="@WorkContext.CSSCDN/admin/content/css/ace.min.css?v=@WorkContext.Version" rel="stylesheet">
+    <link href="@WorkContext.CSSCDN/admin/content/css/font-awesome.min.css?v=@WorkContext.Version" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="/admin/content/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    @*<script src="/admin/content/js/ie-emulation-modes-warning.js?v=@WorkContext.Version"></script>*@
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/admin/content/js/html5shiv.min.js"></script>
+      <script src="/admin/content/js/respond.min.js"></script>
+    <![endif]-->
+    <!-- Bootstrap core JavaScript ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="@WorkContext.ScriptCDN/admin/content/js/jquery.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/bootstrap.min.js?v=@WorkContext.Version"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="@WorkContext.ScriptCDN/admin/content/js/ie10-viewport-bug-workaround.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/jquery.bootstrap.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/ace.min.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/content/js/json2.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/purecms.jquery.js?v=@WorkContext.Version"></script>
+    <script src="@WorkContext.ScriptCDN/admin/content/js/purecms.admin.js?v=@WorkContext.Version"></script>
+    <script>
+        jQuery(function () {
+            purecms.loading();
+        });
+    </script>
+    <style>
+        .table td {
+            word-break: break-all;
+        }
+
+        .loading {
+            width: 160px;
+            height: 56px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            line-height: 56px;
+            color: #fff;
+            padding-left: 60px;
+            font-size: 15px;
+            background: #000 url(/content/images/loading.gif) no-repeat 10px 50%;
+            opacity: 0.7;
+            z-index: 9999;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            border-radius: 20px;
+            filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+        }
+        /*.navbar {
+            background: #438eb9;
+        }
+        .navbar a{
+            color:white;
+            font-weight:bolder;
+        }*/
+        th, td, ul, li, div, span, p, label {
+            font-size: 13px;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #eee;
+        }
+
+        .padding-bottom {
+            padding-bottom: 2px;
+        }
+    </style>
+    @if (IsSectionDefined("Header"))
+    {
+        @RenderSection("Header")
+    }
+</head>
+
+<body data-spy="scroll" data-target="#myScrollspy">
+    @{Html.RenderPartial("navbar");}
+    <div class="container-fluid" id="body">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar" id="sidebar" style="padding:0;">
+                <ul class="nav nav-sidebar nav-list">
+                    <li class="nav-header text-primary" style="padding-left:5px;">
+                        <h5><span class="glyphicon glyphicon-th-large"></span> <strong>组件</strong></h5>
+                    </li>
+                </ul>
+                <div style="padding:0 5px;">
+                    <div id="entities" data-url="EntitiesJsonTree"></div>
+                </div>
+            </div>
+            <div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2" id="main">
+                <div class="" style="margin-left: -15px; margin-right: -15px;">
+
+                    <ol class="breadcrumb">
+                        <li>&rsaquo;&rsaquo;</li>
+                        @foreach (var item in result)
+                        {
+                            @:
+                            <li><a href="/admin/@item.ClassName/@item.MethodName">@item.DisplayName</a></li>
+                        }
+                    </ol>
+                </div>
+                <div class="" style="margin-bottom: 80px;">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+    <link href="/admin/content/css/jqtree.css" rel="stylesheet">
+    <script src="/admin/content/js/tree.jquery.js"></script>
+    <script src="/admin/content/js/jquery.cookie.js"></script>
+    <script>
+        var $tree = $('#entities');
+        $(function () {
+            initTree();
+            //loadEntities();
+        });
+        function initTree() {
+            $tree.tree({
+                onCreateLi: function (node, $li) {
+                    if (node.id != '') {
+                        if(node.type == 'entity')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-cog");
+                        else if(node.type == 'view')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-th-list");
+                        else if (node.type == 'form')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-list-alt");
+                        else if (node.type == 'attribute')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-file");
+                        else if (node.type == 'optionset')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-bookmark");
+                        else if (node.type == 'fieldpermission')
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-lock");
+                        else
+                            $li.find('.jqtree-title').addClass("glyphicon glyphicon-book");
+                    }
+                    if (node.type == 'entity') {
+                        $tree.tree('openNode', node);
+                    }
+                }
+                //, onCanSelectNode: function (node) {
+                //    //$(node.element).find('.jqtree-element:first').find('.jqtree-toggler:first').trigger('click');
+                //    //if (node.children.length > 0) {
+                //    //    //$tree.tree('openNode', node);
+                //    //    return false;
+                //    //}
+                //    return true;
+                //}
+                , dataFilter: function (data) {
+                    var results = purecms.getajaxresult(data).content;
+                    for (var i = 0; i < results[0].children.length; i++) {
+                        var id = results[0].children[i].id;
+                        results[0].children[i].type = 'entity';
+                        results[0].children[i].children = [
+                            { id: id, label: '表单', type: 'form' }
+                            , { id: id, label: '视图', type: 'view' }
+                            , { id: id, label: '字段', type: 'attribute' }
+                        ];
+                    }
+                    results[1] = { id: 'optionset', label: '选项集', type: 'optionset' };
+                    results[2] = { id: 'fieldpermission', label: '字段权限', type: 'fieldpermission' };
+                    return results;
+                }
+                , selectable: true
+                //, saveState: 'admin-customize'
+            });
+            $tree.bind(
+            'tree.select',
+            function (event) {
+                if (event.node) {
+                    // node was selected
+                    var node = event.node;
+                    $tree.tree('openNode', node);
+                    //加载组件数据
+                    var type = node.type;
+                    if (type == 'form') {
+
+                    }
+                    else if (type == 'view') {
+                        loadViews(node.id);
+                    }
+                    else if (type == 'attribute') {
+                        loadAttributes(node.id);
+                    }
+                    else if (type == 'optionset') {
+                        loadOptionSets();
+                    }
+                    else if (type == 'fieldpermission') {
+                        loadOptionSets();
+                    }
+                    else {
+                        loadEntities();
+                    }
+                }
+            }
+            );
+        }
+        function loadEntities() {
+            location.href = 'entities'; return;
+            purecms.load('EntityGrid', function (response) {
+                $('#datas').html(response);
+            });
+        }
+        function loadAttributes(entityid) {
+            location.href = 'attributes?entityid=' + entityid; return;
+            purecms.load('AttributeGrid?entityid=' + entityid, function (response) {
+                $('#datas').html(response);
+            });
+        }
+        function loadViews(entityid) {
+            location.href = 'queryviews?entityid=' + entityid; return;
+            purecms.load('queryviewgrid?entityid=' + entityid, function (response) {
+                $('#datas').html(response);
+            });
+        }
+        function loadOptionSets() {
+            location.href = 'optionsets'; return;
+            purecms.load('OptionSetGrid', function (response) {
+                $('#datas').html(response);
+            });
+        }
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+
+</html>

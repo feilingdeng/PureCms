@@ -11,7 +11,7 @@
         }).ajaxError(function (a, b, e) {
             loader.hide();
             purecms.alert('error', '发生了错误');
-            throw e;
+            console.log(e);
         });
     },
     //发送POST请求
@@ -73,6 +73,46 @@
             }
         });
     },
+    get: function (url, onsuccess, onerror) {
+        $.ajax({
+            type: "GET",
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            success: function (response) {
+                console.log(response);
+                if (typeof (onsuccess) == "function") {
+                    var result = purecms.getajaxresult(response);
+                    onsuccess(result);
+                }
+            }
+            , error: function (response) {
+                console.log(response);
+                if (typeof (onerror) == "function") {
+                    onerror(response);
+                }
+            }
+        });
+    },
+    load: function (url, onsuccess, onerror) {
+        $.ajax({
+            type: "GET",
+            url: url,
+            contentType: "application/text; charset=utf-8",
+            cache: false,
+            success: function (response) {
+                if (typeof (onsuccess) == "function") {
+                    onsuccess(response);
+                }
+            }
+            , error: function (response) {
+                console.log(response);
+                if (typeof (onerror) == "function") {
+                    onerror(response);
+                }
+            }
+        });
+    },
     //获取服务器返回的数据
     getajaxresult: function (response) {
         var obj = {};
@@ -85,6 +125,12 @@
     },
     //初始化数据列表
     datatable: function (target) {
+        if (target.find('tbody > tr').length == 0) {
+            target.find('tbody').append('<tr class="bg-warning"><td colspan="' + target.find('thead > tr > th').length + '">没有数据</td></tr>');
+            target.find('thead > tr > th').find('a').prop('href', 'javascript:void(0)');
+            target.find('tfoot').hide();
+            return;
+        }
         //列表排序样式
         var sortby = target.attr("data-sortby");
         var sortdirect = target.attr("data-sortdirection");
@@ -97,7 +143,7 @@
             current.find("a").append('<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>');
         }
         //全选、反选、选择一行
-        target.find("input[name=checkall]").on('click',null,function () {
+        target.find("input[name=checkall]").on('click', null, function () {
             var flag = $(this).prop("checked");
             if (flag) {
                 target.find("input[name=recordid]").prop("checked", true);
@@ -159,7 +205,7 @@
                 purecms.alert('error', '提交地址不能为空');
             }
             else {
-                confirmtext = "请确认是否删除？" + $(this).attr("data-tooltip");
+                confirmtext = "请确认是否删除？" + ($(this).attr("data-tooltip") ? $(this).attr("data-tooltip") : '');
                 var isconfirm = false;
 
                 var model = { recordid: datas };
@@ -406,7 +452,7 @@
             target.find('option').prop('selected', false);
             target.find('option[value=' + value + ']').prop('selected', true);
         }
-        //获取值
+            //获取值
         else {
             var o = target.find('option:selected');
             if (o != undefined && o.length > 0) {
@@ -421,7 +467,7 @@
         $(container).on('click', selector, function (e) {
             var $target = $(e.target);
             var ischeckbox = $target.is('input') && $target.prop('type') == 'checkbox';
-            if (!$target.is('td') && !ischeckbox){//(($target.is('input') || $target.is('select') || $target.is('a')) && !ischeckbox) {
+            if (!$target.is('td') && !ischeckbox) {//(($target.is('input') || $target.is('select') || $target.is('a')) && !ischeckbox) {
                 return;
             }
             var selected = false;

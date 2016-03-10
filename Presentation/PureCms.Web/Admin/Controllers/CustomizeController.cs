@@ -699,6 +699,7 @@ namespace PureCms.Web.Admin.Controllers
         #endregion
 
 
+        #region grid
         public ActionResult QueryViewGrid(QueryViewModel model)
         {
             var entity = _entityService.FindById(model.EntityId);
@@ -728,5 +729,81 @@ namespace PureCms.Web.Admin.Controllers
             model.TotalItems = result.TotalItems;
             return View(model);
         }
+        public ActionResult OptionSetGrid(OptionSetModel model)
+        {
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<OptionSetInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
+            }
+
+            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
+            filter.And(n => n.IsPublic == true);
+            if (model.Name.IsNotEmpty())
+            {
+                filter.And(n => n.Name.Like(model.Name));
+            }
+            PagedList<OptionSetInfo> result = _optionSetService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(filter)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
+        public ActionResult EntityGrid(EntityModel model)
+        {
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<EntityInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
+            }
+
+            FilterContainer<EntityInfo> container = new FilterContainer<EntityInfo>();
+            if (model.Name.IsNotEmpty())
+            {
+                container.And(n => n.Name == model.Name);
+            }
+            PagedList<EntityInfo> result = _entityService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(container)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
+        public ActionResult AttributeGrid(AttributeModel model)
+        {
+            if (model.EntityId.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<AttributeInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
+            }
+
+            FilterContainer<AttributeInfo> container = new FilterContainer<AttributeInfo>();
+            container.And(n => n.EntityId == model.EntityId);
+            if (model.Name.IsNotEmpty())
+            {
+                container.And(n => n.Name == model.Name);
+            }
+            PagedList<AttributeInfo> result = _attributeService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(container)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
+        #endregion
     }
 }

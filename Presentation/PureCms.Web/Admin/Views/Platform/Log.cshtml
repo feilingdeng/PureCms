@@ -54,8 +54,8 @@
             }
         </div>
     </div>
-    <div class="table-responsive">        
-    <div id="gridview">
+    <div class="table-responsive" id="gridview">        
+    @*<div id="gridview">
         @{
             WebGrid grid = new WebGrid(ajaxUpdateContainerId: "gridview", rowsPerPage:Model.PageSize, defaultSort: "createdon", sortFieldName:"sortby");
             //grid.SortDirection = (grid.SortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending);
@@ -76,23 +76,24 @@
                         @grid.PagerList(mode: WebGridPagerModes.All, numericLinksCount: 10)
                     </div>
                 </div>
-    </div>
-        @*<table class="table table-hover table-condensed hide" id="datatable" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+    </div>*@
+
+        <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th data-sortname="title">
-                        @Html.ActionLink("标题", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    <th data-name="title">
+                        @Html.ActionLink("标题", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "title", sortdirection = Model.SortDirection == 1 ? 0 : 1 }, new { @data_ajax="true"})
                     </th>
                     <th width="10%">用户名</th>
-                    <th width="10%" data-sortname="clientip">
-                        @Html.ActionLink("客户端IP", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    <th width="10%" data-name="clientip">
+                        @Html.ActionLink("客户端IP", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "clientip", sortdirection = Model.SortDirection == 1 ? 0 : 1 }, new { @data_ajax = "true" })
                     </th>
-                    <th width="20%" data-sortname="url">
-                        @Html.ActionLink("Url", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    <th width="20%" data-name="url">
+                        @Html.ActionLink("Url", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "url", sortdirection = Model.SortDirection == 1 ? 0 : 1 }, new { @data_ajax = "true" })
                     </th>
-                    <th width="15%" data-sortname="createdon">
-                        @Html.ActionLink("时间", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                    <th width="15%" data-name="createdon">
+                        @Html.ActionLink("时间", "log", new { url = Model.Url, clientip = Model.ClientIp, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 }, new { @data_ajax = "true" })
                     </th>
                     <th width="10%">操作</th>
                 </tr>
@@ -108,7 +109,7 @@
                         <td>@item.Url</td>
                         <td>@item.CreatedOn</td>
                         <td>
-                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.LogId','/admin/platform/deletelog')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                            <a class="btn btn-warning btn-xs" href="javascript:purecms.del('@item.LogId','/admin/platform/deletelog')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
                         </td>
                     </tr>
                 }
@@ -120,10 +121,13 @@
                     </td>
                 </tr>
             </tfoot>
-        </table>*@
+        </table>
+        <div class="panel-footer">
+            @Html.WebPager(Model.PagedModel, true)
+            </div>
     </div>
     <div class="panel-footer hide">
-        @*@Html.WebPager(Model.PagedModel, true)*@
+        @**@
     </div>
 </div>
 
@@ -142,8 +146,11 @@
                 , format: "yyyy-mm-dd"
                 , language: "zh-CN"
             });
-            //列表排序样式
-            purecms.datatable($("#datatable"));
+            ajaxgrid_reset();
         });
+        function ajaxgrid_reset() {
+            purecms.datatable($("#datatable"));
+            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+        }
     </script>
 }

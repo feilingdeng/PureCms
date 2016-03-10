@@ -1,0 +1,71 @@
+﻿@model PureCms.Web.Admin.Models.EntityModel
+@{
+    Layout = null;
+}
+
+
+<div id="gridview">
+    <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+        <thead>
+            <tr>
+                <th width="2%"><input type="checkbox" name="checkall" /></th>
+                <th data-name="name">
+                    @Html.ActionLink("名称", "entitygrid", new { name = Model.Name, isauthorization = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="20%" data-name="localizedname">
+                    @Html.ActionLink("显示名称", "entitygrid", new { name = Model.Name, isauthorization = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "LocalizedName", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="10%" data-name="isauthorization">
+                    @Html.ActionLink("权限", "entitygrid", new { name = Model.Name, isauthorization = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "IsCustomizable", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="20%" data-name="isloged">
+                    @Html.ActionLink("日志", "entitygrid", new { name = Model.Name, isauthorization = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "IsAudited", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="15%" data-name="createdon">
+                    @Html.ActionLink("创建时间", "entitygrid", new { name = Model.Name, isauthorization = Model.IsAuthorization, localizedname = Model.LocalizedName, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                </th>
+                <th width="25%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td><input type="checkbox" value="@item.EntityId" name="recordid" /></td>
+                    <td>@item.Name</td>
+                    <td>@item.LocalizedName</td>
+                    <td>@(item.IsAuthorization ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                    <td>@(item.IsLoged ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
+                    <td>@item.CreatedOn</td>
+                    <td>
+                        <a class="btn btn-default btn-xs" href="/admin/customize/editentity?id=@item.EntityId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                        <a class="btn btn-info btn-xs" href="/admin/customize/attributes?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 字段</a>
+                        <a class="btn btn-info btn-xs" href="/admin/customize/queryviews?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 视图</a>
+                        <a class="btn btn-warning btn-xs" href="javascript:purecms.del('@item.EntityId','/admin/customize/deleteentity',null,null,null,'实体删除后相关数据也将一并删除，请提前备份数据',true)"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="active">
+                    <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/customize/deleteentity" data-role="delete" data-tooltip="实体删除后相关数据也将一并删除，请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="panel-footer">
+        @Html.WebPager(Model.PagedModel, true)
+    </div>
+</div>
+<script>
+    $(function () {
+        ajaxgrid_reset(); 
+    });
+    function ajaxgrid_reset() {
+        purecms.datatable($("#datatable"));
+        $("#datatable").ajaxTable();
+        $("#datatable > thead th a").attr('data-ajax', 'true');
+        $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+    }
+</script>

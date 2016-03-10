@@ -71,19 +71,19 @@
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th data-sortname="loginname">
+                    <th data-name="loginname">
                         @Html.ActionLink("帐号", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "loginname", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="20%" data-sortname="emailaddress">
+                    <th width="20%" data-name="emailaddress">
                         @Html.ActionLink("邮箱", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "emailaddress", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="15%" data-sortname="mobilenumber">
+                    <th width="15%" data-name="mobilenumber">
                         @Html.ActionLink("电话", "index", new { loginname = Model.LoginName, mobilenumber=Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "mobilenumber", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="5%" data-sortname="isactive">
+                    <th width="5%" data-name="isactive">
                         @Html.ActionLink("状态", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "isactive", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="15%" data-sortname="createdon">
+                    <th width="15%" data-name="createdon">
                         @Html.ActionLink("注册时间", "index", new { loginname = Model.LoginName, mobilenumber = Model.MobileNumber, emailaddress = Model.EmailAddress, isactive = Model.IsActive, begintime = Model.BeginTime, endtime = Model.EndTime, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="20%">操作</th>
