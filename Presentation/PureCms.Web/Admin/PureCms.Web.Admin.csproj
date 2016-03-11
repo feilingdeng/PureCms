@@ -112,6 +112,7 @@
     <Compile Include="AdminArea.cs" />
     <Compile Include="Controllers\CmsController.cs" />
     <Compile Include="Controllers\CustomizeController.cs" />
+    <Compile Include="Controllers\EntityController.cs" />
     <Compile Include="Controllers\OrgController.cs" />
     <Compile Include="Controllers\PlatformController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Models\CmsModels.cs" />
     <Compile Include="Models\CustomizeModels.cs" />
+    <Compile Include="Models\EntityModels.cs" />
     <Compile Include="Models\PlatformModels.cs" />
     <Compile Include="Models\SettingModels.cs" />
     <Compile Include="Models\SecurityModels.cs" />
@@ -561,6 +563,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\_CustomizeLayout.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Entity\List.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -116,7 +116,7 @@
                     </li>
                 </ul>
                 <div style="padding:0 5px;">
-                    <div id="entities" data-url="EntitiesJsonTree"></div>
+                    <div id="navTree" data-url="/admin/customize/EntitiesJsonTree"></div>
                 </div>
             </div>
             <div class="col-sm-9 col-md-10 col-sm-offset-3 col-md-offset-2" id="main">
@@ -134,6 +134,12 @@
                 <div class="" style="margin-bottom: 80px;">
                     @RenderBody()
                 </div>
+                <nav class="navbar navbar-default navbar-fixed-bottom col-sm-offset-3 col-md-offset-2 hide" role="navigation" id="body-footer">
+                    <div class="container">
+                        <div class="navbar-form navbar-left" id="body-footer-content">
+                        </div>
+                    </div>
+                </nav>
             </div>
         </div>
     </div>
@@ -141,7 +147,7 @@
     <script src="/admin/content/js/tree.jquery.js"></script>
     <script src="/admin/content/js/jquery.cookie.js"></script>
     <script>
-        var $tree = $('#entities');
+        var $tree = $('#navTree');
         $(function () {
             initTree();
             //loadEntities();
@@ -227,25 +233,25 @@
             );
         }
         function loadEntities() {
-            location.href = 'entities'; return;
+            location.href = '/admin/customize/entities'; return;
             purecms.load('EntityGrid', function (response) {
                 $('#datas').html(response);
             });
         }
         function loadAttributes(entityid) {
-            location.href = 'attributes?entityid=' + entityid; return;
+            location.href = '/admin/customize/attributes?entityid=' + entityid; return;
             purecms.load('AttributeGrid?entityid=' + entityid, function (response) {
                 $('#datas').html(response);
             });
         }
         function loadViews(entityid) {
-            location.href = 'queryviews?entityid=' + entityid; return;
+            location.href = '/admin/customize/queryviews?entityid=' + entityid; return;
             purecms.load('queryviewgrid?entityid=' + entityid, function (response) {
                 $('#datas').html(response);
             });
         }
         function loadOptionSets() {
-            location.href = 'optionsets'; return;
+            location.href = '/admin/customize/optionsets'; return;
             purecms.load('OptionSetGrid', function (response) {
                 $('#datas').html(response);
             });

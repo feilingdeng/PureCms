@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace PureCms.Web.Admin.Models
 {
-    public class BasePaged<T> where T : BaseEntity
+    public class BasePaged<T> where T : new()//BaseEntity
     {
         public long TotalItems { get; set; }
         //public PagedList<T> PagedResult { get; set; }
@@ -74,16 +74,21 @@ namespace PureCms.Web.Admin.Models
                 _pageSize = value;
             }
         }
-
+        private string _sortby = "CreatedOn";
         public string SortBy
         {
-            get;
-            set;
+            get {
+                return _sortby;
+            }
+            set {
+                _sortby = value;
+            }
         }
+        private int _sortDirection = 1;
         public int SortDirection
         {
-            get;
-            set;
+            get { return _sortDirection; }
+            set { _sortDirection = value; }
         }
         private string _sortDir;
         /// <summary>

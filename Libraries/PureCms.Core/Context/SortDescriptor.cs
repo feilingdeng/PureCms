@@ -4,7 +4,7 @@ using System;
 using System.Linq.Expressions;
 namespace PureCms.Core.Context
 {
-    public class SortDescriptor<T> where T : class
+    public class SortDescriptor<T> where T : new()//class
     {
         public SortDescriptor() { }
 

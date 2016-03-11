@@ -73,8 +73,8 @@
                         <td>@(item.IsDisabled ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
                         <td>@item.CreatedOn</td>
                         <td>
-                            <a class="btn btn-default btn-sm" href="/admin/customize/editqueryview?id=@item.QueryViewId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
-                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.QueryViewId','/admin/customize/deletequeryview')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                            <a class="btn btn-default btn-xs" href="/admin/customize/editqueryview?id=@item.QueryViewId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                            <a class="btn btn-warning btn-xs" href="javascript:purecms.del('@item.QueryViewId','/admin/customize/deletequeryview')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
                         </td>
                     </tr>
                 }

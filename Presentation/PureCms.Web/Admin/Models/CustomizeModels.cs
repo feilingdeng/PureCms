@@ -66,6 +66,7 @@ namespace PureCms.Web.Admin.Models
         public string DefaultValue { get; set; }
         public bool IsRequired { get; set; }
         public bool IsLoged { get; set; }
+        public Guid? ReferencedEntityId { get; set; }
         //public int? ReferencedEntityObjectTypeCode { get; set; }
         //public Guid? OptionSetId { get; set; }
         //public SelectList AttributeTypes { get; set; }

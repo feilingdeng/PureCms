@@ -8,7 +8,7 @@ namespace PureCms.Core.Context
     /// <summary>
     /// 查询描述
     /// </summary>
-    public class ExecuteContext<T> : IExecuteContext<T> where T : BaseEntity
+    public class ExecuteContext<T> : IExecuteContext<T> where T : new()//BaseEntity
     {
         /// <summary>
         /// 创建一个实例

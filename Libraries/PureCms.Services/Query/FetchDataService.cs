@@ -1,6 +1,11 @@
 ﻿using PureCms.Core.Query;
 using System.Collections.Generic;
 using System.Text;
+using PureCms.Data;
+using System.Linq;
+using System.Dynamic;
+using PureCms.Core.Data;
+using PureCms.Core.Context;
 
 namespace PureCms.Services.Query
 {
@@ -9,6 +14,7 @@ namespace PureCms.Services.Query
         public List<KeyValuePair<string, object>> EntityList;
         public List<KeyValuePair<string, object>> AttributeList;
         QueryExpression _queryExpression = new QueryExpression();
+        DataRepository<dynamic> _repository = new DataRepository<dynamic>();
 
         public FetchDataService() {
             _queryExpression.EntityName = "users";
@@ -39,6 +45,12 @@ namespace PureCms.Services.Query
             filter.AddCondition("name", ConditionOperator.Like, "经理");
             roleEntity.LinkCriteria = filter;
         }
+        public PagedList<dynamic> Execute(int page, int pageSize,string jsonConfig)
+        {
+            string sql = ToSqlString(ToQueryExpression(jsonConfig));
+            var result = _repository.ExecuteQueryPaged(page, pageSize, sql);
+            return result;
+        }
         public string ToJsonString(QueryExpression queryExpression)
         {
             return queryExpression.SerializeToJson();
@@ -47,6 +59,10 @@ namespace PureCms.Services.Query
         {
             QueryExpression result = new QueryExpression();
             return result.DeserializeFromJson(jsonConfig);
+        }
+        public string ToSqlString(string jsonConfig)
+        {
+            return ToSqlString(ToQueryExpression(jsonConfig));
         }
         public string ToSqlString(QueryExpression queryExpression)
         {
@@ -80,7 +96,7 @@ namespace PureCms.Services.Query
             string attrStr = string.Join(",", attrList);
             string filterStr = string.Join(" ", filterList);
             string orderStr = string.Join(",", orderList);
-            sqlString.AppendFormat("select {0} from {1} where {2} order by {3} ", attrStr, tableStr, filterStr, orderStr);
+            sqlString.AppendFormat("SELECT {0} FROM {1} {2} {3} ", attrStr, tableStr, filterStr.IsNotEmpty()?"WHERE"+filterStr : "", orderStr.IsNotEmpty() ? "ORDER BY"+orderStr : "");
             return sqlString.ToString();
         }
         private void ParseLinkEntity(LinkEntity linkEntity, ref List<string> tableList, ref List<string> attrList, ref List<string> filterList)

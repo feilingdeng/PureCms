@@ -11,7 +11,7 @@ using System.Data;
 
 namespace PureCms.Data
 {
-    public class DataRepository<T> where T : BaseEntity
+    public class DataRepository<T> where T : new()//BaseEntity
     {
         private readonly IDataProvider<T> _repository = DataProviderFactory.GetInstance<T>(DataProvider.MSSQL);
         private readonly AspNetCache _cache = new AspNetCache();
@@ -365,7 +365,29 @@ namespace PureCms.Data
             ctx.ExecuteContainer = s;
             var result = _repository.ExecuteAsync(ctx);
             return result.Result;
-        } 
+        }
+        /// <summary>
+        /// 直接执行查询语句
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public List<T> ExecuteQuery(string s, params object[] args)
+        {
+            var result = ((PetaPoco.Database)_repository.Client).Query<T>(s, args);
+            return result.AsEnumerable().ToList();
+        }
+        /// <summary>
+        /// 直接执行查询语句
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public PagedList<T> ExecuteQueryPaged(int page, int pageSize, string s, params object[] args)
+        {
+            var result = ((PetaPoco.Database)_repository.Client).Page<T>(page, pageSize, s);
+            var p = new PagedList<T>();
+            result.CopyTo(p);
+            return p;
+        }
         #endregion
     }
 }

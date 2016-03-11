@@ -12,7 +12,7 @@ namespace PureCms.Core.Context
 {
 
     public class QueryDescriptor<T>
-        where T : class
+        where T : new()//class
     {
         private ExpressionResolver _resolver = new ExpressionResolver();
         private int _topCount;
@@ -194,7 +194,7 @@ namespace PureCms.Core.Context
         }
     }
 
-    public class FilterContainer<T> where T : class
+    public class FilterContainer<T> where T : new()//class
     {
         //private QueryTranslator _translator = new QueryTranslator();
         private StringBuilder _queryText = new StringBuilder();

@@ -51,6 +51,7 @@
     <Compile Include="Cms\ArticleService.cs" />
     <Compile Include="Cms\ChannelService.cs" />
     <Compile Include="Cms\SiteService.cs" />
+    <Compile Include="Component\GridService.cs" />
     <Compile Include="Query\FetchDataService.cs" />
     <Compile Include="Schema\AttributeService.cs" />
     <Compile Include="Schema\AttributeTypeService.cs" />

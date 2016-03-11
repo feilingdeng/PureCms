@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PureCms.Core.Data
 {
     public interface IDataProvider<T>
-     where T : BaseEntity
+     where T : new()//BaseEntity
     {
         object Client { get; }
         void BeginTransaction();

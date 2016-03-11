@@ -3,7 +3,7 @@ using PureCms.Core.Domain;
 using System.Collections.Generic;
 namespace PureCms.Core.Context
 {
-    public interface IExecuteContext<T> where T : BaseEntity
+    public interface IExecuteContext<T> where T : new()//BaseEntity
     {
         int TopCount { get; set; }
         /// <summary>

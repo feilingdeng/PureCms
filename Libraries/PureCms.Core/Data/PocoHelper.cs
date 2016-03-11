@@ -1,19 +1,16 @@
 ﻿using PetaPoco;
-using PureCms.Core;
 using PureCms.Core.Context;
 using PureCms.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PureCms.Core.Data
 {
     public class PocoHelper
     {
-        public static Sql ParseSelectSql<T>(QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : BaseEntity
+        public static Sql ParseSelectSql<T>(QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             return ParseSelectSql<T>(PetaPoco.Database.PocoData.ForType(typeof(T)), q, otherCondition, isCount);
         }
@@ -26,7 +23,7 @@ namespace PureCms.Core.Data
         /// <param name="otherCondition"></param>
         /// <param name="isCount"></param>
         /// <returns></returns>
-        public static Sql ParseSelectSql<T>(PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : BaseEntity
+        public static Sql ParseSelectSql<T>(PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             List<string> froms;
             var columns = PocoHelper.GetSelectColumns(poco, q.Columns, out froms, isCount);
@@ -134,7 +131,7 @@ namespace PureCms.Core.Data
         /// <param name="froms"></param>
         /// <param name="isCount"></param>
         /// <returns></returns>
-        public static string GetSelectColumns<T>(List<string> columns, out List<string> froms, bool isCount = false) where T : BaseEntity
+        public static string GetSelectColumns<T>(List<string> columns, out List<string> froms, bool isCount = false) where T : new()//BaseEntity
         {
             return GetSelectColumns(PetaPoco.Database.PocoData.ForType(typeof(T)), columns, out froms, isCount);
         }
@@ -210,7 +207,7 @@ namespace PureCms.Core.Data
         /// <param name="q"></param>
         /// <param name="otherCondition"></param>
         /// <returns></returns>
-        public static Sql GetConditions<T>(QueryDescriptor<T> q, Sql otherCondition = null) where T : class
+        public static Sql GetConditions<T>(QueryDescriptor<T> q, Sql otherCondition = null) where T : new()//class
         {
             return GetConditions(q.QueryText, q.Parameters, otherCondition);
         }
@@ -250,7 +247,7 @@ namespace PureCms.Core.Data
         /// <param name="poco"></param>
         /// <param name="sortingDescriptor"></param>
         /// <returns></returns>
-        public static Sql GetOrderBy<T>(PetaPoco.Database.PocoData poco, List<SortDescriptor<T>> sortingDescriptor) where T : BaseEntity
+        public static Sql GetOrderBy<T>(PetaPoco.Database.PocoData poco, List<SortDescriptor<T>> sortingDescriptor) where T : new()//BaseEntity
         {
             Sql query = PetaPoco.Sql.Builder;
             //排序
@@ -282,7 +279,7 @@ namespace PureCms.Core.Data
         /// <param name="otherCondition"></param>
         /// <param name="isCount"></param>
         /// <returns></returns>
-        public static ExecuteContext<T> ParseContext<T>(PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : BaseEntity
+        public static ExecuteContext<T> ParseContext<T>(PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             Sql s = ParseSelectSql<T>(poco, q, otherCondition, isCount);
             ExecuteContext<T> ctx = new ExecuteContext<T>()
@@ -305,7 +302,7 @@ namespace PureCms.Core.Data
         /// <param name="otherCondition"></param>
         /// <param name="isCount"></param>
         /// <returns></returns>
-        public static ExecuteContext<T> ParseContext<T>(QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : BaseEntity
+        public static ExecuteContext<T> ParseContext<T>(QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             Sql s = ParseSelectSql<T>(PetaPoco.Database.PocoData.ForType(typeof(T)), q, otherCondition, isCount);
             ExecuteContext<T> ctx = new ExecuteContext<T>()
@@ -329,7 +326,7 @@ namespace PureCms.Core.Data
         /// <param name="otherCondition"></param>
         /// <param name="isCount"></param>
         /// <returns></returns>
-        public static ExecuteContext<T> ParseContext<T>(Func<PetaPoco.Database.PocoData, QueryDescriptor<T>, Sql, bool, Sql> container, PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : BaseEntity
+        public static ExecuteContext<T> ParseContext<T>(Func<PetaPoco.Database.PocoData, QueryDescriptor<T>, Sql, bool, Sql> container, PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             Sql s = container(poco, q, otherCondition, isCount);
             ExecuteContext<T> ctx = new ExecuteContext<T>()
@@ -350,7 +347,7 @@ namespace PureCms.Core.Data
         /// <param name="entityType"></param>
         /// <param name="q"></param>
         /// <returns></returns>
-        public static Sql ParseUpdateSql<T>(Type entityType, UpdateContext<T> q) where T : BaseEntity
+        public static Sql ParseUpdateSql<T>(Type entityType, UpdateContext<T> q) where T : new()//BaseEntity
         {
             return ParseUpdateSql<T>(PetaPoco.Database.PocoData.ForType(typeof(T)), q);
         }
@@ -361,7 +358,7 @@ namespace PureCms.Core.Data
         /// <param name="poco"></param>
         /// <param name="q"></param>
         /// <returns></returns>
-        public static Sql ParseUpdateSql<T>(PetaPoco.Database.PocoData poco, UpdateContext<T> q) where T : BaseEntity
+        public static Sql ParseUpdateSql<T>(PetaPoco.Database.PocoData poco, UpdateContext<T> q) where T : new()//BaseEntity
         {
             Sql query = PetaPoco.Sql.Builder.Append("UPDATE [" + poco.TableInfo.TableName + "] SET ");
             string optName = string.Empty;

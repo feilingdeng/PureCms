@@ -10,7 +10,7 @@ namespace PureCms.Core.Data
     /// mssql 数据库操作类
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MsSqlProvider<T> : IDataProvider<T> where T : BaseEntity
+    public class MsSqlProvider<T> : IDataProvider<T> where T : new()//BaseEntity
     {
         /// <summary>
         /// 查询上下文

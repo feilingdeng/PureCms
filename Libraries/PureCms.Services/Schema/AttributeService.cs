@@ -50,7 +50,7 @@ namespace PureCms.Services.Schema
 
             return _repository.QueryPaged(q);
         }
-        public List<AttributeInfo> GetAll(Func<QueryDescriptor<AttributeInfo>, QueryDescriptor<AttributeInfo>> container)
+        public List<AttributeInfo> Query(Func<QueryDescriptor<AttributeInfo>, QueryDescriptor<AttributeInfo>> container)
         {
             QueryDescriptor<AttributeInfo> q = container(new QueryDescriptor<AttributeInfo>());
 

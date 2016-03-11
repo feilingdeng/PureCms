@@ -1,8 +1,6 @@
-﻿using PureCms.Core.Domain;
-using PureCms.Utilities;
+﻿using PureCms.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace PureCms.Core.Context
@@ -11,7 +9,7 @@ namespace PureCms.Core.Context
     /// 更新上下文
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class UpdateContext<T> where T : BaseEntity
+    public class UpdateContext<T> where T : new()//BaseEntity
     {
         private ExpressionResolver _resolver = new ExpressionResolver();
         private string _queryText = string.Empty;

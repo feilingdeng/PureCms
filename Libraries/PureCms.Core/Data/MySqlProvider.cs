@@ -11,7 +11,7 @@ namespace PureCms.Core.Data
     /// mysql 数据库操作类（暂未实现）
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MySqlProvider<T> : IDataProvider<T> where T : BaseEntity
+    public class MySqlProvider<T> : IDataProvider<T> where T : new()//BaseEntity
     {
         public object Client
         {

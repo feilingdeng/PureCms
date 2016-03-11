@@ -193,7 +193,7 @@ namespace PureCms.Web.Admin.Controllers
         [Description("字段列表-JSON格式")]
         public ActionResult AttributesJson(Guid entityid)
         {
-            List<AttributeInfo> result = _attributeService.GetAll(x => x
+            List<AttributeInfo> result = _attributeService.Query(x => x
             //.Select(n=>new {n.AttributeId,n.AttributeTypeId,n.AttributeTypeName,n.EntityId,n.EntityLocalizedName,n.EntityName,n.LocalizedName,n.Name })
                 .Where(n => n.EntityId == entityid && n.Name != "versionnumber")
                 .Sort(n => n.SortAscending(f => f.LocalizedName))
@@ -229,6 +229,7 @@ namespace PureCms.Web.Admin.Controllers
                 }
                 var attrInfo = new AttributeInfo();
                 //model.CopyTo(entity);
+                attrInfo.EntityId = entityInfo.EntityId;
                 attrInfo.EntityName = entityInfo.Name;
                 attrInfo.ReferencedEntityObjectTypeCode = entityInfo.ObjectTypeCode;
                 attrInfo.Name = model.Name;
@@ -327,7 +328,7 @@ namespace PureCms.Web.Admin.Controllers
                         attrInfo.DataFormat = model.DateTimeFormat;
                         break;
                     case "lookup":
-                        attrInfo.EntityId = model.LookupEntity.Value;
+                        attrInfo.ReferencedEntityId = model.LookupEntity.Value;
                         break;
                 }
                 var attributeType = new AttributeTypeService().FindByName(model.AttributeType);
