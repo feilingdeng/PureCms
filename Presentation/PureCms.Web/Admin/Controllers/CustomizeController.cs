@@ -195,7 +195,7 @@ namespace PureCms.Web.Admin.Controllers
         {
             List<AttributeInfo> result = _attributeService.Query(x => x
             //.Select(n=>new {n.AttributeId,n.AttributeTypeId,n.AttributeTypeName,n.EntityId,n.EntityLocalizedName,n.EntityName,n.LocalizedName,n.Name })
-                .Where(n => n.EntityId == entityid && n.Name != "versionnumber")
+                .Where(n => n.EntityId == entityid && n.Name != "versionnumber" && n.AttributeTypeId != Guid.Parse(AttributeTypeIds.PRIMARYKEY))
                 .Sort(n => n.SortAscending(f => f.LocalizedName))
                 );
 

@@ -6,6 +6,11 @@ using System.Linq;
 using System.Dynamic;
 using PureCms.Core.Data;
 using PureCms.Core.Context;
+using PureCms.Core.Domain.Query;
+using PureCms.Core.Components.Platform;
+using PureCms.Services.Schema;
+using PureCms.Core.Domain.Schema;
+using System;
 
 namespace PureCms.Services.Query
 {
@@ -16,7 +21,8 @@ namespace PureCms.Services.Query
         QueryExpression _queryExpression = new QueryExpression();
         DataRepository<dynamic> _repository = new DataRepository<dynamic>();
 
-        public FetchDataService() {
+        public FetchDataService()
+        {
             _queryExpression.EntityName = "users";
             _queryExpression.Distinct = false;
             _queryExpression.NoLock = true;
@@ -45,9 +51,22 @@ namespace PureCms.Services.Query
             filter.AddCondition("name", ConditionOperator.Like, "经理");
             roleEntity.LinkCriteria = filter;
         }
-        public PagedList<dynamic> Execute(int page, int pageSize,string jsonConfig)
+        public PagedList<dynamic> Execute(int page, int pageSize, string fetchConfig)
         {
-            string sql = ToSqlString(ToQueryExpression(jsonConfig));
+            string sql = ToSqlString(ToQueryExpression(fetchConfig));
+            var result = _repository.ExecuteQueryPaged(page, pageSize, sql);
+            return result;
+        }
+        public PagedList<dynamic> Execute(int page, int pageSize, QueryColumnSortInfo sort, QueryViewInfo view)
+        {
+            string sql = view.SqlString;
+            if (sort != null)
+            {
+                var queryExpression = ToQueryExpression(view.FetchConfig);
+                queryExpression.AddOrder(sort.Name, sort.SortAscending ? OrderType.Ascending : OrderType.Descending);
+                sql = ToSqlString(queryExpression);
+            }
+            //sql = ToSqlString(queryExpression);//view.SqlString.IsEmpty() ? ToSqlString(queryExpression) : view.SqlString;
             var result = _repository.ExecuteQueryPaged(page, pageSize, sql);
             return result;
         }
@@ -55,14 +74,14 @@ namespace PureCms.Services.Query
         {
             return queryExpression.SerializeToJson();
         }
-        public QueryExpression ToQueryExpression(string jsonConfig)
+        public QueryExpression ToQueryExpression(string fetchConfig)
         {
             QueryExpression result = new QueryExpression();
-            return result.DeserializeFromJson(jsonConfig);
+            return result.DeserializeFromJson(fetchConfig);
         }
-        public string ToSqlString(string jsonConfig)
+        public string ToSqlString(string fetchConfig)
         {
-            return ToSqlString(ToQueryExpression(jsonConfig));
+            return ToSqlString(ToQueryExpression(fetchConfig));
         }
         public string ToSqlString(QueryExpression queryExpression)
         {
@@ -73,12 +92,26 @@ namespace PureCms.Services.Query
             List<string> filterList = new List<string>();
             List<string> orderList = new List<string>();
             string mainEntityAlias = _queryExpression.EntityName + tableList.Count;
+            //获取实体所有字段
+            var entityAttributes = new AttributeService().Query(x => x.Select(s=> new { s.EntityName,s.Name,s.AttributeTypeId}).Where(n => n.EntityName == queryExpression.EntityName));
             //tables
-            tableList.Add(_queryExpression.EntityName + " as " + mainEntityAlias);
+            tableList.Add(_queryExpression.EntityName + "View AS " + mainEntityAlias + " WITH(NOLOCK)");
             //columns
             foreach (var column in _queryExpression.ColumnSet.Columns)
             {
-                attrList.Add(mainEntityAlias + "." + column);
+                var field = column;
+                //lookup类型的字段值，将替换为对应的名称字段
+                var attr = entityAttributes.Find(x=>x.Name.IsCaseInsensitiveEqual(column));
+                if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                {
+                    field = "Name";
+                }
+                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)))
+                {
+                    field += "Name";
+                }
+                //...
+                attrList.Add(mainEntityAlias + "." + field);
             }
             //filters
             ParseFilter(_queryExpression.Criteria, mainEntityAlias, ref filterList);
@@ -96,7 +129,7 @@ namespace PureCms.Services.Query
             string attrStr = string.Join(",", attrList);
             string filterStr = string.Join(" ", filterList);
             string orderStr = string.Join(",", orderList);
-            sqlString.AppendFormat("SELECT {0} FROM {1} {2} {3} ", attrStr, tableStr, filterStr.IsNotEmpty()?"WHERE"+filterStr : "", orderStr.IsNotEmpty() ? "ORDER BY"+orderStr : "");
+            sqlString.AppendFormat("SELECT {0} FROM {1} {2} {3} ", attrStr, tableStr, filterStr.IsNotEmpty() ? " WHERE " + filterStr : "", orderStr.IsNotEmpty() ? " ORDER BY " + orderStr : "");
             return sqlString.ToString();
         }
         private void ParseLinkEntity(LinkEntity linkEntity, ref List<string> tableList, ref List<string> attrList, ref List<string> filterList)
@@ -106,8 +139,8 @@ namespace PureCms.Services.Query
             {
                 attrList.Add(entityAlias + "." + column);
             }
-            string tb = GetLinkType(linkEntity.JoinOperator) + " " + linkEntity.LinkToEntityName + " as " + entityAlias
-                + " on " + entityAlias + "." + linkEntity.LinkToAttributeName + " = " + linkEntity.FromEntityAlias + "." + linkEntity.LinkFromAttributeName;
+            string tb = GetLinkType(linkEntity.JoinOperator) + " " + linkEntity.LinkToEntityName + " AS " + entityAlias + " WITH(NOLOCK)"
+                + " ON " + entityAlias + "." + linkEntity.LinkToAttributeName + " = " + linkEntity.FromEntityAlias + "." + linkEntity.LinkFromAttributeName;
             tableList.Add(tb);
 
             ParseFilter(linkEntity.LinkCriteria, entityAlias, ref filterList);

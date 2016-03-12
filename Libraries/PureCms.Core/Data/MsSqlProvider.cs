@@ -27,6 +27,7 @@ namespace PureCms.Core.Data
                 //string connectionString = ConfigurationManager.ConnectionStrings["sqlconnectionstring"].ConnectionString;
                 return new PetaPoco.Database("mssqlconnectionstring");
             }
+            set { }
         }
 
         public object Client
@@ -34,6 +35,10 @@ namespace PureCms.Core.Data
             get
             {
                 return DbContext;
+            }
+            set
+            {
+                DbContext = value as Database;
             }
         }
         public MsSqlProvider(){
@@ -108,12 +113,12 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                DbContext.BeginTransaction();
+                //DbContext.BeginTransaction();
                 foreach (var item in entities)
                 {
                     DbContext.Insert(item);
                 }
-                DbContext.CompleteTransaction();
+                //DbContext.CompleteTransaction();
                 return true;
             }
             );
@@ -143,12 +148,12 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                DbContext.BeginTransaction();
+                //DbContext.BeginTransaction();
                 foreach (var item in entities)
                 {
                     DbContext.Update(item);
                 }
-                DbContext.CompleteTransaction();
+                //DbContext.CompleteTransaction();
                 return true;
             }
             );
@@ -178,12 +183,12 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                DbContext.BeginTransaction();
+                //DbContext.BeginTransaction();
                 foreach (var id in ids)
                 {
                     DbContext.Delete<T>(id);
                 }
-                DbContext.CompleteTransaction();
+                //DbContext.CompleteTransaction();
                 return true;
             }
             );

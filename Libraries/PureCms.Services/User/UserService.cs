@@ -11,10 +11,9 @@ namespace PureCms.Services.User
     public class UserService
     {
         IUserRepository _repository = new UserRepository();
-        public int Create(UserInfo entity)
+        public bool Create(UserInfo entity)
         {
-            int id = _repository.Create(entity);
-            return id;
+            return _repository.Create(entity);
         }
         public bool Update(UserInfo entity)
         {
@@ -46,16 +45,16 @@ namespace PureCms.Services.User
             return SecurityHelper.MD5(inputPassword + salt).IsCaseInsensitiveEqual(userPassword);
         }
 
-        public UserInfo GetById(int id)
+        public UserInfo GetById(Guid id)
         {
             return _repository.FindById(id);
         }
-        public bool DeleteById(int id)
+        public bool DeleteById(Guid id)
         {
             return _repository.DeleteById(id);
         }
 
-        public bool DeleteById(List<int> ids)
+        public bool DeleteById(List<Guid> ids)
         {
             return _repository.DeleteById(ids);
         }

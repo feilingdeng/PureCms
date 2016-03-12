@@ -9,7 +9,7 @@ namespace PureCms.Core.Data
     public interface IDataProvider<T>
      where T : new()//BaseEntity
     {
-        object Client { get; }
+        object Client { get; set; }
         void BeginTransaction();
         void CompleteTransaction();
         void AbortTransaction();

@@ -42,7 +42,7 @@ namespace PureCms.Data.Schema
         /// <returns></returns>
         public bool Create(QueryViewInfo entity)
         {
-            return _repository.CreateBool(entity);
+            return _repository.CreateObject(entity);
         }
         /// <summary>
         /// 更新记录

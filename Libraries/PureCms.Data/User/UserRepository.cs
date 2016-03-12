@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PureCms.Core.Domain.User;
 using PureCms.Core.Context;
+using System;
 
 namespace PureCms.Data.User
 {
@@ -31,46 +32,46 @@ namespace PureCms.Data.User
         {
         }
         #region Implements
-        public bool ExistsEmail(string email, int currentUserId = 0)
+        public bool ExistsEmail(string email, Guid? currentUserId)
         {
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
             FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
             filter.And(w => w.EmailAddress == email);
-            if (currentUserId > 0)
+            if (currentUserId.HasValue)
             {
-                filter.And(w => w.UserId != currentUserId);
+                filter.And(w => w.UserId != currentUserId.Value);
             }
             q.Where(filter);
             return _repository.Exists(q);
         }
-        public bool ExistsUserName(string userName, int currentUserId = 0)
+        public bool ExistsUserName(string userName, Guid? currentUserId)
         {
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
             FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
-            filter.And(w => w.UserName == userName);
-            if (currentUserId > 0)
+            filter.And(w => w.Name == userName);
+            if (currentUserId.HasValue)
             {
-                filter.And(w => w.UserId != currentUserId);
+                filter.And(w => w.UserId != currentUserId.Value);
             }
             q.Where(filter);
             return _repository.Exists(q);
         }
-        public bool ExistsMobile(string mobileNumber, int currentUserId = 0)
+        public bool ExistsMobile(string mobileNumber, Guid? currentUserId)
         {
             QueryDescriptor<UserInfo> q = new QueryDescriptor<UserInfo>();
             FilterContainer<UserInfo> filter = new FilterContainer<UserInfo>();
             filter.And(w => w.MobileNumber == mobileNumber);
-            if (currentUserId > 0)
+            if (currentUserId.HasValue)
             {
-                filter.And(w=>w.UserId != currentUserId);
+                filter.And(w=>w.UserId != currentUserId.Value);
             }
             q.Where(filter);
             return _repository.Exists(q);
         }
 
-        public int Create(UserInfo entity)
+        public bool Create(UserInfo entity)
         {
-            return _repository.Create(entity);
+            return _repository.CreateObject(entity);
         }
 
         public bool Update(UserInfo entity)
@@ -78,7 +79,7 @@ namespace PureCms.Data.User
             return _repository.Update(entity);
         }
 
-        public bool DeleteById(int id)
+        public bool DeleteById(Guid id)
         {
             return _repository.Delete(id);
         }
@@ -87,7 +88,7 @@ namespace PureCms.Data.User
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public bool DeleteById(List<int> ids)
+        public bool DeleteById(List<Guid> ids)
         {
             return _repository.Delete(ids);
         }
@@ -101,7 +102,7 @@ namespace PureCms.Data.User
             return _repository.Query(q);
         }
 
-        public UserInfo FindById(int id)
+        public UserInfo FindById(Guid id)
         {
             return _repository.FindById(id);
         }
@@ -113,7 +114,7 @@ namespace PureCms.Data.User
 
         public UserInfo FindByUserName(string userName)
         {
-            return _repository.Find(w => w.UserName == userName);
+            return _repository.Find(w => w.Name == userName);
         }
 
         public UserInfo FindByMobile(string mobileNumber)

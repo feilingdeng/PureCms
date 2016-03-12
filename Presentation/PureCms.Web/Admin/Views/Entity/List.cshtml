@@ -5,81 +5,23 @@
 }
 
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="panel-title">
-            <strong>@Model.QueryView.Name - 视图</strong>
-        </div>
-    </div>
-    <div class="table-responsive" id="gridview">
-        <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
-            <thead>
-                <tr>
-                    <th width="2%"><input type="checkbox" name="checkall" /></th>
-                    <th width="4%">行号</th>
-                    @foreach (var cell in Model.Grid.Rows[0].Cells)
-                    {
-                        <th data-name="@cell.Name.ToLower()" style="width:@(cell.Width+"px")">
-                            <a href="list?queryid=@Model.QueryId&sortby=@Model.SortBy&sortdirection=@(Model.SortDirection == 1 ? 0 : 1)">@cell.Label</a>
-                        </th>
-                    }
-                    <th width="15%">操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Items)
-                {
-                    var a = (item as IDictionary<string, object>);
-                    <tr>
-                        <td><input type="checkbox" name="recordid" /></td>
-                            @foreach (var property in a)
-                            {
-                            <td>@property.Value</td>
-                            }
-                            <td>
-                                <a class="btn btn-default btn-xs" href=""><span class="glyphicon glyphicon-edit"></span> 编辑</a>
-                                <a class="btn btn-warning btn-xs" href="javascript:purecms.del('','/admin/customize/deletequeryview')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
-                            </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="7" class="active">
-                        <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/customize/deleteattribute" data-role="delete" data-tooltip="字段删除后相关数据也将一并删除，请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
-        <div class="panel-footer">
-            @Html.WebPager(Model.PagedModel, true)
-        </div>
-    </div>
+<div id="gridview-section">
+
 </div>
 
 @section Header {
     <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+<script src="/content/js/jquery.bootpag.min.js"></script>
+<script src="/admin/content/js/jquery.form.js"></script>
+<script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
+<script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
 }
 @section Scripts {
-    <script src="/admin/content/js/jquery.form.js"></script>
-    <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
         $(function () {
-            $('.datepicker').datepicker({
-                autoclose: true
-                , clearBtn: true
-                , format: "yyyy-mm-dd"
-                , language: "zh-CN"
+            purecms.load('gridview?queryid=' + $.getUrlParam('queryid'), function (response) {
+                $('#gridview-section').html(response);
             });
-            ajaxgrid_reset();
-            $('#searchForm').ajaxSearch('#gridview');
         });
-        function ajaxgrid_reset() {
-            purecms.datatable($("#datatable"));
-            $("#datatable").ajaxTable();
-            $("#datatable > thead th a").attr('data-ajax', 'true');
-            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
-        }
     </script>
 }

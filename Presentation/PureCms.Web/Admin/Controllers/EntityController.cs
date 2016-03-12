@@ -1,4 +1,5 @@
-﻿using PureCms.Services.Component;
+﻿using PureCms.Core.Components.Platform;
+using PureCms.Services.Component;
 using PureCms.Services.Query;
 using PureCms.Web.Admin.Models;
 using PureCms.Web.Framework;
@@ -19,7 +20,17 @@ namespace PureCms.Web.Admin.Controllers
         {
             return View();
         }
-        public ActionResult List(EntityGridModel model)
+        public ActionResult List(Guid queryid)
+        {
+            if (queryid.Equals(Guid.Empty))
+            {
+                return NoRecordView();
+            }
+            EntityGridModel model = new EntityGridModel();
+            model.QueryId = queryid;
+            return View(model);
+        }
+        public ActionResult GridView(EntityGridModel model)
         {
             if (model.QueryId.Equals(Guid.Empty))
             {
@@ -32,7 +43,12 @@ namespace PureCms.Web.Admin.Controllers
             }
             model.QueryView = queryView;
             model.Grid = _gridService.Build(queryView);
-            var datas = _fetchService.Execute(model.Page, model.PageSize, queryView.FetchConfig);
+            QueryColumnSortInfo sort = null;
+            if (model.Grid.SortColumns.Count(x=>x.Name.IsCaseInsensitiveEqual(model.SortBy)) == 0)
+            {
+                sort = new QueryColumnSortInfo(model.SortBy, model.SortDirection == 0);
+            }
+            var datas = _fetchService.Execute(model.Page, model.PageSize, sort, queryView);//.FetchConfig);
 
             model.Items = datas.Items;
             model.TotalItems = datas.TotalItems;

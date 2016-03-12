@@ -46,7 +46,7 @@ namespace PureCms.Data.Schema
             var flag = false;
             _repository.BeginTransaction();
             try {
-                flag = _repository.CreateBool(entity);
+                flag = _repository.CreateObject(entity);
                 //新建字段
                 Sql s = Sql.Builder.Append(string.Format("ALTER TABLE {0} ADD {1} {2}", entity.EntityName, entity.Name, GetDbType(entity)));
                 _repository.Execute(s);

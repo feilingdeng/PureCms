@@ -46,7 +46,7 @@ namespace PureCms.Core.Context
             {
                 return GetMemberValue(expression as MemberExpression);
             }
-            else if(expression is MethodCallExpression)
+            else if (expression is MethodCallExpression)
             {
                 return GetValue((expression as MethodCallExpression).Arguments[0]);
             }
@@ -205,7 +205,7 @@ namespace PureCms.Core.Context
             switch (methodName)
             {
                 case "Like":
-                        return Like(methodCall);
+                    return Like(methodCall);
                 case "In":
                     return In(methodCall, true);
                 case "NotIn":
@@ -239,10 +239,12 @@ namespace PureCms.Core.Context
             return temp;
         }
 
-        private string BuildQuery(Type entityType,string name, string op, string value)
+        private string BuildQuery(Type entityType, string name, string op, string value)
         {
             string paramName = SetArgument(name, value);
-            string result = string.Format("({0} {1} {2})", PocoHelper.FormatColumn(entityType, name), op, paramName);
+            var fieldName = PocoHelper.FormatColumn(entityType, name);
+            var i = fieldName.IndexOf("AS");
+            string result = string.Format("({0} {1} {2})", i > 1 ? fieldName.Substring(0, i - 1) : fieldName, op, paramName);
             return result;
         }
 
@@ -337,7 +339,7 @@ namespace PureCms.Core.Context
             {
                 me = ((UnaryExpression)expression.Arguments[0]).Operand as MemberExpression;
             }
-            else if(expression.Object is MemberExpression)
+            else if (expression.Object is MemberExpression)
             {
                 me = expression.Object as MemberExpression;
             }

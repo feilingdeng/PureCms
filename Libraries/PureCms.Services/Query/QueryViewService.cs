@@ -13,13 +13,15 @@ namespace PureCms.Services.Query
         IQueryViewRepository _repository = new QueryViewRepository();
 
 
-        public bool Create(QueryViewInfo QueryView)
+        public bool Create(QueryViewInfo queryView)
         {
-            return _repository.Create(QueryView);
+            //保存SQL语句
+            queryView.SqlString = new FetchDataService().ToSqlString(queryView.FetchConfig);
+            return _repository.Create(queryView);
         }
-        public bool Update(QueryViewInfo QueryView)
+        public bool Update(QueryViewInfo queryView)
         {
-            return _repository.Update(QueryView);
+            return _repository.Update(queryView);
         }
         public bool Update(Func<UpdateContext<QueryViewInfo>, UpdateContext<QueryViewInfo>> context)
         {

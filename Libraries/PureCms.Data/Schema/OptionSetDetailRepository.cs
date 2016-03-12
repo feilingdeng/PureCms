@@ -41,7 +41,7 @@ namespace PureCms.Data.Schema
         /// <returns></returns>
         public bool Create(OptionSetDetailInfo entity)
         {
-            return _repository.CreateBool(entity);
+            return _repository.CreateObject(entity);
         }
         /// <summary>
         /// 更新记录

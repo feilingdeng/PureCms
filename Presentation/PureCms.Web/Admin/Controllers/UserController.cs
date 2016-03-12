@@ -76,12 +76,12 @@ namespace PureCms.Web.Admin.Controllers
         }
         [HttpGet]
         [Description("用户编辑")]
-        public ActionResult EditUser(int id = 0)
+        public ActionResult EditUser(Guid? id)
         {
             EditUserModel model = new EditUserModel();
-            if (id > 0)
+            if (id.HasValue && !id.Equals(Guid.Empty))
             {
-                var entity = _userService.GetById(id);
+                var entity = _userService.GetById(id.Value);
                 if (entity != null)
                 {
                     entity.CopyTo(model);
@@ -99,16 +99,17 @@ namespace PureCms.Web.Admin.Controllers
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
-                var entity = _userService.GetById(model.UserId);//new UserInfo();
-                model.CopyTo(entity);
-
-                if (entity.UserId > 0)
+                var entity = new UserInfo();
+                if (model.UserId.HasValue)
                 {
+                    entity = _userService.GetById(model.UserId.Value);
+                    model.CopyTo(entity);
                     _userService.Update(entity);
                     msg = "保存成功";
                 }
                 else
                 {
+                    model.CopyTo(entity);
                     _userService.Create(entity);
                     msg = "新增成功";
                 }
@@ -126,7 +127,7 @@ namespace PureCms.Web.Admin.Controllers
         }
         [Description("删除用户")]
         [HttpPost]
-        public ActionResult DeleteUser(int[] recordid)
+        public ActionResult DeleteUser(Guid[] recordid)
         {
             string msg = string.Empty;
             bool flag = false;
@@ -173,18 +174,14 @@ namespace PureCms.Web.Admin.Controllers
 
         [HttpGet]
         [Description("用户密码修改")]
-        public ActionResult EditUserPassword(int id)
+        public ActionResult EditUserPassword(Guid id)
         {
             EditUserPasswordModel model = new EditUserPasswordModel();
-            if (id <= 0)
-            {
-                return NoRecordView();
-            }
             var entity = _userService.GetById(id);
             if (entity != null)
             {
                 model.UserId = id;
-                model.UserName = entity.UserName;
+                model.UserName = entity.Name;
                 model.NewPassword = string.Empty;
             }
             else

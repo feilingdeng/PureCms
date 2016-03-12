@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using PetaPoco;
 using PureCms.Core.Domain.Security;
+using System;
 
 namespace PureCms.Core.Domain.User
 {
     [PetaPoco.TableName("users")]
-    [PetaPoco.PrimaryKey("userid",autoIncrement = true)]
+    [PetaPoco.PrimaryKey("userid",autoIncrement = false)]
     public class UserInfo : BaseEntity
     {
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public string LoginName { get; set; }
-        public string UserName { get; set; }
+        public string Name { get; set; }
         public string Password { get; set; }
         public string EmailAddress { get; set; }
 

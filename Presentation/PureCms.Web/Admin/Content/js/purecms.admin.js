@@ -1,7 +1,7 @@
 ﻿var purecms = {
     //loading
     loading: function () {
-        var loader = jQuery('<div id="loader" class="loading">loading...</div>')
+        var loader = jQuery('<div id="loader" class="loading">玩命加载中...</div>')
             .appendTo("body")
             .hide();
         jQuery(document).ajaxStart(function () {

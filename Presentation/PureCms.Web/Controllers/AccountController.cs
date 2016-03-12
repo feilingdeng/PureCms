@@ -75,7 +75,7 @@ namespace PureCms.Web.Controllers
                             CurrentUser user = new CurrentUser();
                             user.RoleId = u.RoleId;
                             user.UserId = u.UserId;
-                            user.UserName = u.UserName;
+                            user.UserName = u.Name;
                             user.Privileges = u.Privileges;
                             //加入上下文
                             WorkContext.CurrentUser = user;

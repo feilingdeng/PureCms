@@ -159,7 +159,7 @@ var tableToExcel = (function () {
         url = url + (url.indexOf('?') == -1 ? '?' : '&') + '__r=' + new Date().getTime();
         
         $('<div/>').load(url + ' ' + containerId, function (data, status, xhr) {
-            console.log(data,$(this).html());
+            //console.log(data,$(this).html());
             $(containerId).replaceWith($(this).html());
             if (typeof (callback) === 'function') {
                 callback.apply(this, arguments);

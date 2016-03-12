@@ -38,6 +38,16 @@ namespace PureCms.Data
         public DataRepository(){
             //PetaPoco.Database.Mapper = new ColumnMapper();
         }
+        public DataRepository(IDbConnection connection)
+        {
+            _repository.Client = new PetaPoco.Database(connection);
+            //(_repository.Client as PetaPoco.Database).Connection = connection;
+            //PetaPoco.Database.Mapper = new ColumnMapper();
+        }
+        public IDbConnection GetConnection()
+        {
+            return (_repository.Client as PetaPoco.Database).Connection;
+        }
         public virtual void BeginTransaction()
         {
             _repository.BeginTransaction();
@@ -67,7 +77,7 @@ namespace PureCms.Data
         /// </summary>
         /// <param name="entity"></param>
         /// <returns>是否成功</returns>
-        public bool CreateBool(T entity)
+        public bool CreateObject(T entity)
         {
             var result = _repository.CreateAsync(entity);
             object val = result.Result;

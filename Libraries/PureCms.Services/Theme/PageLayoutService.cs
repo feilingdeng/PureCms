@@ -18,7 +18,7 @@ namespace PureCms.Services.Theme
         }
         public bool Create(PageLayoutInfo entity)
         {
-            return _repository.CreateBool(entity);
+            return _repository.CreateObject(entity);
         }
 
         public bool DeleteById(Guid id)

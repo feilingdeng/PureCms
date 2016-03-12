@@ -76,7 +76,7 @@ namespace PureCms.Services.Security
             _cachedUser.LoginName = user.LoginName;
             _cachedUser.RoleId = user.RoleId;
             _cachedUser.UserId = user.UserId;
-            _cachedUser.UserName = user.UserName;
+            _cachedUser.UserName = user.Name;
             _cachedUser.Privileges = user.Privileges;
             _cachedUser.IsSuperAdmin = user.LoginName.ToLower() == "purecms";
 

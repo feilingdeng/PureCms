@@ -41,14 +41,14 @@ namespace PureCms.Data.Schema
         /// <returns></returns>
         public bool Create(OptionSetInfo entity)
         {
-            return _repository.CreateBool(entity);
+            return _repository.CreateObject(entity);
         }
         public bool Create(OptionSetInfo entity, List<OptionSetDetailInfo> details)
         {
             var flag = false;
             try {
                 _repository.BeginTransaction();
-                flag = _repository.CreateBool(entity);
+                flag = _repository.CreateObject(entity);
 
                 var _detailRepository = new DataRepository<OptionSetDetailInfo>();
                 flag = _detailRepository.CreateMany(details);

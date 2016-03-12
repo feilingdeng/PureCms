@@ -11,21 +11,21 @@ namespace PureCms.Core.User
 {
     public interface IUserRepository
     {
-        bool ExistsEmail(string email, int currentUserId = 0);
-        bool ExistsUserName(string userName, int currentUserId = 0);
-        bool ExistsMobile(string mobileNumber, int currentUserId = 0);
-        int Create(UserInfo entity);
+        bool ExistsEmail(string email, Guid? currentUserId);
+        bool ExistsUserName(string userName, Guid? currentUserId);
+        bool ExistsMobile(string mobileNumber, Guid? currentUserId);
+        bool Create(UserInfo entity);
 
         bool Update(UserInfo entity);
         bool Update(UpdateContext<UserInfo> q);
 
-        bool DeleteById(int id);
-        bool DeleteById(List<int> ids);
+        bool DeleteById(Guid id);
+        bool DeleteById(List<Guid> ids);
 
         PagedList<UserInfo> QueryPaged(QueryDescriptor<UserInfo> q);
         List<UserInfo> Query(QueryDescriptor<UserInfo> q);
 
-        UserInfo FindById(int id);
+        UserInfo FindById(Guid id);
 
         UserInfo FindByEmail(string email);
 

@@ -269,7 +269,7 @@ namespace PureCms.Web.Framework
                 ,
                 UrlReferrer = WorkContext.UrlReferrer
                 ,
-                UserId = WorkContext.CurrentUser == null ? -1 :WorkContext.CurrentUser.UserId
+                UserId = WorkContext.CurrentUser == null ? Guid.Empty :WorkContext.CurrentUser.UserId
                 ,
                 StatusCode = context.HttpContext.Response.StatusCode
                 ,

@@ -28,7 +28,7 @@ namespace PureCms.Web.Admin.Models
 
     public class EditUserModel
     {
-        public int UserId { get; set; }
+        public Guid? UserId { get; set; }
         public int Gender { get; set; }
         public string LoginName { get; set; }
         public string UserName { get; set; }
@@ -38,7 +38,7 @@ namespace PureCms.Web.Admin.Models
         public string Avator { get; set; }
         public string Salt { get; set; }
 
-        public int RoleId { get; set; }
+        public Guid RoleId { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -49,7 +49,7 @@ namespace PureCms.Web.Admin.Models
 
     public class EditUserPasswordModel
     {
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public string UserName { get; set; }
 
         [Required]

@@ -19,6 +19,10 @@ namespace PureCms.Core.Data
             {
                 throw new NotImplementedException();
             }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public Task<long> CountAsync(IExecuteContext<T> context)

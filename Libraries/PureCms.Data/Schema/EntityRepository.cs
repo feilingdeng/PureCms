@@ -51,20 +51,30 @@ namespace PureCms.Data.Schema
             try
             {
                 entity.CreatedOn = DateTime.Now;
-                flag = _repository.CreateBool(entity);
+                flag = _repository.CreateObject(entity);
                 //自动创建的字段
                 List<AttributeInfo> attrList = new List<AttributeInfo>();
-                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId=entity.EntityId, Name = entity.Name+"Id", LocalizedName = entity.LocalizedName, AttributeTypeId = Guid.Parse(AttributeTypeIds.PRIMARYKEY), IsNullable = false, IsRequired = true, IsLoged = false, DefaultValue = "newid()"});
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = entity.Name + "Id", LocalizedName = entity.LocalizedName, AttributeTypeId = Guid.Parse(AttributeTypeIds.PRIMARYKEY), IsNullable = false, IsRequired = true, IsLoged = false, DefaultValue = "newid()" });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "Name", LocalizedName = "名称", AttributeTypeId = Guid.Parse(AttributeTypeIds.NVARCHAR), IsNullable = false, IsRequired = true, IsLoged = false });
                 attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "VersionNumber", LocalizedName = "版本号", AttributeTypeId = Guid.Parse(AttributeTypeIds.TIMESTAMP), IsNullable = false, IsRequired = true, IsLoged = false });
                 attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "CreatedOn", LocalizedName = "创建日期", AttributeTypeId = Guid.Parse(AttributeTypeIds.DATETIME), IsNullable = false, IsRequired = true, IsLoged = false, DefaultValue = "getdate()" });
-                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "CreatedBy", LocalizedName = "创建者", AttributeTypeId = Guid.Parse(AttributeTypeIds.UNIQUEIDENTIFIER), IsNullable = false, IsRequired = true, IsLoged = false });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "CreatedBy", LocalizedName = "创建者", AttributeTypeId = Guid.Parse(AttributeTypeIds.LOOKUP), IsNullable = false, IsRequired = true, IsLoged = false });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "ModifiedOn", LocalizedName = "修改日期", AttributeTypeId = Guid.Parse(AttributeTypeIds.DATETIME), IsNullable = false, IsRequired = true, IsLoged = false, DefaultValue = "getdate()" });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "ModifiedBy", LocalizedName = "修改者", AttributeTypeId = Guid.Parse(AttributeTypeIds.LOOKUP), IsNullable = false, IsRequired = true, IsLoged = false });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "OwnerId", LocalizedName = "所有者", AttributeTypeId = Guid.Parse(AttributeTypeIds.OWNER), IsNullable = false, IsRequired = true, IsLoged = false });
+                attrList.Add(new AttributeInfo() { AttributeId = Guid.NewGuid(), EntityId = entity.EntityId, Name = "StateCode", LocalizedName = "状态", AttributeTypeId = Guid.Parse(AttributeTypeIds.STATE), IsNullable = false, IsRequired = true, IsLoged = false });
                 //创建数据库表
                 Sql s = Sql.Builder.Append(string.Format("CREATE TABLE [dbo].[{0}]", entity.Name))
                 .Append("(")
                 .Append(string.Format("[{0}Id] [uniqueidentifier] NOT NULL,", entity.Name))
+                .Append("[Name] [nvarchar(300)] NULL,")
                 .Append("[VersionNumber] [timestamp] NOT NULL,")
                 .Append("[CreatedOn] [datetime] NOT NULL,")
                 .Append("[CreatedBy] [uniqueidentifier] NOT NULL,")
+                .Append("[ModifiedOn] [datetime] NULL,")
+                .Append("[ModifiedBy] [uniqueidentifier] NULL,")
+                .Append("[OwnerId] [uniqueidentifier] NOT NULL,")
+                .Append("[StateCode] [int] NOT NULL,")
                 .Append(string.Format("CONSTRAINT [PK_{0}] PRIMARY KEY CLUSTERED", entity.Name))
                 .Append("(")
                 .Append(string.Format("[{0}Id] ASC", entity.Name))
@@ -72,7 +82,28 @@ namespace PureCms.Data.Schema
                 .Append(") ON [PRIMARY]");
                 _repository.Execute(s);
                 //插入自动创建的字段，这里失败的话，事务不会回滚
-                flag = new DataRepository<AttributeInfo>().CreateMany(attrList);
+                flag = new DataRepository<AttributeInfo>(_repository.GetConnection()).CreateMany(attrList);
+                //创建关系
+
+                //创建视图
+                Sql sview = Sql.Builder.Append(string.Format("CREATE VIEW [dbo].[{0}View] AS", entity.Name))
+                    .Append("SELECT ");
+                //查询所有字段
+                foreach (var item in attrList)
+                {
+                    sview.Append(string.Format("[{0}].[{1}],", entity.Name, item.Name));
+                }
+                //link attributes
+                sview.Append("[lk_createdby].[Name] AS CreatedByName,")
+                    .Append("[lk_modifiedby].[Name] AS ModifiedByName,")
+                    .Append("[lk_owner].[Name] AS OwnerIdName");
+                //tables
+                sview.Append(string.Format("FROM [{0}] WITH(NOLOCK)", entity.Name))
+                .Append("LEFT JOIN [Users] AS [lk_createdby] WITH(NOLOCK) ON [{0}].[CreatedBy]=[lk_createdby].[UserId]", entity.Name)
+                .Append("LEFT JOIN [Users] AS [lk_modifiedby] WITH(NOLOCK) ON [{0}].[ModifiedBy]=[lk_modifiedby].[UserId]", entity.Name)
+                .Append("LEFT JOIN [Users] AS [lk_owner] WITH(NOLOCK) ON [{0}].[OwnerId]=[lk_owner].[UserId]", entity.Name);
+                _repository.Execute(s);
+
                 if (flag)
                 {
                     _repository.CompleteTransaction();

@@ -31,7 +31,7 @@ namespace PureCms.Web.Framework.Mvc
             
             _authenticationService = new FormsAuthenticationService(filterContext.HttpContext);
             //测试时自动登录
-            _authenticationService.SignIn(new Core.Domain.User.UserInfo() { UserId = 1, LoginName = "PureCms",UserName = "PureCms", Password = "123456", RoleId = 1 }, true);
+            _authenticationService.SignIn(new Core.Domain.User.UserInfo() { UserId = Guid.NewGuid(), LoginName = "PureCms",Name = "PureCms", Password = "123456", RoleId = 1 }, true);
             //未登录时转到登录页
             if (!filterContext.HttpContext.User.Identity.IsAuthenticated)
             {

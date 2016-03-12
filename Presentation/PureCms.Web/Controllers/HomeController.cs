@@ -1,4 +1,5 @@
-﻿using PureCms.Services.Cms;
+﻿using PureCms.Core.Utilities;
+using PureCms.Services.Cms;
 using PureCms.Services.Query;
 using PureCms.Web.Framework;
 using System;
@@ -18,7 +19,7 @@ namespace PureCms.Web.Controllers
             //throw new Exception("error");
             //List<string> result = AuthenticationService.GetAllActionByAssembly();
             //UserInfo u = _authenticationService.GetAuthenticatedUser();
-
+            //var p = SecurityHelper.MD5("123456");
             var _fetchService = new FetchDataService();
             //var s = _fetchService.ToJsonString();
             var o = new QueryViewService().FindById(Guid.Parse("2705E0B7-24A7-4C4F-B00E-A8EA608786D5"));
