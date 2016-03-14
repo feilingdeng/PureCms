@@ -49,7 +49,6 @@ namespace PureCms.Web.Admin.Controllers
                 sort = new QueryColumnSortInfo(model.SortBy, model.SortDirection == 0);
             }
             var datas = _fetchService.Execute(model.Page, model.PageSize, sort, queryView);//.FetchConfig);
-
             model.Items = datas.Items;
             model.TotalItems = datas.TotalItems;
             return View(model);

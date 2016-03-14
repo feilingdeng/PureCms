@@ -5,6 +5,7 @@ using PureCms.Core.Domain.Schema;
 using PureCms.Core.Schema;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace PureCms.Data.Schema
 {
@@ -58,6 +59,15 @@ namespace PureCms.Data.Schema
                 throw new PureCmsException(e.Message);
             }
             return flag;
+        }
+        /// <summary>
+        /// 指创建记录
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <returns></returns>
+        public bool CreateMany(List<AttributeInfo> entities)
+        {
+            return _repository.CreateMany(entities);
         }
         private string GetDbType(AttributeInfo attr)
         {
@@ -213,6 +223,15 @@ namespace PureCms.Data.Schema
         public AttributeInfo Find(Guid entityId, string name)
         {
             return _repository.Find(x=>x.EntityId == entityId && x.Name == name);
+        }
+        /// <summary>
+        /// 查询一条记录
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public AttributeInfo Find(Expression<Func<AttributeInfo, bool>> predicate)
+        {
+            return _repository.Find(predicate);
         }
         #endregion
     }

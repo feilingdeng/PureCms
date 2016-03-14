@@ -84,10 +84,12 @@
     <Compile Include="Context\SortDescriptor.cs" />
     <Compile Include="Context\UpdateContext.cs" />
     <Compile Include="Data\DataProviderFactory.cs" />
+    <Compile Include="Data\DbSession.cs" />
     <Compile Include="Data\MsSqlProvider.cs" />
     <Compile Include="Data\IDataProvider.cs" />
     <Compile Include="Data\LinkEntityAttribute.cs" />
     <Compile Include="Data\MySqlProvider.cs" />
+    <Compile Include="Data\SqlHelper.cs" />
     <Compile Include="Domain\BaseEntity.cs" />
     <Compile Include="Domain\Cms\ArticleAttributeValueInfo.cs" />
     <Compile Include="Domain\Cms\ArticleCommentInfo.cs" />

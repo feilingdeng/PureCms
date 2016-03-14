@@ -4,6 +4,25 @@
         var r = window.location.search.substr(1).match(reg);
         if (r != null) return unescape(r[2]); return null;
     }
+    $.setUrlParam = function (oldUrl, paramName, replaceWith) {
+        if ($.hasParameter(paramName)) {
+            var re = eval('/(' + paramName + '=)([^&]*)/gi');
+            var nUrl = oldUrl.replace(re, paramName + '=' + replaceWith);
+            return nUrl;
+        }
+        if (oldUrl.indexOf('?') > 0) {
+            return oldUrl += '&' + paramName + '=' + replaceWith;
+        }
+        else {
+            return oldUrl += '?' + paramName + '=' + replaceWith;
+        }
+    }
+    $.hasParameter = function (name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
 })(jQuery);
 
 var tableToExcel = (function () {

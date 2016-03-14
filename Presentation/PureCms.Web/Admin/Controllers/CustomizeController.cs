@@ -168,11 +168,6 @@ namespace PureCms.Web.Admin.Controllers
             {
                 return NoRecordView();
             }
-            if (model.SortBy.IsEmpty())
-            {
-                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<AttributeInfo>(n => n.CreatedOn);
-                model.SortDirection = (int)Core.Context.SortDirection.Desc;
-            }
 
             FilterContainer<AttributeInfo> container = new FilterContainer<AttributeInfo>();
             container.And(n => n.EntityId == model.EntityId);

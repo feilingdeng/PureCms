@@ -14,6 +14,7 @@ namespace PureCms.Core.Domain.Schema
         public Guid ReferencedEntityId { get; set; }
         public Guid ReferencedAttributeId { get; set; }
         public int RelationshipType { get; set; }
-        public byte[] VersionNumber { get; set; }
+        [Ignore]
+        public new DateTime CreatedOn { get; set; }
     }
 }

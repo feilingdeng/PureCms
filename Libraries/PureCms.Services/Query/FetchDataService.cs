@@ -59,6 +59,12 @@ namespace PureCms.Services.Query
         }
         public PagedList<dynamic> Execute(int page, int pageSize, QueryColumnSortInfo sort, QueryViewInfo view)
         {
+            //首次加载时，如果sql语句为空，则生成后保存到数据库
+            if (view.SqlString.IsEmpty())
+            {
+                view.SqlString = ToSqlString(ToQueryExpression(view.FetchConfig));
+                new QueryViewService().Update(x=>x.Set(f=>f.SqlString, view.SqlString).Where(w=>w.QueryViewId == view.QueryViewId));
+            }
             string sql = view.SqlString;
             if (sort != null)
             {
@@ -160,24 +166,27 @@ namespace PureCms.Services.Query
                 filterList.Add(filter.FilterOperator == LogicalOperator.And ? "AND" : "OR");
             }
             bool flag = false;
-            filterList.Add("(");
-            foreach (var cd in filter.Conditions)
+            if (filter.Conditions.IsNotNullOrEmpty())
             {
-                if (flag)
+                filterList.Add("(");
+                foreach (var cd in filter.Conditions)
                 {
-                    filterList.Add(filter.FilterOperator == LogicalOperator.And ? "AND" : "OR");
+                    if (flag)
+                    {
+                        filterList.Add(filter.FilterOperator == LogicalOperator.And ? "AND" : "OR");
+                    }
+                    filterList.Add(MakeCondition(entityAlias, cd));
+                    flag = true;
                 }
-                filterList.Add(MakeCondition(entityAlias, cd));
-                flag = true;
-            }
-            if (filter.Filters.IsNotNullOrEmpty())
-            {
-                foreach (var item in filter.Filters)
+                if (filter.Filters.IsNotNullOrEmpty())
                 {
-                    ParseFilter(item, entityAlias, ref filterList);
+                    foreach (var item in filter.Filters)
+                    {
+                        ParseFilter(item, entityAlias, ref filterList);
+                    }
                 }
+                filterList.Add(")");
             }
-            filterList.Add(")");
         }
         private string MakeCondition(string entityAliaName, ConditionExpression conditionNode)
         {

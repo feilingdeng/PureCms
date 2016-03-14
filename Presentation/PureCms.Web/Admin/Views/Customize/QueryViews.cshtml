@@ -59,7 +59,7 @@
                     <th width="15%" data-name="createdon">
                         @Html.ActionLink("创建时间", "queryviews", new { name = Model.Name, entityid = Model.EntityId, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
-                    <th width="15%">操作</th>
+                    <th width="20%">操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,6 +73,7 @@
                         <td>@(item.IsDisabled ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
                         <td>@item.CreatedOn</td>
                         <td>
+                            <a class="btn btn-info btn-xs" href="/admin/entity/list?queryid=@item.QueryViewId"><span class="glyphicon glyphicon-th-list"></span> 立即查看</a>
                             <a class="btn btn-default btn-xs" href="/admin/customize/editqueryview?id=@item.QueryViewId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
                             <a class="btn btn-warning btn-xs" href="javascript:purecms.del('@item.QueryViewId','/admin/customize/deletequeryview')"><span class="glyphicon glyphicon-trash"></span> 删除</a>
                         </td>

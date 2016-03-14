@@ -3,6 +3,7 @@ using PureCms.Core.Domain;
 using PetaPoco;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace PureCms.Core.Data
 {
@@ -20,14 +21,21 @@ namespace PureCms.Core.Data
         /// 最大查询数
         /// </summary>
         public int MaxSearchCount = 25000;
+
+        private Database _dbContext;
         protected Database DbContext
         {
             get
             {
-                //string connectionString = ConfigurationManager.ConnectionStrings["sqlconnectionstring"].ConnectionString;
-                return new PetaPoco.Database("mssqlconnectionstring");
+                //if (_dbContext == null)
+                //{
+                _dbContext = new DbSession("mssqlconnectionstring");//new PetaPoco.Database("mssqlconnectionstring");
+                //}
+                return _dbContext;
             }
-            set { }
+            set {
+                _dbContext = value;
+            }
         }
 
         public object Client
@@ -42,7 +50,10 @@ namespace PureCms.Core.Data
             }
         }
         public MsSqlProvider(){
-            DbContext.OpenSharedConnection();
+            //_dbContext = new PetaPoco.Database("mssqlconnectionstring");
+            //DbContext.OpenSharedConnection();
+            DbContext.KeepConnectionAlive = true;
+            //DbContext.CommandTimeout = 3600;
         }
         public virtual void BeginTransaction()
         {
@@ -113,12 +124,19 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                //DbContext.BeginTransaction();
-                foreach (var item in entities)
-                {
-                    DbContext.Insert(item);
+                try {
+                    DbContext.BeginTransaction();
+                    foreach (var item in entities)
+                    {
+                        DbContext.Insert(item);
+                    }
+                    DbContext.CompleteTransaction();
                 }
-                //DbContext.CompleteTransaction();
+                catch (Exception e)
+                {
+                    DbContext.AbortTransaction();
+                    throw new PureCmsException(e.Message, e.InnerException);
+                }
                 return true;
             }
             );
@@ -148,12 +166,19 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                //DbContext.BeginTransaction();
-                foreach (var item in entities)
-                {
-                    DbContext.Update(item);
+                try {
+                    DbContext.BeginTransaction();
+                    foreach (var item in entities)
+                    {
+                        DbContext.Update(item);
+                    }
+                    DbContext.CompleteTransaction();
                 }
-                //DbContext.CompleteTransaction();
+                catch (Exception e)
+                {
+                    DbContext.AbortTransaction();
+                    throw new PureCmsException(e.Message, e.InnerException);
+                }
                 return true;
             }
             );
@@ -183,12 +208,19 @@ namespace PureCms.Core.Data
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                //DbContext.BeginTransaction();
-                foreach (var id in ids)
-                {
-                    DbContext.Delete<T>(id);
+                try {
+                    DbContext.BeginTransaction();
+                    foreach (var id in ids)
+                    {
+                        DbContext.Delete<T>(id);
+                    }
+                    DbContext.CompleteTransaction();
                 }
-                //DbContext.CompleteTransaction();
+                catch (Exception e)
+                {
+                    DbContext.AbortTransaction();
+                    throw new PureCmsException(e.Message, e.InnerException);
+                }
                 return true;
             }
             );

@@ -64,6 +64,7 @@
     <Compile Include="Mvc\JsonResultObject.cs" />
     <Compile Include="Mvc\PluginRouteProvider.cs" />
     <Compile Include="Mvc\PromptModel.cs" />
+    <Compile Include="Mvc\UrlExtensions.cs" />
     <Compile Include="Mvc\ViewExtensions.cs" />
     <Compile Include="Mvc\WebGridExtensions.cs" />
     <Compile Include="Paging\BasePaged.cs" />

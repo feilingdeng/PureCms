@@ -44,6 +44,15 @@ namespace PureCms.Data.Schema
             return _repository.Create(entity);
         }
         /// <summary>
+        /// 指创建记录
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <returns></returns>
+        public bool CreateMany(List<RelationShipInfo> entities)
+        {
+            return _repository.CreateMany(entities);
+        }
+        /// <summary>
         /// 更新记录
         /// </summary>
         /// <param name="entity"></param>
