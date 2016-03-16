@@ -38,8 +38,8 @@ namespace PureCms.Core.Domain.Schema
         [ResultColumn]
         [LinkEntity(typeof(EntityInfo), LinkFromFieldName = "EntityId", LinkToFieldName = "EntityId", TargetFieldName = "Name")]
         public string EntityName { get; set; }
-        [ResultColumn]
-        [LinkEntity(typeof(AttributeTypeInfo), LinkFromFieldName = "AttributeTypeId", LinkToFieldName = "AttributeTypeId", TargetFieldName = "Name")]
+        //[ResultColumn]
+        //[LinkEntity(typeof(AttributeTypeInfo), LinkFromFieldName = "AttributeTypeId", LinkToFieldName = "AttributeTypeId", TargetFieldName = "Name")]
         public string AttributeTypeName { get; set; }
 
         private string _PickListItem;

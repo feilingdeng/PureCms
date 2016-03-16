@@ -33,6 +33,10 @@ namespace PureCms.Services.Schema
         {
             return _repository.FindById(id);
         }
+        public EntityInfo FindByName(string name)
+        {
+            return _repository.Find(n=>n.Name == name);
+        }
         public bool DeleteById(Guid id)
         {
             return _repository.DeleteById(id);
@@ -54,6 +58,10 @@ namespace PureCms.Services.Schema
             QueryDescriptor<EntityInfo> q = container(new QueryDescriptor<EntityInfo>());
 
             return _repository.Query(q);
+        }
+        public List<EntityInfo> QueryRelated(Guid entityid)
+        {
+            return _repository.QueryRelated(entityid);
         }
 
         #region json相关

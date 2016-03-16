@@ -1,7 +1,9 @@
 ﻿using PureCms.Core.Components.Grid;
 using PureCms.Core.Domain;
 using PureCms.Core.Domain.Query;
+using PureCms.Core.Domain.Schema;
 using System;
+using System.Collections.Generic;
 
 namespace PureCms.Web.Admin.Models
 {
@@ -11,5 +13,8 @@ namespace PureCms.Web.Admin.Models
         public Guid QueryId { get; set; }
         public GridInfo Grid { get; set; }
         public QueryViewInfo QueryView { get; set; }
+
+        public List<EntityInfo> EntityList { get; set; }
+        public List<AttributeInfo> AttributeList { get; set; }
     }
 }

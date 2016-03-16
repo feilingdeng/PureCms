@@ -72,10 +72,10 @@
                         <td>@(item.IsLoged ? "<span class=\"label label-info\">启用</span>" : "<span class=\"label label-default\">禁用</span>")</td>
                         <td>@item.CreatedOn</td>
                         <td>
-                            <a class="btn btn-default btn-sm" href="/admin/customize/editentity?id=@item.EntityId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
-                            <a class="btn btn-info btn-sm" href="/admin/customize/attributes?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 字段</a>
-                            <a class="btn btn-info btn-sm" href="/admin/customize/queryviews?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 视图</a>
-                            <a class="btn btn-warning btn-sm" href="javascript:purecms.del('@item.EntityId','/admin/customize/deleteentity',null,null,null,'实体删除后相关数据也将一并删除，请提前备份数据',true)"><span class="glyphicon glyphicon-trash"></span> 删除</a>
+                            <a class="btn btn-default btn-xs" href="/admin/customize/editentity?id=@item.EntityId"><span class="glyphicon glyphicon-edit"></span> 编辑</a>
+                            <a class="btn btn-info btn-xs" href="/admin/customize/attributes?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 字段</a>
+                            <a class="btn btn-info btn-xs" href="/admin/customize/queryviews?entityid=@item.EntityId"><span class="glyphicon glyphicon-list"></span> 视图</a>
+                            <a class="btn btn-warning btn-xs" href="javascript:purecms.del('@item.EntityId','/admin/customize/deleteentity',null,null,null,'实体删除后相关数据也将一并删除，请提前备份数据',true)"><span class="glyphicon glyphicon-trash"></span> 删除</a>
                         </td>
                     </tr>
                 }
@@ -88,20 +88,28 @@
                 </tr>
             </tfoot>
         </table>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-sm-4">@("当前" + @Model.Page + "/" + @Model.PagedModel.TotalPages + "页, 共" + @Model.TotalItems + "行记录")</div>
+                <div id="page-selection" class="col-sm-8" data-total="@Model.PagedModel.TotalPages" data-page="@Model.Page"></div>
+            </div>
+        </div>
     </div>
-    <div class="panel-footer">
-        @Html.WebPager(Model.PagedModel, true)
-    </div>
+    @*<div class="panel-footer">
+            @Html.WebPager(Model.PagedModel, true)
+        </div>*@
 </div>
 
 @section Header {
     <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
 }
 @section Scripts {
+    <script src="/content/js/jquery.bootpag.min.js"></script>
     <script src="/admin/content/js/jquery.form.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
+        var pageUrl = '@Url.ActionUrl("entities", this.ViewContext)';
         $(function () {
             $('.datepicker').datepicker({
                 autoclose: true
@@ -112,11 +120,33 @@
             ajaxgrid_reset();
             $('#searchForm').ajaxSearch('#gridview');
         });
+        function pag_init() {
+            $('#page-selection').bootpag({
+                total: $('#page-selection').attr('data-total')
+                , maxVisible: 10
+                , page: $('#page-selection').attr('data-page')
+                , leaps: false
+                , prev: '&laquo;'
+                , next: '&rsaquo;'
+                , firstLastUse: true
+                , first: '&laquo;&laquo;'
+                , last: '&rsaquo;&rsaquo;'
+            }).on("page", function (event, /* page number here */ num) {
+                event.preventDefault();
+                var url = $.setUrlParam(pageUrl, 'page', num);
+                $("#gridview").ajaxLoad(url, "#gridview", function (response) {
+                    //$("#gridview").replaceWith($(this)); // some ajax content loading...
+                    ajaxgrid_reset();
+                });
+                return false;
+            });
+        }
         function ajaxgrid_reset() {
+            pag_init();
             purecms.datatable($("#datatable"));
             $("#datatable").ajaxTable();
             $("#datatable > thead th a").attr('data-ajax', 'true');
-            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+            //$("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
         }
     </script>
 }

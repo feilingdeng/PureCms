@@ -10,6 +10,7 @@ namespace PureCms.Data.Schema
     {
         private static readonly DataRepository<RelationShipInfo> _repository = new DataRepository<RelationShipInfo>();
 
+        private PetaPoco.Database.PocoData _metaData;
         /// <summary>
         /// 实体元数据
         /// </summary>
@@ -17,12 +18,19 @@ namespace PureCms.Data.Schema
         {
             get
             {
-                return _repository.MetaData;
+                return _metaData;
+            }
+            set
+            {
+                _metaData = value;
             }
         }
         public RelationShipRepository()
         {
+            _metaData = _repository.MetaData;
+            _tableName = MetaData.TableInfo.TableName;
         }
+        private string _tableName;
         /// <summary>
         /// 实体表名
         /// </summary>
@@ -30,7 +38,11 @@ namespace PureCms.Data.Schema
         {
             get
             {
-                return MetaData.TableInfo.TableName;
+                return _tableName;
+            }
+            set {
+                _tableName = value;
+                _metaData.TableInfo.TableName = value;
             }
         }
         #region implements
@@ -105,11 +117,18 @@ namespace PureCms.Data.Schema
         /// <returns></returns>
         public PagedList<RelationShipInfo> QueryPaged(QueryDescriptor<RelationShipInfo> q)
         {
+            //this.TableName = "RelationShipView";
             return _repository.QueryPaged(q);
         }
         public List<RelationShipInfo> Query(QueryDescriptor<RelationShipInfo> q)
         {
+            //this.TableName = "RelationShipView";
             return _repository.Query(q);
+        }
+        public List<RelationShipInfo> QueryByEntityId(Guid referencingEntityId)
+        {
+            string sql = "SELECT * FROM RelationShipView WHERE [ReferencingEntityId]=@0";
+            return _repository.ExecuteQuery(sql, referencingEntityId);
         }
         /// <summary>
         /// 查询一条记录
@@ -118,6 +137,7 @@ namespace PureCms.Data.Schema
         /// <returns></returns>
         public RelationShipInfo FindById(Guid id)
         {
+            //this.TableName = "RelationShipView";
             return _repository.FindById(id);
         }
         #endregion

@@ -1,4 +1,5 @@
-﻿@model PureCms.Web.Admin.Models.EntityGridModel
+﻿@using PureCms.Core.Domain.Schema;
+@model PureCms.Web.Admin.Models.EntityGridModel
 @{
     Layout = null;
 }
@@ -8,18 +9,16 @@
             <strong>@Model.QueryView.Name - 视图</strong>
         </div>
     </div>
-    <div class="panel-body">
-
         <div class="table-responsive">
             <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
                 <thead>
                     <tr>
                         <th width="2%"><input type="checkbox" name="checkall" /></th>
-                        <th width="4%">行号</th>
+                        @*<th width="4%">行号</th>*@
                         @foreach (var cell in Model.Grid.Rows[0].Cells)
                         {
                             <th data-name="@cell.Name.ToLower()" style="width:@(cell.Width+"px")">
-                                <a href="gridview?queryid=@Model.QueryId&sortby=@cell.Name&sortdirection=@(Model.SortDirection == 1 ? 0 : 1)">@cell.Label</a>
+                                <a data-ajax="true" href="gridview?queryid=@Model.QueryId&sortby=@cell.Name&sortdirection=@(Model.SortDirection == 1 ? 0 : 1)">@cell.Label</a>
                             </th>
                         }
                         <th width="15%">操作</th>
@@ -27,13 +26,24 @@
                 </thead>
                 <tbody>
                     @foreach (var item in Model.Items)
-            {
-                var a = (item as IDictionary<string, object>);
+                    {
+                        var lines = (item as IDictionary<string, object>); 
                         <tr>
                             <td><input type="checkbox" name="recordid" /></td>
-                            @foreach (var property in a)
+                            @foreach (var property in lines)
                             {
-                                <td>@property.Value</td>
+                                var k = property.Key;
+                                AttributeInfo attr = Model.AttributeList.Find(n => n.Name.ToLower() == k.ToLower());
+                                if (attr != null && (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER))))
+                                {
+                                    k += "Name";
+                                    var a = lines.FirstOrDefault(n => n.Key == k);
+                                    <td><a href="" target="_blank" title="查看">@a.Value</a></td>
+                                }
+                                else if (Model.Grid.Rows[0].Cells.Count(x => x.Name == k) > 0)
+                                {
+                                    <td>@property.Value</td>
+                                }
                             }
                             <td>
                                 <a class="btn btn-default btn-xs" href=""><span class="glyphicon glyphicon-edit"></span> 编辑</a>
@@ -44,8 +54,8 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="7" class="active">
-                            <button type="button" class="btn btn-sm btn-primary" data-submit="/admin/customize/deleteattribute" data-role="delete" data-tooltip="字段删除后相关数据也将一并删除，请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
+                        <td colspan="@(Model.Grid.Rows[0].Cells.Count+3)" class="active">
+                            <button type="button" class="btn btn-xs btn-primary" data-submit="/admin/customize/deleteattribute" data-role="delete" data-tooltip="字段删除后相关数据也将一并删除，请提前备份数据"><span class="glyphicon glyphicon-trash"></span> 批量删除</button>
                         </td>
                     </tr>
                 </tfoot>
@@ -58,9 +68,9 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 <script>
+    var pageUrl = '@Url.ActionUrl("gridview", this.ViewContext)';
     $(function () {
         $('.datepicker').datepicker({
             autoclose: true
@@ -84,16 +94,24 @@
             , last: '&rsaquo;&rsaquo;'
         }).on("page", function (event, /* page number here */ num) {
             event.preventDefault();
-            $.get('/Admin/entity/gridview?queryid=553E5E14-8FE1-4E20-856B-43A2003D2C4D&page=' + num, function (response) {
-                $("#gridview").replaceWith(response); // some ajax content loading...
-                pag_init();
+            var url = $.setUrlParam(pageUrl, 'page', num);
+            $("#gridview").ajaxLoad(url, "#gridview", function (response) {
+                ajaxgrid_reset();
             });
+            //$.get('/Admin/entity/gridview?queryid=553E5E14-8FE1-4E20-856B-43A2003D2C4D&page=' + num, function (response) {
+            //    $("#gridview").replaceWith(response); // some ajax content loading...
+            //    ajaxgrid_reset();
+            //});
             return false;
         });
     }
     function ajaxgrid_reset() {
         pag_init();
         purecms.datatable($("#datatable"));
+        //该设置使table达到默认最大宽度时，将不再继续变宽
+        var ops = { resizeTable: false };
+        //使两张table同时支持左右拉伸
+        $("table").tableresize(ops);
         $("#datatable").ajaxTable();
         $("#datatable > thead th a").attr('data-ajax', 'true');
         //$("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');

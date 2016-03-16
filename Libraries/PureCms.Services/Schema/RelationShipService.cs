@@ -40,11 +40,22 @@ namespace PureCms.Services.Schema
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<RelationShipInfo> Query(Func<QueryDescriptor<RelationShipInfo>, QueryDescriptor<RelationShipInfo>> container)
+        public PagedList<RelationShipInfo> QueryPaged(Func<QueryDescriptor<RelationShipInfo>, QueryDescriptor<RelationShipInfo>> container)
         {
             QueryDescriptor<RelationShipInfo> q = container(new QueryDescriptor<RelationShipInfo>());
 
             return _repository.QueryPaged(q);
+        }
+
+        public List<RelationShipInfo> Query(Func<QueryDescriptor<RelationShipInfo>, QueryDescriptor<RelationShipInfo>> container)
+        {
+            QueryDescriptor<RelationShipInfo> q = container(new QueryDescriptor<RelationShipInfo>());
+
+            return _repository.Query(q);
+        }
+        public List<RelationShipInfo> QueryByEntityId(Guid referencingEntityId)
+        {
+            return _repository.QueryByEntityId(referencingEntityId);
         }
     }
 }

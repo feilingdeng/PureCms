@@ -70,6 +70,12 @@ namespace PureCms.Web.Admin.Controllers
                 .Where(filter)
                 .Sort(n => n.SortAscending(f => f.LocalizedName))
                 );
+            //相关联实体
+            if (entityid.HasValue && !entityid.Equals(Guid.Empty))
+            {
+                var related = _entityService.QueryRelated(entityid.Value);
+                result.AddRange(related);
+            }
 
             return AjaxResult(true, result);
         }
@@ -79,6 +85,13 @@ namespace PureCms.Web.Admin.Controllers
              var result = _entityService.GetJsonData(x => x
             .Select(n => new { n.EntityId, n.Name, n.LocalizedName })
                 .Sort(n => n.SortAscending(f => f.Name)));
+            return AjaxResult(true, result);
+        }
+        [Description("关系列表-JSON格式")]
+        public ActionResult RelationsJson(Guid referencingEntityId)
+        {
+            List<RelationShipInfo> result = new RelationShipService().QueryByEntityId(referencingEntityId);
+
             return AjaxResult(true, result);
         }
         [HttpGet]
@@ -328,6 +341,7 @@ namespace PureCms.Web.Admin.Controllers
                 }
                 var attributeType = new AttributeTypeService().FindByName(model.AttributeType);
                 attrInfo.AttributeTypeId = attributeType.AttributeTypeId;
+                attrInfo.AttributeTypeName = model.AttributeType;
                 _attributeService.Create(attrInfo);
                 msg = "创建成功";
                 return AjaxResult(true, msg);

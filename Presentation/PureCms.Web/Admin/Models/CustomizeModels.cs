@@ -118,6 +118,7 @@ namespace PureCms.Web.Admin.Models
         public Guid? OwnerId { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsDisabled { get; set; }
+        public bool IsSimpleFilter { get; set; }
 
         public Guid EntityId { get; set; }
     }
@@ -136,6 +137,7 @@ namespace PureCms.Web.Admin.Models
         public Guid? OwnerId { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsDisabled { get; set; }
+        public bool IsSimpleFilter { get; set; }
 
         public Guid EntityId { get; set; }
         public EntityInfo EntityInfo { get; set; }

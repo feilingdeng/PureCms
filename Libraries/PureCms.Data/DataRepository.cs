@@ -379,6 +379,24 @@ namespace PureCms.Data
         /// <summary>
         /// 直接执行查询语句
         /// </summary>
+        /// <param name="predicate">过滤条件</param>
+        /// <param name="sorts">排序</param>
+        /// <returns></returns>
+        public List<T> ExecuteQuery(Sql s)
+        {
+            ExecuteContext<T> ctx = new ExecuteContext<T>();
+            ctx.ExecuteContainer = s;
+            var result = _repository.QueryAsync(ctx);
+            var pageDatas = result.Result;
+            if (pageDatas != null)
+            {
+                return pageDatas.ToList();
+            }
+            return new List<T>();
+        }
+        /// <summary>
+        /// 直接执行查询语句
+        /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
         public List<T> ExecuteQuery(string s, params object[] args)

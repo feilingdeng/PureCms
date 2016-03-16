@@ -40,24 +40,29 @@
         </div>
     </div>
     <div class="table-responsive" id="gridview">
-        <table class="table table-hover table-condensed" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
+        <table class="table table-hover table-condensed datatable" id="datatable" data-ajax="true" data-ajaxcontainer="gridview" data-ajaxcallback="ajaxgrid_reset()" data-sortby="@Model.SortBy.ToLower()" data-sortdirection="@Model.SortDirection">
             <thead>
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
                     <th data-name="name">
-                        @Html.ActionLink("名称", "attributes", new { name = Model.Name, entityid = Model.EntityId, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @*@Html.ActionLink("名称", "attributes", new { name = Model.Name, entityid = Model.EntityId, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })*@
+                        <a href="@Url.ActionUrl("attributes", this.ViewContext, new {sortdirection = Model.SortDirection == 1 ? 0 : 1 })" data-ajax="true">名称</a>
                     </th>
                     <th width="20%" data-name="LocalizedName">
-                        @Html.ActionLink("显示名称", "attributes", new { name = Model.LocalizedName, entityid = Model.EntityId, sortby = "LocalizedName", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @*@Html.ActionLink("显示名称", "attributes", new { name = Model.LocalizedName, entityid = Model.EntityId, sortby = "LocalizedName", sortdirection = Model.SortDirection == 1 ? 0 : 1 })*@
+                        <a href="@Url.ActionUrl("attributes", this.ViewContext, new {sortdirection = Model.SortDirection == 1 ? 0 : 1 })" data-ajax="true">显示名称</a>
                     </th>
                     <th width="10%" data-name="IsRequired">
-                        @Html.ActionLink("必填", "attributes", new { name = Model.IsRequired, entityid = Model.EntityId, sortby = "IsRequired", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @*@Html.ActionLink("必填", "attributes", new { name = Model.IsRequired, entityid = Model.EntityId, sortby = "IsRequired", sortdirection = Model.SortDirection == 1 ? 0 : 1 })*@
+                        <a href="@Url.ActionUrl("attributes", this.ViewContext, new {sortdirection = Model.SortDirection == 1 ? 0 : 1 })" data-ajax="true">必填</a>
                     </th>
                     <th width="20%" data-name="IsLoged">
-                        @Html.ActionLink("日志", "attributes", new { name = Model.IsLoged, entityid = Model.EntityId, sortby = "IsLoged", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @*@Html.ActionLink("日志", "attributes", new { name = Model.IsLoged, entityid = Model.EntityId, sortby = "IsLoged", sortdirection = Model.SortDirection == 1 ? 0 : 1 })*@
+                        <a href="@Url.ActionUrl("attributes", this.ViewContext, new {sortdirection = Model.SortDirection == 1 ? 0 : 1 })" data-ajax="true">日志</a>
                     </th>
                     <th width="15%" data-name="createdon">
-                        @Html.ActionLink("创建时间", "attributes", new { name = Model.Name, entityid = Model.EntityId, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @*@Html.ActionLink("创建时间", "attributes", new { name = Model.Name, entityid = Model.EntityId, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })*@
+                        <a href="@Url.ActionUrl("attributes", this.ViewContext, new {sortdirection = Model.SortDirection == 1 ? 0 : 1 })" data-ajax="true">创建时间</a>
                     </th>
                     <th width="15%">操作</th>
                 </tr>
@@ -108,7 +113,7 @@
     <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
-        var pageUrl = '@Url.ActionLink("attributes", this.ViewContext)';
+        var pageUrl = '@Url.ActionUrl("attributes", this.ViewContext)';
         $(function () {
             $('.datepicker').datepicker({
                 autoclose: true
@@ -133,9 +138,9 @@
             }).on("page", function (event, /* page number here */ num) {
                 event.preventDefault();
                 var url = $.setUrlParam(pageUrl, 'page', num);
-                $.get(url, function (response) {
-                    $("#gridview").replaceWith($(response).find("#gridview")); // some ajax content loading...
-                    pag_init();
+                $("#gridview").ajaxLoad(url, "#gridview", function (response) {
+                    //$("#gridview").replaceWith($(this)); // some ajax content loading...
+                    ajaxgrid_reset();
                 });
                 return false;
             });

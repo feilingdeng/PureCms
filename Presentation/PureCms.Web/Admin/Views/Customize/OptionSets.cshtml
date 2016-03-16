@@ -7,7 +7,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <div class="panel-title">
-            <strong>视图</strong>
+            <strong>选项集</strong>
             <div class="pull-right">
                 <a class="btn btn-info btn-sm" data-toggle="collapse"
                    href="#collapseOne">
@@ -20,7 +20,7 @@
     <div id="collapseOne" class="panel-collapse collapse">
         <!--in-->
         <div class="panel-body">
-            @using (Html.BeginForm("OptionSets", "customize", FormMethod.Get, new { @class = "form-horizontal", @role = "form" }))
+            @using (Html.BeginForm("OptionSets", "customize", FormMethod.Get, new { @id = "searchForm", @class = "form-horizontal", @role = "form" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary()
@@ -45,10 +45,10 @@
                 <tr>
                     <th width="2%"><input type="checkbox" name="checkall" /></th>
                     <th data-name="name">
-                        @Html.ActionLink("名称", "options", new { name = Model.Name, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("名称", "optionsets", new { name = Model.Name, sortby = "Name", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%" data-name="createdon">
-                        @Html.ActionLink("创建时间", "options", new { name = Model.Name, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
+                        @Html.ActionLink("创建时间", "optionsets", new { name = Model.Name, sortby = "createdon", sortdirection = Model.SortDirection == 1 ? 0 : 1 })
                     </th>
                     <th width="15%">操作</th>
                 </tr>
@@ -75,20 +75,28 @@
                 </tr>
             </tfoot>
         </table>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-sm-4">@("当前" + @Model.Page + "/" + @Model.PagedModel.TotalPages + "页, 共" + @Model.TotalItems + "行记录")</div>
+                <div id="page-selection" class="col-sm-8" data-total="@Model.PagedModel.TotalPages" data-page="@Model.Page"></div>
+            </div>
+        </div>
     </div>
-    <div class="panel-footer">
-        @Html.WebPager(Model.PagedModel, true)
-    </div>
+    @*<div class="panel-footer">
+            @Html.WebPager(Model.PagedModel, true)
+        </div>*@
 </div>
 
 @section Header {
     <link href="/admin/content/bootstrap-datepicker-1.5.0/css/bootstrap-datepicker3.min.css" rel="stylesheet">
 }
 @section Scripts {
+    <script src="/content/js/jquery.bootpag.min.js"></script>
     <script src="/admin/content/js/jquery.form.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/js/bootstrap-datepicker.min.js"></script>
     <script src="/admin/content/bootstrap-datepicker-1.5.0/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
     <script>
+        var pageUrl = '@Url.ActionUrl("optionsets", this.ViewContext)';
         $(function () {
             $('.datepicker').datepicker({
                 autoclose: true
@@ -99,11 +107,33 @@
             ajaxgrid_reset();
             $('#searchForm').ajaxSearch('#gridview');
         });
+        function pag_init() {
+            $('#page-selection').bootpag({
+                total: $('#page-selection').attr('data-total')
+                , maxVisible: 10
+                , page: $('#page-selection').attr('data-page')
+                , leaps: false
+                , prev: '&laquo;'
+                , next: '&rsaquo;'
+                , firstLastUse: true
+                , first: '&laquo;&laquo;'
+                , last: '&rsaquo;&rsaquo;'
+            }).on("page", function (event, /* page number here */ num) {
+                event.preventDefault();
+                var url = $.setUrlParam(pageUrl, 'page', num);
+                $("#gridview").ajaxLoad(url, "#gridview", function (response) {
+                    //$("#gridview").replaceWith($(this)); // some ajax content loading...
+                    ajaxgrid_reset();
+                });
+                return false;
+            });
+        }
         function ajaxgrid_reset() {
+            pag_init();
             purecms.datatable($("#datatable"));
             $("#datatable").ajaxTable();
             $("#datatable > thead th a").attr('data-ajax', 'true');
-            $("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
+            //$("#gridview .pagination a:not(.disabled)").attr('data-ajax', 'true');
         }
     </script>
 }

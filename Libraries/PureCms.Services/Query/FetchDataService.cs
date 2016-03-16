@@ -16,40 +16,79 @@ namespace PureCms.Services.Query
 {
     public class FetchDataService
     {
-        public List<KeyValuePair<string, object>> EntityList;
-        public List<KeyValuePair<string, object>> AttributeList;
-        QueryExpression _queryExpression = new QueryExpression();
-        DataRepository<dynamic> _repository = new DataRepository<dynamic>();
+        private static DataRepository<dynamic> _repository = new DataRepository<dynamic>();
+        static EntityService _entityService = new EntityService();
+        static AttributeService _attributeService = new AttributeService();
+
+        private QueryExpression _queryExpression = new QueryExpression();
+        public QueryExpression QueryExpression
+        {
+            get { return _queryExpression; }
+            set { _queryExpression = value; }
+        }
+
+        private List<EntityInfo> _entityList;
+        public List<EntityInfo> EntityList
+        {
+            get
+            {
+                if (_entityList == null)
+                {
+                    _entityList = new List<EntityInfo>();
+                }
+                return _entityList;
+            }
+            set
+            {
+                _entityList = value;
+            }
+        }
+        private List<AttributeInfo> _attributeList;
+        public List<AttributeInfo> AttributeList
+        {
+            get
+            {
+                if (_attributeList == null)
+                {
+                    _attributeList = new List<AttributeInfo>();
+                }
+                return _attributeList;
+            }
+            set
+            {
+                _attributeList = value;
+            }
+        }
 
         public FetchDataService()
         {
-            _queryExpression.EntityName = "users";
-            _queryExpression.Distinct = false;
-            _queryExpression.NoLock = true;
-            _queryExpression.AddOrder("createdon", OrderType.Descending);
-            _queryExpression.AddOrder("username", OrderType.Ascending);
-            _queryExpression.PageInfo = new PagingInfo() { PageNumber = 1, ReturnTotalRecordCount = true };
-            _queryExpression.ColumnSet = new ColumnSet("userid", "username", "createdon");
-            FilterExpression filter = new FilterExpression(LogicalOperator.Or);
-            filter.AddCondition("username", ConditionOperator.Like, "u");
-            filter.AddCondition("gender", ConditionOperator.In, new object[] { 1, 2 });
-            //filter.AddFilter(LogicalOperator.Or);
-            //filter.AddCondition("isdeleted", ConditionOperator.Equal, true);
+            //_queryExpression.EntityName = "users";
+            //_queryExpression.Distinct = false;
+            //_queryExpression.NoLock = true;
+            //_queryExpression.AddOrder("createdon", OrderType.Descending);
+            //_queryExpression.AddOrder("username", OrderType.Ascending);
+            //_queryExpression.PageInfo = new PagingInfo() { PageNumber = 1, ReturnTotalRecordCount = true };
+            //_queryExpression.ColumnSet = new ColumnSet("userid", "username", "createdon");
+            //FilterExpression filter = new FilterExpression(LogicalOperator.Or);
+            //filter.AddCondition("username", ConditionOperator.Like, "u");
+            //filter.AddCondition("gender", ConditionOperator.In, new object[] { 1, 2 });
+            ////filter.AddFilter(LogicalOperator.Or);
+            ////filter.AddCondition("isdeleted", ConditionOperator.Equal, true);
 
-            FilterExpression filter2 = new FilterExpression(LogicalOperator.Or);
-            filter2.AddCondition("isdeleted", ConditionOperator.Equal, 1);
-            filter2.AddCondition("isactive", ConditionOperator.Equal, 0);
-            filter.AddFilter(filter2);
+            //FilterExpression filter2 = new FilterExpression(LogicalOperator.Or);
+            //filter2.AddCondition("isdeleted", ConditionOperator.Equal, 1);
+            //filter2.AddCondition("isactive", ConditionOperator.Equal, 0);
+            //filter.AddFilter(filter2);
 
-            _queryExpression.Criteria = filter;
+            //_queryExpression.Criteria = filter;
 
-            LinkEntity roleEntity = _queryExpression.AddLink("roles", "roleid", "roleid");
-            roleEntity.FromEntityAlias = "users0";
-            roleEntity.EntityAlias = "roles1";
-            roleEntity.Columns = new ColumnSet("name");
-            filter = new FilterExpression(LogicalOperator.And);
-            filter.AddCondition("name", ConditionOperator.Like, "经理");
-            roleEntity.LinkCriteria = filter;
+            //LinkEntity roleEntity = _queryExpression.AddLink("roles", "roleid", "roleid");
+            //roleEntity.FromEntityAlias = "users0";
+            //roleEntity.EntityAlias = "roles1";
+            //roleEntity.Columns = new ColumnSet("name");
+            //filter = new FilterExpression(LogicalOperator.And);
+            //filter.AddCondition("name", ConditionOperator.Like, "经理");
+            //roleEntity.LinkCriteria = filter;
         }
         public PagedList<dynamic> Execute(int page, int pageSize, string fetchConfig)
         {
@@ -60,30 +99,32 @@ namespace PureCms.Services.Query
         public PagedList<dynamic> Execute(int page, int pageSize, QueryColumnSortInfo sort, QueryViewInfo view)
         {
             //首次加载时，如果sql语句为空，则生成后保存到数据库
-            if (view.SqlString.IsEmpty())
-            {
-                view.SqlString = ToSqlString(ToQueryExpression(view.FetchConfig));
-                new QueryViewService().Update(x=>x.Set(f=>f.SqlString, view.SqlString).Where(w=>w.QueryViewId == view.QueryViewId));
-            }
+            //if (view.SqlString.IsEmpty())
+            //{
+            //    view.SqlString = ToSqlString(ToQueryExpression(view.FetchConfig));
+            //    new QueryViewService().Update(x => x.Set(f => f.SqlString, view.SqlString).Where(w => w.QueryViewId == view.QueryViewId));
+            //}
             string sql = view.SqlString;
-            if (sort != null)
+            if (sort != null && this.QueryExpression.Orders.Count(n=>n.AttributeName.IsCaseInsensitiveEqual(sort.Name)) == 0)
             {
-                var queryExpression = ToQueryExpression(view.FetchConfig);
-                queryExpression.AddOrder(sort.Name, sort.SortAscending ? OrderType.Ascending : OrderType.Descending);
-                sql = ToSqlString(queryExpression);
+                this.QueryExpression = ToQueryExpression(view.FetchConfig);
+                this.QueryExpression.AddOrder(sort.Name, sort.SortAscending ? OrderType.Ascending : OrderType.Descending);
+                sql = ToSqlString(this.QueryExpression);
             }
-            //sql = ToSqlString(queryExpression);//view.SqlString.IsEmpty() ? ToSqlString(queryExpression) : view.SqlString;
+            else
+                sql = ToSqlString(ToQueryExpression(view.FetchConfig));
             var result = _repository.ExecuteQueryPaged(page, pageSize, sql);
             return result;
         }
         public string ToJsonString(QueryExpression queryExpression)
         {
+            this.QueryExpression = queryExpression;
             return queryExpression.SerializeToJson();
         }
         public QueryExpression ToQueryExpression(string fetchConfig)
         {
-            QueryExpression result = new QueryExpression();
-            return result.DeserializeFromJson(fetchConfig);
+            this.QueryExpression = this.QueryExpression.DeserializeFromJson(fetchConfig);
+            return this.QueryExpression;
         }
         public string ToSqlString(string fetchConfig)
         {
@@ -91,33 +132,38 @@ namespace PureCms.Services.Query
         }
         public string ToSqlString(QueryExpression queryExpression)
         {
-            _queryExpression = queryExpression;
+            this.QueryExpression = queryExpression;
             StringBuilder sqlString = new StringBuilder();
             List<string> tableList = new List<string>();
             List<string> attrList = new List<string>();
             List<string> filterList = new List<string>();
             List<string> orderList = new List<string>();
             string mainEntityAlias = _queryExpression.EntityName + tableList.Count;
+            //保存实体
+            EntityList.Add(_entityService.FindByName(_queryExpression.EntityName));
             //获取实体所有字段
-            var entityAttributes = new AttributeService().Query(x => x.Select(s=> new { s.EntityName,s.Name,s.AttributeTypeId}).Where(n => n.EntityName == queryExpression.EntityName));
+            var entityAttributes = _attributeService.Query(x => x.Select(s => new { s.EntityName, s.EntityLocalizedName, s.Name, s.LocalizedName, s.AttributeTypeId }).Where(n => n.EntityName == queryExpression.EntityName));
             //tables
             tableList.Add(_queryExpression.EntityName + "View AS " + mainEntityAlias + " WITH(NOLOCK)");
             //columns
             foreach (var column in _queryExpression.ColumnSet.Columns)
             {
+                attrList.Add(mainEntityAlias + "." + column);
+                //guid类型的字段值，将替换为对应的名称字段
                 var field = column;
-                //lookup类型的字段值，将替换为对应的名称字段
-                var attr = entityAttributes.Find(x=>x.Name.IsCaseInsensitiveEqual(column));
+                var attr = entityAttributes.Find(x => x.Name.IsCaseInsensitiveEqual(column));
                 if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
                 {
                     field = "Name";
+                    attrList.Add(mainEntityAlias + "." + field);
                 }
-                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)))
+                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
                 {
                     field += "Name";
+                    attrList.Add(mainEntityAlias + "." + field);
                 }
-                //...
-                attrList.Add(mainEntityAlias + "." + field);
+                //保存字段
+                AttributeList.Add(attr);
             }
             //filters
             ParseFilter(_queryExpression.Criteria, mainEntityAlias, ref filterList);
@@ -140,10 +186,29 @@ namespace PureCms.Services.Query
         }
         private void ParseLinkEntity(LinkEntity linkEntity, ref List<string> tableList, ref List<string> attrList, ref List<string> filterList)
         {
+            //保存实体
+            EntityList.Add(_entityService.FindByName(linkEntity.LinkToEntityName));
             string entityAlias = linkEntity.EntityAlias;
+            //实体所有字段
+            var entityAttributes = new AttributeService().Query(x => x.Select(s => new { s.EntityName, s.EntityLocalizedName, s.Name, s.LocalizedName, s.AttributeTypeId }).Where(n => n.EntityName == linkEntity.LinkToEntityName));
             foreach (var column in linkEntity.Columns.Columns)
             {
                 attrList.Add(entityAlias + "." + column);
+                //guid类型的字段值，将替换为对应的名称字段
+                var field = column;
+                var attr = entityAttributes.Find(x => x.Name.IsCaseInsensitiveEqual(column));
+                if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                {
+                    field = "Name";
+                    attrList.Add(entityAlias + "." + field);
+                }
+                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
+                {
+                    field += "Name";
+                    attrList.Add(entityAlias + "." + field);
+                }
+                //保存字段
+                AttributeList.Add(attr);
             }
             string tb = GetLinkType(linkEntity.JoinOperator) + " " + linkEntity.LinkToEntityName + " AS " + entityAlias + " WITH(NOLOCK)"
                 + " ON " + entityAlias + "." + linkEntity.LinkToAttributeName + " = " + linkEntity.FromEntityAlias + "." + linkEntity.LinkFromAttributeName;

@@ -42,13 +42,12 @@ namespace PureCms.Web.Admin.Controllers
                 return NoRecordView();
             }
             model.QueryView = queryView;
-            model.Grid = _gridService.Build(queryView);
-            QueryColumnSortInfo sort = null;
-            if (model.Grid.SortColumns.Count(x=>x.Name.IsCaseInsensitiveEqual(model.SortBy)) == 0)
-            {
-                sort = new QueryColumnSortInfo(model.SortBy, model.SortDirection == 0);
-            }
-            var datas = _fetchService.Execute(model.Page, model.PageSize, sort, queryView);//.FetchConfig);
+            QueryColumnSortInfo sort = new QueryColumnSortInfo(model.SortBy, model.SortDirection == 0);
+            
+            var datas = _fetchService.Execute(model.Page, model.PageSize, sort, queryView);
+            model.Grid = _gridService.Build(queryView, _fetchService.EntityList, _fetchService.AttributeList);
+            model.EntityList = _fetchService.EntityList;
+            model.AttributeList = _fetchService.AttributeList;
             model.Items = datas.Items;
             model.TotalItems = datas.TotalItems;
             return View(model);

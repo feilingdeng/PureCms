@@ -2,16 +2,13 @@
 using PureCms.Core;
 using PureCms.Core.Components.Grid;
 using PureCms.Core.Context;
-using PureCms.Core.Data;
-using PureCms.Core.Domain.Logging;
 using PureCms.Core.Domain.Query;
 using PureCms.Core.Domain.Schema;
 using PureCms.Core.Query;
 using PureCms.Core.Schema;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+using System.Linq.Expressions;
 
 namespace PureCms.Data.Schema
 {
@@ -147,15 +144,15 @@ namespace PureCms.Data.Schema
             _queryExpression.Distinct = false;
             _queryExpression.NoLock = true;
             _queryExpression.AddOrder("createdon", OrderType.Descending);
-            _queryExpression.PageInfo = new PagingInfo() { PageNumber = 1, ReturnTotalRecordCount = true };
+            //_queryExpression.PageInfo = new PagingInfo() { PageNumber = 1, ReturnTotalRecordCount = true };
             _queryExpression.ColumnSet = new ColumnSet("name", "createdon", "ownerid");
             view.FetchConfig = _queryExpression.SerializeToJson();
             //layout
             GridInfo grid = new GridInfo();
             RowInfo row = new RowInfo();
-            row.AddCell(new CellInfo() { Name = "name", EntityName = entity.Name, IsHidden = false, IsSortable = true, Label = "", Width = 150 });
-            row.AddCell(new CellInfo() { Name = "createdon", EntityName = entity.Name, IsHidden = false, IsSortable = true, Label = "", Width = 150 });
-            row.AddCell(new CellInfo() { Name = "name", EntityName = entity.Name, IsHidden = false, IsSortable = true, Label = "", Width = 150 });
+            row.AddCell(new CellInfo() { Name = "name", EntityName = entity.Name, IsHidden = false, IsSortable = true, Width = 150 });
+            row.AddCell(new CellInfo() { Name = "createdon", EntityName = entity.Name, IsHidden = false, IsSortable = true, Width = 150 });
+            row.AddCell(new CellInfo() { Name = "ownerid", EntityName = "users", IsHidden = false, IsSortable = true, Width = 150 });
             grid.AddRow(row);
             grid.AddSort(new Core.Components.Platform.QueryColumnSortInfo("createdon", false));
             view.LayoutConfig = grid.SerializeToJson();
@@ -260,6 +257,29 @@ namespace PureCms.Data.Schema
         {
             return _repository.FindById(id);
         }
+        /// <summary>
+        /// 查询一行记录
+        /// </summary>
+        /// <param name="predicate">过滤条件</param>
+        /// <returns></returns>
+        public EntityInfo Find(Expression<Func<EntityInfo, bool>> predicate)
+        {
+            QueryDescriptor<EntityInfo> q = new QueryDescriptor<EntityInfo>();
+            q.Where(predicate);
+            return _repository.Find(q);
+        }
         #endregion
+        /// <summary>
+        /// 查询相关实体
+        /// </summary>
+        /// <param name="entityid"></param>
+        /// <returns></returns>
+        public List<EntityInfo> QueryRelated(Guid entityid)
+        {
+            Sql s = Sql.Builder.Append("SELECT * FROM Entity ")
+                .Append("WHERE EntityId IN (SELECT ReferencedEntityId FROM RelationShip WHERE ReferencingEntityId = @0)", entityid);
+
+            return _repository.ExecuteQuery(s);
+        }
     }
 }

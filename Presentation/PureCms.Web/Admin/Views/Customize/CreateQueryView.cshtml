@@ -10,12 +10,12 @@
         <h3 class="panel-title">
             <a data-toggle="collapse"
                href="#collapseTwo">
-                <strong>新建视图</strong>
+                <strong>@Model.EntityInfo.LocalizedName - 新建视图</strong>
             </a>
         </h3>
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in">
-        <div class="panel-body">
+        <div class="panel-body" ng-app="xmsApp" ng-controller="xmsController">
             @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
             {
                 @Html.AntiForgeryToken()
@@ -42,7 +42,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="form-group col-sm-12">
+                @*<div class="form-group col-sm-12">
                     @Html.LabelFor(x => x.IsPrivate, "视图类型", new { @class = "col-sm-2 control-label" })
                     <div class="col-sm-10">
                         <label class="checkbox-inline">
@@ -50,6 +50,17 @@
                         </label>
                         <label class="checkbox-inline">
                             @Html.RadioButtonFor(x => x.IsPrivate, false, new { @class = "required" }) 公共
+                        </label>
+                    </div>
+                </div>*@
+                <div class="form-group col-sm-12">
+                    @Html.LabelFor(x => x.IsPrivate, "简单过滤模式", new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsSimpleFilter, true, new { @class = "required" }) 启用
+                        </label>
+                        <label class="checkbox-inline">
+                            @Html.RadioButtonFor(x => x.IsSimpleFilter, false, new { @class = "required" }) 禁用
                         </label>
                     </div>
                 </div>
@@ -65,8 +76,10 @@
                         <div class="col-sm-12">
                             <select id="entities" class="form-control"></select>
                             <div class="bg-info" style="height:220px; ">
-                                <ul id="attributes" class="list-unstyled connectedSortable" data-bind="foreach: lines" style="background:#eee; line-height:25px; height:30px;">
-                                    <li class="ui-state-default" data-bind="text: localizedname, attr: { 'data-name': name, 'data-entityname': entityname, 'data-entitylocalizedname': entitylocalizedname }"></li>
+                                <ul id="attributes" class="list-unstyled connectedSortable" data-bind="foreach: items" style="background:#eee; line-height:25px; height:30px;">
+                                    <li class="ui-state-default" data-bind="text: localizedname, attr: { 'data-name': name, 'data-entityname': entityname, 'data-entitylocalizedname': entitylocalizedname }">
+                                        <span class="glyphicon glyphicon-screenshot"></span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -209,9 +222,7 @@
                                     </td>
                                     <td>
                                         <select name="filtername" class="form-control input-sm" onchange="onChangeAttribute(this)">
-                                            <!-- ko foreach: lines -->
-                                            <option data-bind="text:localizedname,attr:{value:name,'data-type':attributetypename}"></option>
-                                            <!-- /ko -->
+                                            
                                         </select>
                                     </td>
                                     <td>
@@ -224,11 +235,8 @@
                                 </tr>
                                 <tr>
                                     <td colspan="4">
-                                        <select name="filtername" class="form-control input-sm" onchange="addCondition(this)">
+                                        <select id="filternamelist" name="filtername" class="form-control input-sm" onchange="addCondition(this)">
                                             <option value="">请选择</option>
-                                            <!-- ko foreach: lines -->
-                                            <option data-bind="text:localizedname,attr:{value:name}"></option>
-                                            <!-- /ko -->
                                         </select>
                                     </td>
                                 </tr>
@@ -283,9 +291,9 @@
     <script src="/admin/content/js/jquery.form.js"></script>
     <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
     <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
-    <script src="/admin/content/js/knockout-2.2.0.js"></script>
     <script>
-        var queryObject = { Distinct: false, NoLock: true, EntityName: $('#EntityInfo_Name').val(), Criteria: new FilterExpression(), Orders: new Array(), ColumnSet: { AllColumns: false, Columns: new Array() } };
+        var queryObject = { Distinct: false, NoLock: true, EntityName: $('#EntityInfo_Name').val(), Criteria: new FilterExpression(), Orders: [], ColumnSet: { AllColumns: false, Columns: new Array() },LinkEntities:[] };
+        var LinkEntity = { LinkFromEntityName: '', LinkFromAttributeName: '', LinkToEntityName: '', LinkToAttributeName: '', JoinOperator: 1, EntityAlias: '', FromEntityAlias:'', Columns: [] };
         $(function () {
             //表单验证
             purecms.form($("#editform"), function (response) {
@@ -329,6 +337,7 @@
             });
 
             $.when(loadEntities()).done(loadAttributes());
+            loadFilterAttributes();
 
             //列表列选中
             $("#views").on('click', 'th > a', function () {
@@ -351,6 +360,9 @@
                     $(this).parents('tr').first().removeClass('active');
                 }
             });
+            $('#entities').on('change', null, function (e) {
+                loadAttributes();
+            });
         });
         //加载实体
         function loadEntities() {
@@ -360,26 +372,46 @@
                 $(data.content).each(function (i, n) {
                     $('#entities').append('<option value="' + n.entityid + '">' + n.localizedname + '</option>');
                 });
+                purecms.selectedvalue($('#entities'), entityid);
                 dfd.resolve();
             });
             return dfd.promise();
         }
         //加载字段
         function loadAttributes() {
-            var entityid = $('#EntityId').val();
+            var entityid = purecms.selectedvalue($('#entities')) || $('#EntityId').val();
+            var _html = new Array();
             purecms.getjson('/admin/customize/AttributesJson', { entityid: entityid }, function (data) {
-                //$(data.content).each(function (i, n) {
-                //    $('#attributes').append('<li class="ui-state-default">' + n.localizedname + '</li>');
-                //});
-                var Items = function () {
-                    var self = this;
-                    self.lines = ko.observableArray(data.content);
-
-                    self.click = function (item) {
-
-                    }
-                }
-                ko.applyBindings(new Items());
+                $(data.content).each(function (i, n) {
+                    _html.push('<li class="ui-state-default" data-name="'+n.name+'" data-entityname="'+n.entityname+'" data-entitylocalizedname="' + n.entitylocalizedname + '">');
+                    _html.push('<span class="glyphicon glyphicon-screenshot"></span>');
+                    _html.push(n.localizedname);
+                    _html.push('</li>');
+                });
+                $('#attributes').html(_html.join(''));
+            });
+        }
+        //加载过滤条件字段选项
+        function loadFilterAttributes() {
+            var entityid = purecms.selectedvalue($('#entities')) || $('#EntityId').val();
+            var _mainOptions = new Array(), _relatedOptions = new Array();
+            purecms.getjson('/admin/customize/AttributesJson', { entityid: entityid }, function (data) {
+                if (!data || data.content.length == 0) return;
+                _mainOptions.push('<optgroup label="字段">');
+                $(data.content).each(function (i, n) {
+                    _mainOptions.push('<option value="' + n.name + '" data-entityname="'+n.entityname+'" data-type="' + n.attributetypename + '">' + n.localizedname + '</option>');
+                });
+                _mainOptions.push('</optgroup>');
+                purecms.getjson('/admin/customize/RelationsJson', { referencingentityid: entityid }, function (data) {
+                    if (!data || data.content.length == 0) return;
+                    _relatedOptions.push('<optgroup label="关联">');
+                    $(data.content).each(function (ii, nn) {
+                        _relatedOptions.push('<option value="' + nn.referencedattributename + '" data-entityname="' + nn.referencedentityname + '" data-type="' + nn.referencedattributetypename + '">' + nn.referencingattributelocalizedname + '(' + nn.referencedentitylocalizedname + ')' + '</option>');
+                    });
+                    _relatedOptions.push('</optgroup>');
+                    $('#filternamelist').append($(_mainOptions.join('') + _relatedOptions.join('')));
+                    $('#filterConditions > tfoot > tr:first').find('select[name=filtername]').append($(_mainOptions.join('') + _relatedOptions.join('')));
+                });
             });
         }
         //加载操作符
@@ -469,6 +501,12 @@
                     var ord = { AttributeName: name, OrderType: sorttype == 'asc' ? 0 : 1 };
                     orders.push(ord);
                 }
+                //关联实体字段
+                if (entityname != queryObject.EntityName) {
+                    var le = new LinkEntity();
+                    le.columns.push(name);
+                    queryObject.LinkEntities.push(le);
+                }
             });
             row.Cells = cells;
             grid.SortColumns = sortColumns;
@@ -503,10 +541,27 @@
                 purecms.alert(false, '请选择2个条件以上');
                 return;
             }
+            //检测
+            //rows.each(function (i, n) {
+            //    if (row.is('.filterrow')) {
+            //        //如果是组合内，则更改组合符号
+            //        if (row.parents('tr.filtergroup').first()) {
+            //            row.parents('tr.filtergroup').first().find('td:first').find('.dropdown-menu > li:eq(1)').trigger('click');
+            //        }
+            //    }
+            //    else if (row.is('.filtergroup')) {
+            //        removenode.push(row.parents('tr.filterrow'));
+            //        var node = $('<tr class="filterrow"><td colspan="4"><table class="table table-condensed"><tbody></tbody></table></td></tr>');
+            //        node.find('tbody').append(row);
+            //        parent.find('#' + grouplistid).append(node);
+            //    }
+            //    //如果两个选项跨组合，或跨实体，则取消
+            //    //...
+            //});
             var container = new Array();
             var grouplistid = 'grouplist_' + Math.round(new Date().getTime() / 1000);
             var insertObj, pos;
-            if (rows.first().index() == 0) {//第一行
+            if (rows.first().prev().length == 0) {//第一行
                 if (rows.last().next().length > 0) {
                     insertObj = rows.last().next();
                     pos = 'before';
@@ -521,7 +576,7 @@
                 pos = 'after';
             }
             container.push('<tr class="filterrow"><td colspan="4">');
-            container.push('<table class="table table-condensed"><tbody><tr class="filtergroup" data-logical="' + logical + '">');
+            container.push('<table class="table table-condensed"><tbody><tr class="filtergroup" data-logical="' + logical + '" data-groupid="'+grouplistid+'">');
             container.push('<td class="bg-info text-primary" style="vertical-align:middle;">');
             container.push('<div class="dropdown"><input type="checkbox" name="filtergroup" />');
             container.push('<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span name="logicaltext">' + (logical == 'and' ? '并且' : '或者') + '</span> <span class="caret"></span></a>');
@@ -545,21 +600,30 @@
                 row.removeClass('active').find(':checkbox').prop('checked', false);
                 row.find('tr').removeClass('active');
                 if (row.is('.filterrow')) {
-                    parent.find('#' + grouplistid).append(row);
+                    parent.find('#' + grouplistid).append(row.clone(true));
+                    //if (row.parents('tr.filterrow').first()) removenode.push(row.parents('tr.filterrow').first());
+                    row.remove();
                 }
                 else if (row.is('.filtergroup')) {
-                    removenode.push(row.parents('tr.filterrow'));
+                    removenode.push(row.parents('tr.filterrow:first'));
                     var node = $('<tr class="filterrow"><td colspan="4"><table class="table table-condensed"><tbody></tbody></table></td></tr>');
-                    node.find('tbody').append(row);
+
+                    node.find('tbody').empty().append(row.clone(true));
                     parent.find('#' + grouplistid).append(node);
+                    row.remove();
                 }
             });
+            console.log(pos);
             if (insertObj.is('tr')) {
                 if (pos == 'before') insertObj.before(parent);
                 else insertObj.after(parent);
+                //insertObj.remove();
                 $(removenode).each(function (i, n) { $(n).remove(); });
             }
-            else insertObj.append(parent);
+            else {
+                insertObj.append(parent);
+                //insertObj.find('.filterrow:first').remove();
+            }
             ////$(removenode).each(function (i, n) { $(n).remove(); });
         }
         //设置组合逻辑
@@ -573,22 +637,8 @@
         //取消组合
         function cancelGroup(e, groupid) {
             var g = $(e).parents('td').first();
-            var rows = $('#' + groupid).children(); //g.next().find('table > tbody > tr')
-            if (g.parent().is('.filtergroup')) {
-                if (g.parents('table').first().parents('.filtergroup').length > 0) {
-                    g.parents('.filterrow:first').replaceWith(rows);
-                    if (g.parents('.filtergroup').length == 1) {
-                        //g.parents('.filtergroup:last').replaceWith(g.parents('.filtergroup:last').find('#' + groupid));
-                        g.parents('.filterrow:first').replaceWith(g.parents('table:first').find('.filterrow'));
-                    }
-                }
-                else {
-                    g.parents('table').first().parent().parent().replaceWith(rows);
-                }
-            }
-            else {
-                g.parent().replaceWith(rows);
-            }
+            var rows = $('#' + groupid).children(); 
+            $('#filterConditions tr.filtergroup[data-groupid=' + groupid + ']').replaceWith(rows);
             g.remove();
         }
         //保存过滤条件

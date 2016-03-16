@@ -219,6 +219,7 @@ namespace PureCms.Core.Context
                 case "LongCount":
                     return Len(methodCall, value, expressiontype.Value);
                 default:
+                    //return InvokeFunc(methodCall);
                     throw new Exception(string.Format("不支持{0}方法的查找！", methodName));
             }
         }
@@ -312,6 +313,11 @@ namespace PureCms.Core.Context
             name = GetMemberName(expression);
             string result = string.Format("{0} IS{1}NULL", PocoHelper.FormatColumn(me.Expression.Type, name), isNull ? " " : " NOT ");
             return result;
+        }
+        private string InvokeFunc(MethodCallExpression expression)
+        {
+            MemberExpression me = GetMemberExpression(expression);
+            return string.Empty;
         }
 
         private string GetMemberName(MethodCallExpression expression)

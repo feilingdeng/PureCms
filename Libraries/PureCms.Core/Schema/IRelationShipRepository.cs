@@ -18,6 +18,7 @@ namespace PureCms.Core.Schema
         long Count(QueryDescriptor<RelationShipInfo> q);
         PagedList<RelationShipInfo> QueryPaged(QueryDescriptor<RelationShipInfo> q);
         List<RelationShipInfo> Query(QueryDescriptor<RelationShipInfo> q);
+        List<RelationShipInfo> QueryByEntityId(Guid referencingEntityId);
 
         RelationShipInfo FindById(Guid id);
     }
