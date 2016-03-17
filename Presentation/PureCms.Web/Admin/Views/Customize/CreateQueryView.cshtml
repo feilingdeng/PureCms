@@ -43,18 +43,18 @@
                     </div>
                 </div>
                 @*<div class="form-group col-sm-12">
-                    @Html.LabelFor(x => x.IsPrivate, "视图类型", new { @class = "col-sm-2 control-label" })
-                    <div class="col-sm-10">
-                        <label class="checkbox-inline">
-                            @Html.RadioButtonFor(x => x.IsPrivate, true, new { @class = "required" }) 个人
-                        </label>
-                        <label class="checkbox-inline">
-                            @Html.RadioButtonFor(x => x.IsPrivate, false, new { @class = "required" }) 公共
-                        </label>
-                    </div>
-                </div>*@
+                        @Html.LabelFor(x => x.IsPrivate, "视图类型", new { @class = "col-sm-2 control-label" })
+                        <div class="col-sm-10">
+                            <label class="checkbox-inline">
+                                @Html.RadioButtonFor(x => x.IsPrivate, true, new { @class = "required" }) 个人
+                            </label>
+                            <label class="checkbox-inline">
+                                @Html.RadioButtonFor(x => x.IsPrivate, false, new { @class = "required" }) 公共
+                            </label>
+                        </div>
+                    </div>*@
                 <div class="form-group col-sm-12">
-                    @Html.LabelFor(x => x.IsPrivate, "简单过滤模式", new { @class = "col-sm-2 control-label" })
+                    @Html.LabelFor(x => x.IsSimpleFilter, "简单过滤模式", new { @class = "col-sm-2 control-label" })
                     <div class="col-sm-10">
                         <label class="checkbox-inline">
                             @Html.RadioButtonFor(x => x.IsSimpleFilter, true, new { @class = "required" }) 启用
@@ -221,9 +221,7 @@
                                         <input type="checkbox" />
                                     </td>
                                     <td>
-                                        <select name="filtername" class="form-control input-sm" onchange="onChangeAttribute(this)">
-                                            
-                                        </select>
+                                        <select name="filtername" class="form-control input-sm" onchange="onChangeAttribute(this)"></select>
                                     </td>
                                     <td>
                                         <select name="filteroperator" class="form-control input-sm" defaultselected="eq"><option value="eq" title="等于">等于</option><option value="ne" title="不等于">不等于</option><option value="not-null" title="包含数据">包含数据</option><option value="null" title="不包含数据">不包含数据</option><option value="contains" title="包含" fetchop="like" fetchval="%{0}%">包含</option><option value="doesnotcontain" title="不包含" fetchop="not-like" fetchval="%{0}%">不包含</option><option value="beginswith" title="开头等于" fetchop="like" fetchval="{0}%">开头等于</option><option value="doesnotbeginwith" title="开头不等于" fetchop="not-like" fetchval="{0}%">开头不等于</option><option value="endswith" title="结尾等于" fetchop="like" fetchval="%{0}">结尾等于</option><option value="doesnotendwith" title="结尾不等于" fetchop="not-like" fetchval="%{0}">结尾不等于</option></select>
@@ -292,8 +290,8 @@
     <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
     <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
     <script>
-        var queryObject = { Distinct: false, NoLock: true, EntityName: $('#EntityInfo_Name').val(), Criteria: new FilterExpression(), Orders: [], ColumnSet: { AllColumns: false, Columns: new Array() },LinkEntities:[] };
-        var LinkEntity = { LinkFromEntityName: '', LinkFromAttributeName: '', LinkToEntityName: '', LinkToAttributeName: '', JoinOperator: 1, EntityAlias: '', FromEntityAlias:'', Columns: [] };
+        var QueryObject = { Distinct: false, NoLock: true, EntityName: $('#EntityInfo_Name').val().toLowerCase(), Criteria: new FilterExpression(), Orders: new Array(), ColumnSet: { AllColumns: false, Columns: new Array() }, LinkEntities: new Array() };
+        var Relationships;
         $(function () {
             //表单验证
             purecms.form($("#editform"), function (response) {
@@ -319,10 +317,11 @@
             $("#views").on("sortreceive", function (event, ui) {
                 console.log(event, ui);
                 var li = $("#views").find('li');
-                var name = li.attr('data-name');
-                var entityname = li.attr('data-entityname');
-                var entitylocalizedname = li.attr('data-entitylocalizedname');
-                var el = $('<th style="width:100px;"><a class="btn btn-link">' + li.text() + '</a></th>');
+                var name = li.attr('data-name').toLowerCase();
+                var entityname = li.attr('data-entityname').toLowerCase();
+                var entitylocalizedname = li.attr('data-entitylocalizedname').toLowerCase();
+                var text = entityname == QueryObject.EntityName.toLowerCase() ? li.text() : li.text() + '(' + entitylocalizedname + ')';
+                var el = $('<th style="width:100px;"><a class="btn btn-link">' + text + '</a></th>');
                 el.attr({ 'data-name': name, 'data-entityname': entityname, 'data-entitylocalizedname': entitylocalizedname, 'data-width': 100, 'data-visibled': true, 'data-sorttype': '' });
                 li.replaceWith(el);
                 $("#views").parents('table').find('tbody tr').append('<td class="small text-muted ui-state-disabled">数据</td>');
@@ -383,7 +382,7 @@
             var _html = new Array();
             purecms.getjson('/admin/customize/AttributesJson', { entityid: entityid }, function (data) {
                 $(data.content).each(function (i, n) {
-                    _html.push('<li class="ui-state-default" data-name="'+n.name+'" data-entityname="'+n.entityname+'" data-entitylocalizedname="' + n.entitylocalizedname + '">');
+                    _html.push('<li class="ui-state-default" data-name="' + n.name + '" data-entityname="' + n.entityname + '" data-entitylocalizedname="' + n.entitylocalizedname + '">');
                     _html.push('<span class="glyphicon glyphicon-screenshot"></span>');
                     _html.push(n.localizedname);
                     _html.push('</li>');
@@ -399,11 +398,12 @@
                 if (!data || data.content.length == 0) return;
                 _mainOptions.push('<optgroup label="字段">');
                 $(data.content).each(function (i, n) {
-                    _mainOptions.push('<option value="' + n.name + '" data-entityname="'+n.entityname+'" data-type="' + n.attributetypename + '">' + n.localizedname + '</option>');
+                    _mainOptions.push('<option value="' + n.name + '" data-entityname="' + n.entityname + '" data-type="' + n.attributetypename + '">' + n.localizedname + '</option>');
                 });
                 _mainOptions.push('</optgroup>');
                 purecms.getjson('/admin/customize/RelationsJson', { referencingentityid: entityid }, function (data) {
                     if (!data || data.content.length == 0) return;
+                    Relationships = data.content;
                     _relatedOptions.push('<optgroup label="关联">');
                     $(data.content).each(function (ii, nn) {
                         _relatedOptions.push('<option value="' + nn.referencedattributename + '" data-entityname="' + nn.referencedentityname + '" data-type="' + nn.referencedattributetypename + '">' + nn.referencingattributelocalizedname + '(' + nn.referencedentitylocalizedname + ')' + '</option>');
@@ -480,12 +480,45 @@
             var sortColumns = new Array(), cells = new Array(), columns = new Array(), orders = new Array();
             $("#views").find('th:not(.shadow)').each(function (i, n) {
                 var column = $(n);
-                var name = column.attr('data-name');
-                var entityname = column.attr('data-entityname');
+                var name = column.attr('data-name').toLowerCase();
+                var entityname = column.attr('data-entityname').toLowerCase();
                 var visibled = column.attr('data-visibled');
-                var sorttype = column.attr('data-sorttype');
+                var sorttype = column.attr('data-sorttype').toLowerCase();
                 var width = column.attr('data-width');
-                columns.push(name);
+                //是否为关联实体字段
+                if (entityname != QueryObject.EntityName) {
+                    //是否已存在
+                    var le = null;
+                    $(QueryObject.LinkEntities).each(function (ii, nn) {
+                        if (nn.LinkToEntityName.toLowerCase() == entityname) {
+                            le = nn;
+                            return false;
+                        }
+                    });
+                    if (le != null) {
+                        if ($.inArray(name, le.Columns.Columns) < 0) {//列名不存在
+                            le.Columns.Columns.push(name);
+                            name = le.EntityAlias + '.' + name;//cell's name
+                        }
+                    }
+                    else {
+                        le = new LinkEntity();//生成关联实体别名
+                        le.LinkToEntityName = entityname;
+                        le.EntityAlias = entityname + '_' + Xms.Utility.NewGuid().ToString('N');
+                        le.LinkToAttributeName = entityname + 'id';
+                        le.LinkFromEntityName = QueryObject.EntityName;
+                        $(Relationships).each(function (ii, nn) {//from.createdby => to.userid
+                            if (nn.referencedentityname.toLowerCase() == entityname && nn.referencedattributename.toLowerCase() == entityname + 'id') {
+                                le.LinkFromAttributeName = nn.referencingattributename.toLowerCase();
+                                return false;
+                            }
+                        });
+                        le.Columns.Columns.push(name);
+                        QueryObject.LinkEntities.push(le);
+                        name = le.EntityAlias + '.' + name;//cell's name
+                    }
+                }
+                else { columns.push(name); }
                 cell = cell.constructor();//js对象为引用类型，所以需要NEW一个对象
                 cell.Name = name;
                 cell.EntityName = entityname;
@@ -501,21 +534,15 @@
                     var ord = { AttributeName: name, OrderType: sorttype == 'asc' ? 0 : 1 };
                     orders.push(ord);
                 }
-                //关联实体字段
-                if (entityname != queryObject.EntityName) {
-                    var le = new LinkEntity();
-                    le.columns.push(name);
-                    queryObject.LinkEntities.push(le);
-                }
             });
             row.Cells = cells;
             grid.SortColumns = sortColumns;
             grid.Rows.push(row);
             $('#LayoutConfig').val(JSON.stringify(grid));
 
-            queryObject.ColumnSet.Columns = columns;
-            queryObject.Orders = orders;
-            $('#FetchConfig').val(JSON.stringify(queryObject));
+            QueryObject.ColumnSet.Columns = columns;
+            QueryObject.Orders = orders;
+            $('#FetchConfig').val(JSON.stringify(QueryObject));
         }
         //增加一行过滤条件
         function addCondition(e) {
@@ -576,7 +603,7 @@
                 pos = 'after';
             }
             container.push('<tr class="filterrow"><td colspan="4">');
-            container.push('<table class="table table-condensed"><tbody><tr class="filtergroup" data-logical="' + logical + '" data-groupid="'+grouplistid+'">');
+            container.push('<table class="table table-condensed"><tbody><tr class="filtergroup" data-logical="' + logical + '" data-groupid="' + grouplistid + '">');
             container.push('<td class="bg-info text-primary" style="vertical-align:middle;">');
             container.push('<div class="dropdown"><input type="checkbox" name="filtergroup" />');
             container.push('<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span name="logicaltext">' + (logical == 'and' ? '并且' : '或者') + '</span> <span class="caret"></span></a>');
@@ -637,7 +664,7 @@
         //取消组合
         function cancelGroup(e, groupid) {
             var g = $(e).parents('td').first();
-            var rows = $('#' + groupid).children(); 
+            var rows = $('#' + groupid).children();
             $('#filterConditions tr.filtergroup[data-groupid=' + groupid + ']').replaceWith(rows);
             g.remove();
         }
@@ -673,26 +700,38 @@
             });
             console.log(JSON.stringify(filterContainer));
 
-            queryObject.Criteria = filterContainer;
-            $('#FetchConfig').val(JSON.stringify(queryObject));
+            QueryObject.Criteria = filterContainer;
+            $('#FetchConfig').val(JSON.stringify(QueryObject));
             $('#filterModal').modal('hide');
         }
         function setFilter(filter, filterrows) {
 
         }
+        function LinkEntity() {
+            var self = new Object(); 
+            self.LinkFromEntityName = '';
+            self.LinkFromAttributeName = '';
+            self.LinkToEntityName = '';
+            self.LinkToAttributeName = '';
+            self.JoinOperator = 1;
+            self.EntityAlias = '';
+            self.FromEntityAlias = '';
+            self.Columns = { Columns:[]};
+            return self;
+        }
         function FilterExpression() {
-            var filter = new Object();
-            filter.FilterOperator = null;
-            filter.Conditions = new Array();
-            filter.Filters = new Array();
-            return filter;
+            var self = new Object();
+            self.FilterOperator = 'and';
+            self.Conditions = new Array();
+            self.Filters = new Array();
+            return self;
         }
         function ConditionExpression() {
-            var condition = new Object();
-            condition.AttributeName = '';
-            condition.Operator = '';
-            condition.Values = new Array();
-            return condition;
+            var self = new Object();
+            self.AttributeName = '';
+            self.Operator = '';
+            self.Values = new Array();
+            return self;
         }
     </script>
 }

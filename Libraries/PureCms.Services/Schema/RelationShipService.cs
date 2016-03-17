@@ -53,9 +53,9 @@ namespace PureCms.Services.Schema
 
             return _repository.Query(q);
         }
-        public List<RelationShipInfo> QueryByEntityId(Guid referencingEntityId)
+        public List<RelationShipInfo> QueryByEntityId(Guid? referencingEntityId, Guid? referencedEntityId)
         {
-            return _repository.QueryByEntityId(referencingEntityId);
+            return _repository.QueryByEntityId(referencingEntityId, referencedEntityId);
         }
     }
 }

@@ -11,32 +11,32 @@ namespace PureCms.Services.User
     public class UserService
     {
         IUserRepository _repository = new UserRepository();
-        public bool Create(UserInfo entity)
+        public bool Create(SystemUserInfo entity)
         {
             return _repository.Create(entity);
         }
-        public bool Update(UserInfo entity)
+        public bool Update(SystemUserInfo entity)
         {
             return _repository.Update(entity);
         }
 
-        public UserInfo GetUserByUserName(string userName)
+        public SystemUserInfo GetUserByUserName(string userName)
         {
             return _repository.FindByUserName(userName);
         }
-        public UserInfo GetUserByEmail(string email)
+        public SystemUserInfo GetUserByEmail(string email)
         {
             return _repository.FindByEmail(email);
         }
-        public UserInfo GetUserByMobile(string mobileNumber)
+        public SystemUserInfo GetUserByMobile(string mobileNumber)
         {
             return _repository.FindByMobile(mobileNumber);
         }
-        public UserInfo GetUserByLoginName(string loginName)
+        public SystemUserInfo GetUserByLoginName(string loginName)
         {
             return _repository.FindByLoginName(loginName);
         }
-        public UserInfo GetUserByLoginNameAndPassword(string loginName, string password)
+        public SystemUserInfo GetUserByLoginNameAndPassword(string loginName, string password)
         {
             return _repository.FindByLoginNameAndPassword(loginName, password);
         }
@@ -45,7 +45,7 @@ namespace PureCms.Services.User
             return SecurityHelper.MD5(inputPassword + salt).IsCaseInsensitiveEqual(userPassword);
         }
 
-        public UserInfo GetById(Guid id)
+        public SystemUserInfo GetById(Guid id)
         {
             return _repository.FindById(id);
         }
@@ -59,15 +59,15 @@ namespace PureCms.Services.User
             return _repository.DeleteById(ids);
         }
 
-        public PagedList<UserInfo> Query(Func<QueryDescriptor<UserInfo>, QueryDescriptor<UserInfo>> container)
+        public PagedList<SystemUserInfo> Query(Func<QueryDescriptor<SystemUserInfo>, QueryDescriptor<SystemUserInfo>> container)
         {
-            QueryDescriptor<UserInfo> q = container(new QueryDescriptor<UserInfo>());
+            QueryDescriptor<SystemUserInfo> q = container(new QueryDescriptor<SystemUserInfo>());
 
             return _repository.QueryPaged(q);
         }
-        public bool Update(Func<UpdateContext<UserInfo>, UpdateContext<UserInfo>> context)
+        public bool Update(Func<UpdateContext<SystemUserInfo>, UpdateContext<SystemUserInfo>> context)
         {
-            var ctx = context(new UpdateContext<UserInfo>());
+            var ctx = context(new UpdateContext<SystemUserInfo>());
             return _repository.Update(ctx);
         }
     }

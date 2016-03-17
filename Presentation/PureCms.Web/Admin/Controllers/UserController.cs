@@ -25,13 +25,13 @@ namespace PureCms.Web.Admin.Controllers
         {
             if (model.SortBy.IsEmpty())
             {
-                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<UserInfo>(n => n.CreatedOn);
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<SystemUserInfo>(n => n.CreatedOn);
                 model.SortDirection = (int)SortDirection.Desc;
             }
             //model.IsActive = true; model.IsDeleted = false;
             //model.UserName = "purecms ";
             //model.MobileNumber = "13800138000";
-            FilterContainer<UserInfo> container = new FilterContainer<UserInfo>();
+            FilterContainer<SystemUserInfo> container = new FilterContainer<SystemUserInfo>();
             if (model.IsActive.HasValue)
             {
                 container.And(f => f.IsActive == model.IsActive);
@@ -63,7 +63,7 @@ namespace PureCms.Web.Admin.Controllers
             //&& n.UserName.In(model.UserName.TrimEnd(), "u1", "u2") && n.Gender.IsNull() && n.IsActive.IsNotNull() && n.MobileNumber.Count() >= 11)
             //.Sort(s => s.SortDescending(n => n.CreatedOn)));
 
-            PagedList<UserInfo> result = _userService.Query(x => x
+            PagedList<SystemUserInfo> result = _userService.Query(x => x
                 .Page(model.Page, model.PageSize)
                 .Select(c => new { c.CreatedOn, c.LoginName, c.EmailAddress, c.IsActive, c.IsDeleted })
                 .Where(container)
@@ -99,7 +99,7 @@ namespace PureCms.Web.Admin.Controllers
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
-                var entity = new UserInfo();
+                var entity = new SystemUserInfo();
                 if (model.UserId.HasValue)
                 {
                     entity = _userService.GetById(model.UserId.Value);
@@ -155,7 +155,7 @@ namespace PureCms.Web.Admin.Controllers
             if (IsAjaxRequest)
             {
                 bool result = _userService.Update(x => x.Set(n => n.IsActive, isActive)
-                    .Where(n=>n.UserId.In(recordid))
+                    .Where(n=>n.SystemUserId.In(recordid))
                     );
                 flag = result;
                 if (flag)
@@ -203,7 +203,7 @@ namespace PureCms.Web.Admin.Controllers
                 string password = SecurityHelper.MD5(model.NewPassword + user.Salt);
                 bool result = _userService.Update(x => x
                     .Set(n => n.Password, password)
-                    .Where(n => n.UserId == model.UserId)
+                    .Where(n => n.SystemUserId == model.UserId)
                 );
 
                 flag = result;

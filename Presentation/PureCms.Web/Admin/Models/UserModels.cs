@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace PureCms.Web.Admin.Models
 {
-    public class UserModel : BasePaged<UserInfo>
+    public class UserModel : BasePaged<SystemUserInfo>
     {
         public int? UserId { get; set; }
         public string LoginName { get; set; }

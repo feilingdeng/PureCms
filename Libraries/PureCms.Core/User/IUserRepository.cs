@@ -14,25 +14,25 @@ namespace PureCms.Core.User
         bool ExistsEmail(string email, Guid? currentUserId);
         bool ExistsUserName(string userName, Guid? currentUserId);
         bool ExistsMobile(string mobileNumber, Guid? currentUserId);
-        bool Create(UserInfo entity);
+        bool Create(SystemUserInfo entity);
 
-        bool Update(UserInfo entity);
-        bool Update(UpdateContext<UserInfo> q);
+        bool Update(SystemUserInfo entity);
+        bool Update(UpdateContext<SystemUserInfo> q);
 
         bool DeleteById(Guid id);
         bool DeleteById(List<Guid> ids);
 
-        PagedList<UserInfo> QueryPaged(QueryDescriptor<UserInfo> q);
-        List<UserInfo> Query(QueryDescriptor<UserInfo> q);
+        PagedList<SystemUserInfo> QueryPaged(QueryDescriptor<SystemUserInfo> q);
+        List<SystemUserInfo> Query(QueryDescriptor<SystemUserInfo> q);
 
-        UserInfo FindById(Guid id);
+        SystemUserInfo FindById(Guid id);
 
-        UserInfo FindByEmail(string email);
+        SystemUserInfo FindByEmail(string email);
 
-        UserInfo FindByUserName(string userName);
+        SystemUserInfo FindByUserName(string userName);
 
-        UserInfo FindByLoginName(string loginName);
-        UserInfo FindByMobile(string mobileNumber);
-        UserInfo FindByLoginNameAndPassword(string loginName, string password);
+        SystemUserInfo FindByLoginName(string loginName);
+        SystemUserInfo FindByMobile(string mobileNumber);
+        SystemUserInfo FindByLoginNameAndPassword(string loginName, string password);
     }
 }

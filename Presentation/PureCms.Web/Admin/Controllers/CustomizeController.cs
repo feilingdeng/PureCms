@@ -90,7 +90,7 @@ namespace PureCms.Web.Admin.Controllers
         [Description("关系列表-JSON格式")]
         public ActionResult RelationsJson(Guid referencingEntityId)
         {
-            List<RelationShipInfo> result = new RelationShipService().QueryByEntityId(referencingEntityId);
+            List<RelationShipInfo> result = new RelationShipService().QueryByEntityId(referencingEntityId,null);
 
             return AjaxResult(true, result);
         }

@@ -427,6 +427,7 @@
     <Content Include="Content\js\pym.js" />
     <Content Include="Content\js\respond.min.js" />
     <Content Include="Content\js\tree.jquery.js" />
+    <Content Include="Content\js\xms.utility.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

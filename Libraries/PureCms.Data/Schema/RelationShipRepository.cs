@@ -1,4 +1,5 @@
-﻿using PureCms.Core.Context;
+﻿using PetaPoco;
+using PureCms.Core.Context;
 using PureCms.Core.Domain.Schema;
 using PureCms.Core.Schema;
 using System;
@@ -125,10 +126,20 @@ namespace PureCms.Data.Schema
             //this.TableName = "RelationShipView";
             return _repository.Query(q);
         }
-        public List<RelationShipInfo> QueryByEntityId(Guid referencingEntityId)
+        public List<RelationShipInfo> QueryByEntityId(Guid? referencingEntityId, Guid? referencedEntityId)
         {
-            string sql = "SELECT * FROM RelationShipView WHERE [ReferencingEntityId]=@0";
-            return _repository.ExecuteQuery(sql, referencingEntityId);
+            Sql s = Sql.Builder.Append("SELECT * FROM RelationShipView");
+            Sql filter = Sql.Builder;
+            if (referencingEntityId.HasValue)
+            {
+                filter.Where("[ReferencingEntityId]=@0", referencingEntityId.Value);
+            }
+            if (referencedEntityId.HasValue)
+            {
+                filter.Where("[ReferencedEntityId]=@0", referencedEntityId.Value);
+            }
+            s.Append(filter);
+            return _repository.ExecuteQuery(s);
         }
         /// <summary>
         /// 查询一条记录

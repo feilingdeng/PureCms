@@ -59,6 +59,17 @@ namespace PureCms.Services.Query
                 _attributeList = value;
             }
         }
+        public EntityInfo MainEntity
+        {
+            get
+            {
+                if (_entityList.IsNotNullOrEmpty())
+                {
+                    return _entityList[0];
+                }
+                return null;
+            }
+        }
 
         public FetchDataService()
         {
@@ -105,7 +116,7 @@ namespace PureCms.Services.Query
             //    new QueryViewService().Update(x => x.Set(f => f.SqlString, view.SqlString).Where(w => w.QueryViewId == view.QueryViewId));
             //}
             string sql = view.SqlString;
-            if (sort != null && this.QueryExpression.Orders.Count(n=>n.AttributeName.IsCaseInsensitiveEqual(sort.Name)) == 0)
+            if (sort != null && this.QueryExpression.Orders.Count(n => n.AttributeName.IsCaseInsensitiveEqual(sort.Name)) == 0)
             {
                 this.QueryExpression = ToQueryExpression(view.FetchConfig);
                 this.QueryExpression.AddOrder(sort.Name, sort.SortAscending ? OrderType.Ascending : OrderType.Descending);
@@ -138,7 +149,7 @@ namespace PureCms.Services.Query
             List<string> attrList = new List<string>();
             List<string> filterList = new List<string>();
             List<string> orderList = new List<string>();
-            string mainEntityAlias = _queryExpression.EntityName + tableList.Count;
+            string mainEntityAlias = _queryExpression.EntityName;// + tableList.Count;
             //保存实体
             EntityList.Add(_entityService.FindByName(_queryExpression.EntityName));
             //获取实体所有字段
@@ -152,18 +163,21 @@ namespace PureCms.Services.Query
                 //guid类型的字段值，将替换为对应的名称字段
                 var field = column;
                 var attr = entityAttributes.Find(x => x.Name.IsCaseInsensitiveEqual(column));
-                if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                if (attr != null)
                 {
-                    field = "Name";
-                    attrList.Add(mainEntityAlias + "." + field);
+                    if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                    {
+                        field = "Name";
+                        attrList.Add(mainEntityAlias + "." + field);
+                    }
+                    else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
+                    {
+                        field += "Name";
+                        attrList.Add(mainEntityAlias + "." + field);
+                    }
+                    //保存字段
+                    AttributeList.Add(attr);
                 }
-                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
-                {
-                    field += "Name";
-                    attrList.Add(mainEntityAlias + "." + field);
-                }
-                //保存字段
-                AttributeList.Add(attr);
             }
             //filters
             ParseFilter(_queryExpression.Criteria, mainEntityAlias, ref filterList);
@@ -187,31 +201,40 @@ namespace PureCms.Services.Query
         private void ParseLinkEntity(LinkEntity linkEntity, ref List<string> tableList, ref List<string> attrList, ref List<string> filterList)
         {
             //保存实体
-            EntityList.Add(_entityService.FindByName(linkEntity.LinkToEntityName));
+            var entityInfo = _entityService.FindByName(linkEntity.LinkToEntityName);
+            EntityList.Add(entityInfo);
             string entityAlias = linkEntity.EntityAlias;
             //实体所有字段
             var entityAttributes = new AttributeService().Query(x => x.Select(s => new { s.EntityName, s.EntityLocalizedName, s.Name, s.LocalizedName, s.AttributeTypeId }).Where(n => n.EntityName == linkEntity.LinkToEntityName));
             foreach (var column in linkEntity.Columns.Columns)
             {
-                attrList.Add(entityAlias + "." + column);
-                //guid类型的字段值，将替换为对应的名称字段
+                attrList.Add(entityAlias + "." + column + " AS '" + entityAlias + "." + column + "'");
+                //guid类型的字段值，将替换为对应的名称字段//link entity like alias.name
                 var field = column;
                 var attr = entityAttributes.Find(x => x.Name.IsCaseInsensitiveEqual(column));
-                if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                if (attr != null)
                 {
-                    field = "Name";
-                    attrList.Add(entityAlias + "." + field);
+                    if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)))
+                    {
+                        field = "Name";
+                        attrList.Add(entityAlias + "." + field);
+                    }
+                    else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
+                    {
+                        field += "Name";
+                        attrList.Add(entityAlias + "." + field);
+                    }
+                    //保存字段
+                    AttributeList.Add(attr);
                 }
-                else if (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER)))
-                {
-                    field += "Name";
-                    attrList.Add(entityAlias + "." + field);
-                }
-                //保存字段
-                AttributeList.Add(attr);
             }
+            //relationships
+            //if (linkEntity.LinkToAttributeName.IsEmpty())
+            //{
+            //    new RelationShipService().QueryByEntityId(MainEntity.EntityId, entityInfo.EntityId);
+            //}
             string tb = GetLinkType(linkEntity.JoinOperator) + " " + linkEntity.LinkToEntityName + " AS " + entityAlias + " WITH(NOLOCK)"
-                + " ON " + entityAlias + "." + linkEntity.LinkToAttributeName + " = " + linkEntity.FromEntityAlias + "." + linkEntity.LinkFromAttributeName;
+                + " ON " + entityAlias + "." + linkEntity.LinkToAttributeName + " = " + linkEntity.FromEntityAlias.IfEmpty(linkEntity.LinkFromEntityName) + "." + linkEntity.LinkFromAttributeName;
             tableList.Add(tb);
 
             ParseFilter(linkEntity.LinkCriteria, entityAlias, ref filterList);

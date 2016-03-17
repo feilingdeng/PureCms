@@ -93,6 +93,8 @@ namespace PureCms.Data.Schema
                 .Append(")WITH(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]")
                 .Append(") ON [PRIMARY]");
                 _repository.Execute(s);
+                //创建外键约束
+
                 //创建SQL视图
                 Sql sview = Sql.Builder.Append(string.Format("CREATE VIEW [dbo].[{0}View] AS", entity.Name))
                     .Append("SELECT ");
@@ -107,9 +109,9 @@ namespace PureCms.Data.Schema
                     .Append("[lk_owner].[Name] AS OwnerIdName");
                 //tables
                 sview.Append(string.Format("FROM [{0}] WITH(NOLOCK)", entity.Name))
-                .Append(string.Format("LEFT JOIN [Users] AS [lk_createdby] WITH(NOLOCK) ON [{0}].[CreatedBy]=[lk_createdby].[UserId]", entity.Name))
-                .Append(string.Format("LEFT JOIN [Users] AS [lk_modifiedby] WITH(NOLOCK) ON [{0}].[ModifiedBy]=[lk_modifiedby].[UserId]", entity.Name))
-                .Append(string.Format("LEFT JOIN [Users] AS [lk_owner] WITH(NOLOCK) ON [{0}].[OwnerId]=[lk_owner].[UserId]", entity.Name));
+                .Append(string.Format("LEFT JOIN [SystemUser] AS [lk_createdby] WITH(NOLOCK) ON [{0}].[CreatedBy]=[lk_createdby].[SystemUserId]", entity.Name))
+                .Append(string.Format("LEFT JOIN [SystemUser] AS [lk_modifiedby] WITH(NOLOCK) ON [{0}].[ModifiedBy]=[lk_modifiedby].[SystemUserId]", entity.Name))
+                .Append(string.Format("LEFT JOIN [SystemUser] AS [lk_owner] WITH(NOLOCK) ON [{0}].[OwnerId]=[lk_owner].[SystemUserId]", entity.Name));
                 _repository.Execute(sview);
 
                 if (flag)

@@ -43,7 +43,7 @@ namespace PureCms.Services.Security
         }
 
 
-        public virtual void SignIn(UserInfo user, bool createPersistentCookie = true)
+        public virtual void SignIn(SystemUserInfo user, bool createPersistentCookie = true)
         {
             var now = DateTime.UtcNow.ToLocalTime();
 
@@ -75,7 +75,7 @@ namespace PureCms.Services.Security
             _cachedUser = new CurrentUser();
             _cachedUser.LoginName = user.LoginName;
             _cachedUser.RoleId = user.RoleId;
-            _cachedUser.UserId = user.UserId;
+            _cachedUser.UserId = user.SystemUserId;
             _cachedUser.UserName = user.Name;
             _cachedUser.Privileges = user.Privileges;
             _cachedUser.IsSuperAdmin = user.LoginName.ToLower() == "purecms";

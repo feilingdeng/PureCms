@@ -59,7 +59,7 @@ namespace PureCms.Web.Controllers
                     ModelState.AddModelError("validcode", msg);
                 }
                 else {
-                    UserInfo u = _userService.GetUserByLoginName(model.LoginName);
+                    SystemUserInfo u = _userService.GetUserByLoginName(model.LoginName);
                     if (u == null)
                     {
                         flag = false;
@@ -74,7 +74,7 @@ namespace PureCms.Web.Controllers
                             u.Privileges = _rolePrivilegesService.GetAll(q => q.Where(w => w.RoleId == u.RoleId));
                             CurrentUser user = new CurrentUser();
                             user.RoleId = u.RoleId;
-                            user.UserId = u.UserId;
+                            user.UserId = u.SystemUserId;
                             user.UserName = u.Name;
                             user.Privileges = u.Privileges;
                             //加入上下文

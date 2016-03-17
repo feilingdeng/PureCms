@@ -14,7 +14,7 @@ namespace PureCms.Web.Framework
         /// <summary>
         /// 生成链接地址
         /// </summary>
-        public static string ActionUrl(this UrlHelper helper, string _actionName, ViewContext _viewcontext, object _routeValues = null)
+        public static string ActionUrl(this UrlHelper helper, string _actionName, ViewContext _viewcontext, params object[] _routeValues)
         {
             RouteValueDictionary _routed = _viewcontext.RouteData.Values;//new RouteValueDictionary();//路由值集合
             NameValueCollection queryString = _viewcontext.RequestContext.HttpContext.Request.QueryString;

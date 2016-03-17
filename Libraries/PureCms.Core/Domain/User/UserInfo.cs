@@ -5,11 +5,11 @@ using System;
 
 namespace PureCms.Core.Domain.User
 {
-    [PetaPoco.TableName("users")]
-    [PetaPoco.PrimaryKey("userid",autoIncrement = false)]
-    public class UserInfo : BaseEntity
+    [PetaPoco.TableName("systemuser")]
+    [PetaPoco.PrimaryKey("SystemUserId", autoIncrement = false)]
+    public class SystemUserInfo : BaseEntity
     {
-        public Guid UserId { get; set; }
+        public Guid SystemUserId { get; set; }
         public string LoginName { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
