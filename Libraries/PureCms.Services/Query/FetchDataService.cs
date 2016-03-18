@@ -189,7 +189,10 @@ namespace PureCms.Services.Query
             //orders
             foreach (var ord in _queryExpression.Orders)
             {
-                orderList.Add(mainEntityAlias + "." + ord.AttributeName + " " + (ord.OrderType == OrderType.Descending ? " desc" : ""));
+                if(ord.AttributeName.IndexOf(".") > 0) //has alias
+                    orderList.Add(ord.AttributeName + " " + (ord.OrderType == OrderType.Descending ? " desc" : ""));
+                else
+                    orderList.Add(mainEntityAlias + "." + ord.AttributeName + " " + (ord.OrderType == OrderType.Descending ? " desc" : ""));
             }
             string tableStr = string.Join(" ", tableList);
             string attrStr = string.Join(",", attrList);

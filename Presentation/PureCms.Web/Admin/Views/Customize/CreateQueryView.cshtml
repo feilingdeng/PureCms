@@ -192,14 +192,14 @@
             <div class="modal-body">
                 <div class="table-responsive" style="width:650px; height:400px; overflow:auto;">
                     <div class="form-group">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info btn-xs" onclick="clearConditions()">
+                        <div class="btn-group btn-group-xs">
+                            <button type="button" class="btn btn-info" onclick="clearConditions()">
                                 <span class="glyphicon glyphicon-trash"></span> 清空
                             </button>
-                            <button type="button" class="btn btn-info btn-xs" onclick="groupConditions('and')">
+                            <button type="button" class="btn btn-info" onclick="groupConditions('and')">
                                 <span class="glyphicon glyphicon-link"></span> "并且"组合
                             </button>
-                            <button type="button" class="btn btn-info btn-xs" onclick="groupConditions('or')">
+                            <button type="button" class="btn btn-info" onclick="groupConditions('or')">
                                 <span class="glyphicon glyphicon-link"></span> "或者"组合
                             </button>
                         </div>
@@ -498,8 +498,8 @@
                     if (le != null) {
                         if ($.inArray(name, le.Columns.Columns) < 0) {//列名不存在
                             le.Columns.Columns.push(name);
-                            name = le.EntityAlias + '.' + name;//cell's name
                         }
+                        name = le.EntityAlias + '.' + name;//cell's name
                     }
                     else {
                         le = new LinkEntity();//生成关联实体别名

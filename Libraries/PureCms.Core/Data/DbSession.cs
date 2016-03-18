@@ -28,6 +28,7 @@ namespace PureCms.Core.Data
         public override void OnException(Exception e)
         {
             base.AbortTransaction();
+            e.InnerException.Source += base.LastSQL + base.LastArgs.CollectionToString(",");
             throw new PureCmsException(e.Message, e.InnerException);
             //base.OnException(e);
         }

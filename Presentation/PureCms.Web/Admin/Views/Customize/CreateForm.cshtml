@@ -1,0 +1,72 @@
+﻿@model PureCms.Web.Admin.Models.EditFormModel
+@{
+    ViewBag.Title = "CreateForm";
+    Layout = "../Shared/_CustomizeLayout.cshtml";
+}
+
+<div class="row" style="border-bottom:1px #333 solid;">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-success dropdown-toggle"
+                    data-toggle="dropdown">
+                节 <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_1col_32.png" />一列</a></li>
+                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_2cols_32.png" />两列</a></li>
+                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_3cols_32.png" />三列</a></li>
+                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_4cols_32.png" />四列</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-3">
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default">三列</button>
+                <button type="button" class="btn btn-default">三列</button>
+                <button type="button" class="btn btn-default">三列</button>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default">两列</button>
+                <button type="button" class="btn btn-default">两列</button>
+                <button type="button" class="btn btn-default">两列</button>
+            </div>
+            <div class="clearfix"></div>
+            <div class="text-center text-muted">选项卡</div>
+        </div>
+        <div class="col-sm-2">
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default">单据体</button>
+                <button type="button" class="btn btn-default">空格</button>
+                <button type="button" class="btn btn-default">嵌入页面</button>
+            </div>
+            <div class="clearfix"></div>
+            <div class="text-center text-muted">控件</div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-2" style="border-right:1px #ccc solid;">
+        nav
+    </div>
+    <div class="col-sm-8">
+        <div class="row" style="border:1px #ccc dashed;">header</div>
+        <div class="row">
+            <div class="col-sm-12" style="border:1px #ccc dashed;">
+                <a data-toggle="collapse"
+                   href="#collapseTwo">
+                    <strong>新建实体</strong>
+                </a>
+                <div id="collapseTwo" class="panel-collapse collapse in">
+                    <div class="section">
+                        <table class="table-bordered">
+                            <tr><td class="active">名称</td><td class="text-muted">名称</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="border:1px #ccc dashed;">footer</div>
+    </div>
+    <div class="col-sm-2" style="border-left:1px #ccc solid;">
+        attributes
+    </div>
+</div>

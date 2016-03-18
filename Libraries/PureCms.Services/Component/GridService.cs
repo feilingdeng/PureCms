@@ -39,10 +39,26 @@ namespace PureCms.Services.Component
             int i = 0;
             foreach (var cell in grid.Rows[0].Cells)
             {
-                var attr = attributes.Find(x=>x.Name.IsCaseInsensitiveEqual(cell.Name));
-                if(attr != null)
+                if (cell.EntityName.IsCaseInsensitiveEqual(view.EntityName))//主实体
                 {
-                    grid.Rows[0].Cells[i].Label = attr.LocalizedName;
+                    var attr = attributes.Find(x => x.Name.IsCaseInsensitiveEqual(cell.Name) && x.EntityName.IsCaseInsensitiveEqual(view.EntityName));
+                    if (attr != null)
+                    {
+                        grid.Rows[0].Cells[i].Label = attr.LocalizedName;
+                    }
+                }
+                else //关联实体
+                {
+                    //当列为关联实体字段时，列名加上关联实体名
+                    var temp = cell.Name.SplitSafe(".");
+                    if(temp.Length > 1)
+                    {
+                        var attr = attributes.Find(x => x.Name.IsCaseInsensitiveEqual(temp[1]) && x.EntityName.IsCaseInsensitiveEqual(cell.EntityName));
+                        if(attr != null)
+                        {
+                            grid.Rows[0].Cells[i].Label = attr.LocalizedName + "(" + attr.EntityLocalizedName + ")";
+                        }
+                    }
                 }
                 i++;
             }

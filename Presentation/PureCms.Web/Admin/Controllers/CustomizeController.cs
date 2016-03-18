@@ -13,6 +13,7 @@ using System.Text;
 using PureCms.Core.Domain.Query;
 using PureCms.Core.Components.Platform;
 using System.Web.Helpers;
+using PureCms.Core.Domain.Entity;
 
 namespace PureCms.Web.Admin.Controllers
 {
@@ -689,9 +690,133 @@ namespace PureCms.Web.Admin.Controllers
             msg = GetModelErrors(ModelState);
             return AjaxResult(false, "保存失败: " + msg);
         }
-        [Description("删除实体")]
+        [Description("删除选项集")]
         [HttpPost]
         public ActionResult DeleteOptionSet(Guid[] recordid)
+        {
+            string msg = string.Empty;
+            bool flag = false;
+            flag = _optionSetService.DeleteById(recordid.ToList());
+            if (flag)
+            {
+                msg = "删除成功";
+            }
+            else
+            {
+                msg = "删除失败";
+            }
+            return AjaxResult(flag, msg);
+        }
+        #endregion
+
+        #region 表单
+        [Description("表单列表")]
+        public ActionResult Forms(OptionSetModel model)
+        {
+            if (model.SortBy.IsEmpty())
+            {
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<OptionSetInfo>(n => n.CreatedOn);
+                model.SortDirection = (int)Core.Context.SortDirection.Desc;
+            }
+
+            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
+            filter.And(n => n.IsPublic == true);
+            if (model.Name.IsNotEmpty())
+            {
+                filter.And(n => n.Name.Like(model.Name));
+            }
+            PagedList<OptionSetInfo> result = _optionSetService.QueryPaged(x => x
+                .Page(model.Page, model.PageSize)
+                .Where(filter)
+                .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
+                );
+
+            model.Items = result.Items;
+            model.TotalItems = result.TotalItems;
+            return View(model);
+        }
+        [Description("表单列表-JSON格式")]
+        public ActionResult FormsJson(Guid? id, bool? ispublic)
+        {
+            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
+            if (id.HasValue && !id.Equals(Guid.Empty))
+            {
+                filter.And(n => n.OptionSetId == id.Value);
+            }
+            if (ispublic.HasValue)
+            {
+                filter.And(n => n.IsPublic == ispublic.Value);
+            }
+            List<OptionSetInfo> result = _optionSetService.Query(x => x
+                .Where(filter)
+                .Sort(n => n.SortAscending(f => f.Name))
+                );
+
+            return AjaxResult(true, result);
+        }
+        [HttpGet]
+        [Description("新建表单")]
+        public ActionResult CreateForm()
+        {
+            EditFormModel model = new EditFormModel();
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken()]
+        [Description("新建表单-保存")]
+        public ActionResult CreateForm(EditFormModel model)
+        {
+            string msg = string.Empty;
+            if (ModelState.IsValid)
+            {
+                var entity = new SystemFormInfo();
+                model.CopyTo(entity);
+                entity.SystemFormId = Guid.NewGuid();
+                //_optionSetService.Create(entity);
+                msg = "创建成功";
+                return AjaxResult(true, msg);
+            }
+            msg = GetModelErrors(ModelState);
+            return AjaxResult(false, "保存失败: " + msg);
+        }
+        [HttpGet]
+        [Description("表单编辑")]
+        public ActionResult EditForm(Guid id)
+        {
+            EditFormModel model = new EditFormModel();
+            if (!id.Equals(Guid.Empty))
+            {
+                var entity = _optionSetService.FindById(id);
+                if (entity != null)
+                {
+                    entity.CopyTo(model);
+                    return View(model);
+                }
+            }
+            return NoRecordView();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken()]
+        [Description("表单信息保存")]
+        public ActionResult EditForm(EditFormModel model)
+        {
+            string msg = string.Empty;
+            if (ModelState.IsValid)
+            {
+                var entity = new EditFormModel();
+                model.CopyTo(entity);
+
+                //_optionSetService.Update(entity);
+                msg = "保存成功";
+                return AjaxResult(true, msg);
+            }
+            msg = GetModelErrors(ModelState);
+            return AjaxResult(false, "保存失败: " + msg);
+        }
+        [Description("删除表单")]
+        [HttpPost]
+        public ActionResult DeleteForm(Guid[] recordid)
         {
             string msg = string.Empty;
             bool flag = false;

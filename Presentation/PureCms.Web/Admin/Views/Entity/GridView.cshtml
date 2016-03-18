@@ -22,7 +22,6 @@
                         //var url = Url.ActionUrl("gridview", this.ViewContext);//, new { sortdirection : (Model.SortDirection == 1 ? 0 : 1)});
                         <th data-name="@cell.Name.ToLower()" style="width:@(cell.Width+"px")">
                             <a data-ajax="true" href="gridview?queryid=@Model.QueryId&sortby=@cell.Name&sortdirection=@(Model.SortDirection == 1 ? 0 : 1)">@cell.Label</a>
-                            (@attr.EntityLocalizedName)
                         </th>
                     }
                     <th width="15%">操作</th>
@@ -38,9 +37,9 @@
                         {
                             var k = cell.Name;
                             AttributeInfo attr = Model.AttributeList.Find(n => n.Name.ToLower() == k.ToLower());
-                            if (attr != null && (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER))))
+                            if (attr != null && (attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.LOOKUP)) || attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.OWNER))))
                             {
-                                k += "Name";
+                                k = attr.AttributeTypeId.Equals(Guid.Parse(AttributeTypeIds.PRIMARYKEY))? "Name" : k+= "Name";
                                 <td><a href="" target="_blank" title="查看">@lines[k]</a></td>
                             }
                             else {

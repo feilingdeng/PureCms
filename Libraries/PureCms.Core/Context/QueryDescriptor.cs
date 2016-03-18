@@ -157,7 +157,16 @@ namespace PureCms.Core.Context
             return this;
         }
         public string QueryText { get; set; }
-        public List<QueryParameter> Parameters { get; set; }
+        private List<QueryParameter> _parameters;
+        public List<QueryParameter> Parameters {
+            get {
+                if(_parameters == null) { _parameters = new List<QueryParameter>(); }
+                return _parameters;
+            }
+            set {
+                _parameters = value;
+            }
+        }
 
         private List<string> _columns;
         public List<string> Columns

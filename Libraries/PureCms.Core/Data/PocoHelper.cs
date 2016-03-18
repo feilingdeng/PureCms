@@ -26,7 +26,7 @@ namespace PureCms.Core.Data
         public static Sql ParseSelectSql<T>(PetaPoco.Database.PocoData poco, QueryDescriptor<T> q, Sql otherCondition = null, bool isCount = false) where T : new()//BaseEntity
         {
             List<string> froms;
-            var columns = PocoHelper.GetSelectColumns(poco, q.Columns, out froms, isCount);
+            var columns = PocoHelper.GetSelectColumns(poco, q == null ? null:q.Columns, out froms, isCount);
             Sql query = PetaPoco.Sql.Builder.Append("SELECT " + columns);// + " FROM [" + TableName + "]");
             //from，由select中反推
             //query.From(froms.ToArray());
@@ -38,7 +38,7 @@ namespace PureCms.Core.Data
             //排序
             if (isCount == false)
             {
-                query.Append(PocoHelper.GetOrderBy<T>(poco, q.SortingDescriptor));
+                query.Append(PocoHelper.GetOrderBy<T>(poco, q==null ? null : q.SortingDescriptor));
             }
 
             return query;
@@ -209,7 +209,11 @@ namespace PureCms.Core.Data
         /// <returns></returns>
         public static Sql GetConditions<T>(QueryDescriptor<T> q, Sql otherCondition = null) where T : new()//class
         {
-            return GetConditions(q.QueryText, q.Parameters, otherCondition);
+            if (q != null && q.QueryText.IsNotEmpty())
+            {
+                return GetConditions(q.QueryText, q.Parameters, otherCondition);
+            }
+            return Sql.Builder;
         }
         /// <summary>
         /// 获取过滤条件
@@ -286,9 +290,9 @@ namespace PureCms.Core.Data
             {
                 ExecuteContainer = s
                 ,
-                PagingInfo = q.PagingDescriptor
+                PagingInfo = q==null? null : q.PagingDescriptor
                 ,
-                TopCount = q.TopCount
+                TopCount = q == null ? 0 : q.TopCount
             };
 
             return ctx;
@@ -309,9 +313,9 @@ namespace PureCms.Core.Data
             {
                 ExecuteContainer = s
                 ,
-                PagingInfo = q.PagingDescriptor
+                PagingInfo = q == null ? null : q.PagingDescriptor
                 ,
-                TopCount = q.TopCount
+                TopCount = q == null ? 0 : q.TopCount
             };
 
             return ctx;
@@ -333,9 +337,9 @@ namespace PureCms.Core.Data
             {
                 ExecuteContainer = s
                 ,
-                PagingInfo = q.PagingDescriptor
+                PagingInfo = q == null ? null : q.PagingDescriptor
                 ,
-                TopCount = q.TopCount
+                TopCount = q == null ? 0 : q.TopCount
             };
 
             return ctx;
@@ -366,7 +370,10 @@ namespace PureCms.Core.Data
             {
                 query.Append(PocoHelper.FormatColumn(poco, item.Key) + "=@0", item.Value);
             }
-            query.Append(PocoHelper.GetConditions(q.QueryText, q.Parameters));
+            if (q != null && q.QueryText.IsNotEmpty())
+            {
+                query.Append(PocoHelper.GetConditions(q.QueryText, q.Parameters));
+            }
             return query;
         }
     }

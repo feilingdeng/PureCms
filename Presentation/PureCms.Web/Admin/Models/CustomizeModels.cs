@@ -1,4 +1,5 @@
 ﻿using PureCms.Core.Domain;
+using PureCms.Core.Domain.Entity;
 using PureCms.Core.Domain.Query;
 using PureCms.Core.Domain.Schema;
 using System;
@@ -157,5 +158,30 @@ namespace PureCms.Web.Admin.Models
         public string Name { get; set; }
         public bool IsPublic { get; set; }
         public List<OptionSetDetailInfo> Details { get; set; }
+    }
+    public class FormModel : BasePaged<SystemFormInfo>
+    {
+        public Guid EntityId { get; set; }
+        public string Name { get; set; }
+        public bool IsDefault { get; set; }
+        public string FormConfig { get; set; }
+
+        public bool CanBeDeleted { get; set; }
+        public bool IsCustomizable { get; set; }
+        public int StateCode { get; set; }
+        public int FormType { get; set; }
+    }
+    public class EditFormModel
+    {
+        public Guid FormId { get; set; }
+        public Guid EntityId { get; set; }
+        public string Name { get; set; }
+        public bool IsDefault { get; set; }
+        public string FormConfig { get; set; }
+
+        public bool CanBeDeleted { get; set; }
+        public bool IsCustomizable { get; set; }
+        public int StateCode { get; set; }
+        public int FormType { get; set; }
     }
 }

@@ -410,6 +410,7 @@
     <Content Include="Content\editor\themes\simple\simple.css" />
     <Content Include="Content\js\ace.min.js" />
     <Content Include="Content\js\bootstrap.min.js" />
+    <Content Include="Content\js\customize\Form.js" />
     <Content Include="Content\js\html5shiv.min.js" />
     <Content Include="Content\js\ie-emulation-modes-warning.js" />
     <Content Include="Content\js\ie10-viewport-bug-workaround.js" />
@@ -570,6 +571,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Entity\GridView.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Customize\CreateForm.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

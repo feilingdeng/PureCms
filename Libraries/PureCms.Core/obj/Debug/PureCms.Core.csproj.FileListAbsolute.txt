@@ -24,6 +24,6 @@ G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\System.Web.WebPages.Dep
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\zh-Hans\System.Web.Razor.resources.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\zh-Hans\System.Web.WebPages.Razor.resources.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\bin\Debug\zh-Hans\System.Web.WebPages.Deployment.resources.dll
+G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.csprojResolveAssemblyReference.cache
 G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.dll
 G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.pdb
-G:\projects\PureCms2015\Libraries\PureCms.Core\obj\Debug\PureCms.Core.csprojResolveAssemblyReference.cache

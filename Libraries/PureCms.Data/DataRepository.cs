@@ -287,7 +287,12 @@ namespace PureCms.Data
         /// <returns></returns>
         public T FindById(object id)
         {
-            var result = _repository.FindByIdAsync(id);
+            //var result = _repository.FindByIdAsync(id);
+            QueryDescriptor<T> q = new QueryDescriptor<T>();
+            q.QueryText = "["+this.MetaData.TableInfo.TableName + "]." + this.MetaData.TableInfo.PrimaryKey + "=@0";
+            q.Parameters.Add(new QueryParameter("@0", id));
+            ExecuteContext<T> ctx = PocoHelper.ParseContext<T>(MetaData, q);
+            var result = _repository.SingleAsync(ctx);
             return result.Result;
         }
         /// <summary>
@@ -309,6 +314,19 @@ namespace PureCms.Data
         public T Find(QueryDescriptor<T> q)
         {
             ExecuteContext<T> ctx = PocoHelper.ParseContext<T>(MetaData, q);
+            var result = _repository.SingleAsync(ctx);
+            return result.Result;
+        }
+        /// <summary>
+        /// 查询一行记录
+        /// </summary>
+        /// <param name="sql">上下文</param>
+        /// <param name="args">参数</param>
+        /// <returns></returns>
+        public T Find(string sql, params object[] args)
+        {
+            ExecuteContext<T> ctx = new ExecuteContext<T>();
+            ctx.ExecuteContainer = Sql.Builder.Append(sql, args);
             var result = _repository.SingleAsync(ctx);
             return result.Result;
         }
@@ -411,7 +429,7 @@ namespace PureCms.Data
         /// <returns></returns>
         public PagedList<T> ExecuteQueryPaged(int page, int pageSize, string s, params object[] args)
         {
-            var result = ((PetaPoco.Database)_repository.Client).Page<T>(page, pageSize, s);
+            var result = ((PetaPoco.Database)_repository.Client).Page<T>(page, pageSize, s, args);
             var p = new PagedList<T>();
             result.CopyTo(p);
             return p;
