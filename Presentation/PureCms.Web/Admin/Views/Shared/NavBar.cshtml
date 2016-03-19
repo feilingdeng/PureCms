@@ -143,19 +143,9 @@
         </div>
     </div>
 </nav>
-
+<script src="/content/js/bootstrap-hover-dropdown.js"></script>
 <script>
         $(function () {
-            $(".navbar-nav").find(".dropdown-toggle").bind("mouseover", function () {
-                $(this).trigger("click");//next().show();
-            });
-            //$(".navbar-nav").find("a").bind("mouseover", function () {
-            //    if ($(this).parents("li").prop("class").indexOf("dropdown") < 0)
-            //        $(".navbar-nav").find(".dropdown").find("a[aria-expanded=true]").trigger("click");
-            //});
-            $("#body").bind("mouseout", function () {
-                //$(this).find(".dropdown-menu").hide();
-                $(".navbar-nav").find("a[aria-expanded=true]").trigger("click");
-            });
+            $('.dropdown-toggle').dropdownHover();
         });
 </script>

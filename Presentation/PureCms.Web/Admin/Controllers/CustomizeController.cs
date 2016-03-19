@@ -756,10 +756,10 @@ namespace PureCms.Web.Admin.Controllers
         }
         [HttpGet]
         [Description("新建表单")]
-        public ActionResult CreateForm()
+        public ActionResult CreateForm(Guid entityid)
         {
             EditFormModel model = new EditFormModel();
-
+            model.EntityId = entityid;
             return View(model);
         }
         [HttpPost]

@@ -173,7 +173,7 @@ namespace PureCms.Web.Admin.Models
     }
     public class EditFormModel
     {
-        public Guid FormId { get; set; }
+        public Guid SystemFormId { get; set; }
         public Guid EntityId { get; set; }
         public string Name { get; set; }
         public bool IsDefault { get; set; }

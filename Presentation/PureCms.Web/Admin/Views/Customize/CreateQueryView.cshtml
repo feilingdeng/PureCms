@@ -15,7 +15,7 @@
         </h3>
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in">
-        <div class="panel-body" ng-app="xmsApp" ng-controller="xmsController">
+        <div class="panel-body">
             @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
             {
                 @Html.AntiForgeryToken()

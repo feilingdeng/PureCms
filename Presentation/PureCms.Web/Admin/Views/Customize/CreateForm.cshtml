@@ -3,70 +3,441 @@
     ViewBag.Title = "CreateForm";
     Layout = "../Shared/_CustomizeLayout.cshtml";
 }
-
-<div class="row" style="border-bottom:1px #333 solid;">
-    <div class="btn-toolbar" role="toolbar">
-        <div class="btn-group btn-group-sm">
-            <button type="button" class="btn btn-success dropdown-toggle"
-                    data-toggle="dropdown">
-                节 <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_1col_32.png" />一列</a></li>
-                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_2cols_32.png" />两列</a></li>
-                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_3cols_32.png" />三列</a></li>
-                <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_4cols_32.png" />四列</a></li>
-            </ul>
-        </div>
-        <div class="col-sm-3">
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default">三列</button>
-                <button type="button" class="btn btn-default">三列</button>
-                <button type="button" class="btn btn-default">三列</button>
-            </div>
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default">两列</button>
-                <button type="button" class="btn btn-default">两列</button>
-                <button type="button" class="btn btn-default">两列</button>
-            </div>
-            <div class="clearfix"></div>
-            <div class="text-center text-muted">选项卡</div>
-        </div>
-        <div class="col-sm-2">
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default">单据体</button>
-                <button type="button" class="btn btn-default">空格</button>
-                <button type="button" class="btn btn-default">嵌入页面</button>
-            </div>
-            <div class="clearfix"></div>
-            <div class="text-center text-muted">控件</div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-2" style="border-right:1px #ccc solid;">
-        nav
-    </div>
-    <div class="col-sm-8">
-        <div class="row" style="border:1px #ccc dashed;">header</div>
-        <div class="row">
-            <div class="col-sm-12" style="border:1px #ccc dashed;">
-                <a data-toggle="collapse"
-                   href="#collapseTwo">
-                    <strong>新建实体</strong>
-                </a>
-                <div id="collapseTwo" class="panel-collapse collapse in">
-                    <div class="section">
-                        <table class="table-bordered">
-                            <tr><td class="active">名称</td><td class="text-muted">名称</td></tr>
-                        </table>
+<div class="container-fluid">
+    @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary()
+        @Html.HiddenFor(x => x.SystemFormId)
+        @Html.HiddenFor(x => x.EntityId)
+        <div class="row" style="border-bottom:1px #333 solid;background: #f6f8fa;padding:5px 2px;">
+            <div class="col-sm-12" role="toolbar">
+                <!--class="btn-toolbar" -->
+                <div class="pull-left btn-toolbar-group">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-default">更改属性</button>
+                        <button type="button" class="btn btn-default">删除</button>
                     </div>
+                    <div class="clearfix"></div>
+                    <div class="text-center text-muted">编辑</div>
+                </div>
+                <div class="pull-left btn-toolbar-group">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-default dropdown-toggle"
+                                data-toggle="dropdown">
+                            栏 <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_1col_32.png" />一列</a></li>
+                            <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_2cols_32.png" />两列</a></li>
+                            <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_3cols_32.png" />三列</a></li>
+                            <li><a href="#"><img src="~/admin/Content/imgs/FormEditorRibbon/Section_4cols_32.png" />四列</a></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="text-center text-muted">栏</div>
+                </div>
+                <div class="pull-left btn-toolbar-group">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-default">三列</button>
+                        <button type="button" class="btn btn-default">三列</button>
+                        <button type="button" class="btn btn-default">三列</button>
+                        <button type="button" class="btn btn-default">两列</button>
+                        <button type="button" class="btn btn-default">两列</button>
+                        <button type="button" class="btn btn-default">两列</button>
+                        <button type="button" class="btn btn-default">一列</button>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="text-center text-muted">选项卡</div>
+                </div>
+                <div class="pull-left btn-toolbar-group">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-default">单据体</button>
+                        <button type="button" class="btn btn-default">空格</button>
+                        <button type="button" class="btn btn-default">嵌入页面</button>
+                        <button type="button" class="btn btn-default">导航链接</button>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="text-center text-muted">控件</div>
+                </div>
+                <div class="pull-left btn-toolbar-group">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-default">表单属性</button>
+                        <button type="button" class="btn btn-default">权限</button>
+                        <button type="button" class="btn btn-default">预览</button>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="text-center text-muted">表单</div>
                 </div>
             </div>
         </div>
-        <div class="row" style="border:1px #ccc dashed;">footer</div>
-    </div>
-    <div class="col-sm-2" style="border-left:1px #ccc solid;">
-        attributes
-    </div>
+        <div class="row table-responsive">
+            <table class="table table-bordered" style="background:#f1f3f5;">
+                <tr>
+                    <td class="col-sm-2" id="formNav">
+                        <div class="navItems">
+                            <a data-toggle="collapse"
+                               href="#collapseNav1" class="collapse-title">
+                                <span class="glyphicon glyphicon-chevron-down"></span>信息
+                            </a>
+                            <div id="collapseNav1" class="panel-collapse collapse in">
+                                <ul class="list-unstyled nav-child">
+                                    <li><a>基本信息</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="navItems">
+                            <a data-toggle="collapse"
+                               href="#collapseNav2" class="collapse-title">
+                                <span class="glyphicon glyphicon-chevron-down"></span>公共
+                            </a>
+                            <div id="collapseNav2" class="panel-collapse collapse in">
+                                <ul class="list-unstyled nav-child">
+                                    <li><a>日志</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="height:450px; overflow-y:scroll; overflow-x:hidden;">
+                            <div class="col-sm-12 header locked">
+                                <div class="section-title"><span class="glyphicon glyphicon-lock"></span> 标题</div>
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="col-sm-2">负责人</th>
+                                        <td>负责人</td>
+                                        <th class="col-sm-2">创建日期</th>
+                                        <td>创建日期</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="formBody" style="height:300px; float:left; width:100%;">
+                                <div class="col-sm-12 tab">
+                                    <a data-toggle="collapse"
+                                       href="#collapse1" class="collapse-title">
+                                        <span class="glyphicon glyphicon-chevron-down"></span>基本信息
+                                    </a>
+                                    <div id="collapse1" class="panel-collapse collapse in">
+                                        <div class="col-sm-12 section">
+                                            <div class="section-title">栏</div>
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th class="col-sm-2">名称</th>
+                                                    <td>名称</td>
+                                                    <th class="col-sm-2">名称</th>
+                                                    <td>名称</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="col-sm-2">名称</th>
+                                                    <td>名称</td>
+                                                    <th class="col-sm-2">名称</th>
+                                                    <td>名称</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 section">
+                                    <div class="section-title">栏</div>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <td class="col-sm-2 field placeholder"></td>
+                                            <td class="col-sm-2 field placeholder"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 footer locked">
+                                <div class="section-title"><span class="glyphicon glyphicon-lock"></span> 页脚</div>
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="col-sm-2">状态</th>
+                                        <td>可用</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="col-sm-2">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <a data-toggle="collapse"
+                                       href="#collapseAttributes"><span class="glyphicon glyphicon-chevron-right"></span>字段资源管理器</a>
+                                </div>
+                            </div>
+                            <div id="collapseAttributes" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <ul class="list-unstyled" id="attributes"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="form-group col-sm-12 text-center" id="form-buttons">
+            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-saved"></span> 保存</button>
+            <button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-transfer"></span> 发布</button>
+        </div>
+    }
 </div>
+@section Header{
+    <style>
+        .btn-toolbar-group{
+            padding:2px;
+            border-right:1px #ccc solid;
+        }
+        .collapse-title{
+            color:black;
+        }
+        .navItems {
+            clear: both;
+            border: 1px #ccc dashed;
+            background: #f6f8fa;
+            cursor:pointer;
+        }
+
+        .nav-child {
+            text-indent: 1em;
+        }
+        .nav-child li {
+            border: 1px #ccc dashed;
+            margin-bottom:2px;
+        }
+        .header,.footer{
+            margin: 5px 0;
+            border: 1px #ccc dashed;
+            background: #f6f8fa;
+            padding: 5px;
+            cursor:pointer;
+        }
+        .section, .tab {
+            margin: 5px 0;
+            border: 1px #ccc dashed;
+            background: #f6f8fa;
+            padding: 5px;
+            cursor:pointer;
+        }
+
+        .section-title {
+            color: #999;
+            height: 22px;
+            border-bottom: 1px #ccc solid;
+            clear: both;
+        }
+
+        .section table {
+            margin: 5px 0;
+        }
+
+            .section table th {
+                background: #f1f3f5;
+                padding: 2px;
+            cursor:default;
+            }
+
+            .section table td {
+                background: #fff;
+                vertical-align: top;
+                color: #999;
+            cursor:default;
+            }
+            .section table td label {
+                background: #f1f3f5;
+                color: #000;
+                font-weight:600;
+            cursor:default;
+            }
+            .section table td input {
+                border:1px #ccc solid;
+                 background:#fff;
+            cursor:default;
+            }
+            td.placeholder{
+                background: #f1f3f5 !important;
+                height:30px;
+            }
+            
+        #attributes li {
+            border-bottom: 1px solid #C4DDFF;
+            line-height: 22px;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            padding: 3px;
+        }
+
+            #attributes li:hover {
+                background: #B1D6F0 !important;
+            }
+            .drag-placeholder {
+            border-bottom: 5px solid red;
+        }
+            .selected{
+                border:1px solid rgb(0, 118, 163);
+            }
+    </style>
+}
+@section Scripts {
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.core.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.widget.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.mouse.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.sortable.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.draggable.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.droppable.js"></script>
+<script src="/content/jquery-ui-1.10.3/ui/jquery.ui.accordion.js"></script>
+    <script src="/admin/content/js/jquery.form.js"></script>
+    <script src="/admin/content/js/jquery-validate/jquery.validate.min.js"></script>
+    <script src="/admin/content/js/jquery-validate/messages_zh.min.js"></script>
+    <script>
+        var entityid = $('#EntityId').val();
+        $(function () {
+            //表单验证
+            purecms.form($("#editform"));
+            loadAttributes();
+            $('a[data-toggle="collapse"]').on('click', null, function (e) {
+                var self = $(this);
+                var c = self.attr('aria-expanded') == 'true' ? 'glyphicon glyphicon-chevron-up' : 'glyphicon glyphicon-chevron-down';
+                self.find('span:first').prop('class', c);
+            });
+            
+            $('.tab').on('click', null, function (e) {
+                $('.selected').removeClass('selected');
+                var self = $(this);
+                self.addClass('selected');
+                e.stopPropagation();
+            }).disableSelection();
+            $('.section').on('click', null, function (e) {
+                $('.selected').removeClass('selected');
+                var self = $(this);
+                self.addClass('selected');
+                e.stopPropagation();
+            }).disableSelection();
+            $('.section').on('click', '.field', function (e) {
+                $('.selected').removeClass('selected').addClass('table-bordered');
+                var self = $(this);
+                self.find('.cell').removeClass('table-bordered').addClass('selected');
+                e.stopPropagation();
+            }).disableSelection();
+            $('.navItems').on('click', null, function (e) {
+                $('.selected').removeClass('selected');
+                var self = $(this);
+                self.addClass('selected');
+                e.stopPropagation();
+            }).disableSelection();
+            $('.navItems').on('click', 'li', function (e) {
+                $('.selected').removeClass('selected');
+                var self = $(this);
+                self.addClass('selected');
+                e.stopPropagation();
+            }).disableSelection();
+
+            initSortEvent();
+        });
+        //加载字段
+        function loadAttributes() {
+            var _html = new Array();
+            purecms.getjson('/admin/customize/AttributesJson', { entityid: entityid }, function (data) {
+                $(data.content).each(function (i, n) {
+                    _html.push('<li class="ui-state-default" data-name="' + n.name + '" data-entityname="' + n.entityname + '" data-entitylocalizedname="' + n.entitylocalizedname + '">');
+                    //_html.push('<span class="glyphicon glyphicon-screenshot"></span>');
+                    _html.push(n.localizedname);
+                    _html.push('</li>');
+                });
+                $('#attributes').html(_html.join(''));
+                initDragEvent();
+            });
+        }
+        //初始化字段拖动事件
+        function initDragEvent() {
+            $("#attributes li").draggable({
+                appendTo: "body",
+                helper: "original",
+                revert:true
+            });
+            $(".field").droppable({
+                //activeClass: "drag-placeholder",
+                //hoverClass: "drag-placeholder",
+                accept: ":not(.ui-sortable-helper)",
+                drop: function (event, ui) {
+                    $(this).removeClass("placeholder");
+                    var text = ui.draggable.text();
+                    var el = $('<table class="table table-bordered cell"><th class="col-sm-2">' + text + '</th><td>' + text + '</td></table');
+                    //el = $('<label class="col-sm-4">' + text + '</label><input type="text" value="' + text + '" class="col-sm-8" disabled />');
+                    $(this).append(el);
+                    ui.helper.remove();
+                    //initSortEvent();
+                }
+            }).sortable({
+                connectWith: ".field",
+                cancel: '.placeholder,.locked',
+                items: ".cell",
+                stop: function (event, ui) {
+                    console.log(ui);
+                    if (ui.item.siblings().length > 0) {
+                        var el = $('<tr><td class="col-sm-2 field placeholder"></td><td class="col-sm-2 field placeholder"></td></tr>');
+                        el.find('td:first').append(ui.item.siblings());
+                        ui.item.parents('tr:first').after(el);
+                    }
+                }
+            }).disableSelection();
+        }
+        //初始化表单元素排序事件
+        function initSortEvent() {
+            $("#formNav").sortable({
+                cancel: '.locked',
+                items: '.navItems',
+                //placeholder: "drag-placeholder",
+                helper: "clone"
+            }).disableSelection();
+
+            $("#formBody").sortable({
+                connectWith: "#formBody .tab,#formBody .section",
+                cancel: '.locked',
+                items: '.tab',
+                //placeholder: "drag-placeholder",
+                helper: "clone",
+                containment: "#formBody"
+            }).disableSelection();
+            $("#formBody").sortable({
+                connectWith: "#formBody .tab,#formBody .section",
+                cancel: '.locked',
+                items: '.section',
+                //placeholder: "drag-placeholder",
+                helper: "clone",
+                containment: "#formBody"
+            }).disableSelection();
+            //$("#formBody").sortable({
+            //    connectWith: "#formBody .tab",
+            //    cancel: '.locked',
+            //    items: '.section',
+            //    //placeholder: "drag-placeholder",
+            //    helper: "clone",
+            //    containment: "#formBody"
+            //}).disableSelection();
+
+            //$(".section").draggable({
+            //    connectToSortable: ".section",
+            //    helper: "clone",
+            //    scope: "section",
+            //    revert: "invalid",
+            //    cancel: ".locked"
+            //});
+
+            //$("#formBody").droppable({
+            //    accept: ":not(.ui-sortable-helper)",
+            //    drop: function (event, ui) {
+            //        $(this).append(el);
+            //        ui.helper.remove();
+            //    }
+            //});
+            //$("#formBody .tab").droppable({
+            //    accept: ":not(.ui-sortable-helper)",
+            //    drop: function (event, ui) {
+            //        $(this).append(el);
+            //        ui.helper.remove();
+            //    }
+            //});
+        }
+    </script>
+}
