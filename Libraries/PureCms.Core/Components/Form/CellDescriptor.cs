@@ -3,8 +3,6 @@
     public sealed class CellDescriptor
     {
         private ControlDescriptor _control;
-        private int _colSpan;
-        private int _rowSpan;
 
         public string Label { get; set; }
         public bool IsShowLabel { get; set; }
@@ -21,29 +19,7 @@
                 this._control = value;
             }
         }
-        public int ColSpan
-        {
-            get
-            {
-                return this._colSpan;
-            }
-        }
-        public int RowSpan
-        {
-            get
-            {
-                return this._rowSpan;
-            }
-        }
-        public bool Visible
-        {
-            get;
-            private set;
-        }
-        public bool AutoExpand
-        {
-            get;
-            private set;
-        }
+        public int ColSpan { get; set; }
+        public int RowSpan { get; set; }
     }
 }

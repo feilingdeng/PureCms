@@ -16,5 +16,6 @@ namespace PureCms.Core.Components.Form
 
         public List<NavGroupDescriptor> NavGroups { get; set; }
         public List<PanelDescriptor> Panels { get; set; }
+        public List<SectionDescriptor> Sections { get; set; }
     }
 }

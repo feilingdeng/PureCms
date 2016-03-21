@@ -1,6 +1,8 @@
 ﻿if (typeof (Xms) == "undefined")
 { Xms = { __namespace: true }; }
-Xms.FormControlType.prototype = {
+Xms.Form = function () { };
+Xms.Form.FormControlType = function () { };
+Xms.Form.FormControlType = {
     none: -1,
     standard: 0,
     hidden: 1,
@@ -11,31 +13,87 @@ Xms.FormControlType.prototype = {
     webResource: 6
 };
 //models
-Xms.FormDescriptor = function () {
-    
+Xms.Form.FormDescriptor = function () {
+    var self = new Object();
+    self.Name = '';
+    self.Description = '';
+    self.IsShowNav = true;
+    self.Header = null;
+    self.Footer = null;
+    self.NavGroups = [];
+    self.Panels = [];
+    self.Sections = [];
+    return self;
 };
-Xms.NavGroupDescriptor = function () {
-
+Xms.Form.NavGroupDescriptor = function () {
+    var self = new Object();
+    self.Label = '';
+    self.IsVisibled = true;
+    self.NavItems = [];
+    return self;
 };
-Xms.NavDescriptor = function () {
-
+Xms.Form.NavDescriptor = function () {
+    var self = new Object();
+    self.Label = '';
+    self.IsVisibled = true;
+    self.Icon = '';
+    self.Url = '';
+    return self;
 };
-Xms.PanelDescriptor = function () {
-
+Xms.Form.PanelDescriptor = function () {
+    var self = new Object();
+    self.Name = '';
+    self.Label = '';
+    self.IsExpanded = true;
+    self.IsShowLabel = true;
+    self.IsVisibled = true;
+    self.Sections = [];
+    return self;
 };
-Xms.SectionDescriptor = function () {
-
+Xms.Form.SectionDescriptor = function () {
+    var self = new Object();
+    self.Name = '';
+    self.Label = '';
+    self.IsShowLabel = true;
+    self.IsVisibled = true;
+    self.Columns = 2;
+    self.CellLabelWidth = 100;
+    self.CellLabelAlignment = 'left';
+    self.CellLabelPosition = 'left';
+    self.Rows = [];
+    return self;
 };
-Xms.RowDescriptor = function () {
-
+Xms.Form.RowDescriptor = function () {
+    var self = new Object();
+    self.IsVisibled = true;
+    self.Cells = [];
+    return self;
 };
-Xms.CellDescriptor = function () {
-
+Xms.Form.CellDescriptor = function () {
+    var self = new Object();
+    self.Label = '';
+    self.IsShowLabel = true;
+    self.IsVisibled = true;
+    self.ColSpan = 0;
+    self.RowSpan = 0;
+    self.Control = new this.ControlDescriptor();
+    return self;
 };
-Xms.ControlDescriptor = function () {
-
+Xms.Form.ControlDescriptor = function () {
+    var self = new Object();
+    self.Name = '';
+    self.EntityName = '';
+    return self;
 };
-
+//const
+Xms.AttributeFormat = function () { };
+Xms.AttributeType = function () { };
+Xms.BooleanFormat = function () { };
+Xms.ControlType = function () { };
+Xms.FormSaveAction = function () { };
+Xms.RequiredLevel = function () { };
+Xms.SubmitMode = function () { };
+Xms.TabDisplayState = function () { };
 Xms.AttributeFormat.dateFormat = "date";
 Xms.AttributeFormat.dateTimeFormat = "datetime";
 Xms.AttributeFormat.durationFormat = "duration";

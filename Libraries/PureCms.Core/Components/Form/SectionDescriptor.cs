@@ -10,15 +10,7 @@ namespace PureCms.Core.Components.Form
         public bool IsShowLabel { get; set; }
 
         public bool IsVisible { get; set; }
-
-        private int _columns = 2;
-        public int Columns
-        {
-            get
-            {
-                return this._columns;
-            }
-        }
+        public int Columns { get; set; }
 
         public List<RowDescriptor> Rows { get; set; }
     }
