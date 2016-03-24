@@ -4,14 +4,16 @@
     Layout = "../Shared/_CustomizeLayout.cshtml";
 }
 <div class="container-fluid">
-    @using (Html.BeginForm("CreateQueryView", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
+    @using (Html.BeginForm("CreateForm", "customize", FormMethod.Post, new { @id = "editform", @class = "form-horizontal" }))
     {
         @Html.AntiForgeryToken()
         @Html.ValidationSummary()
         @Html.HiddenFor(x => x.SystemFormId)
         @Html.HiddenFor(x => x.EntityId)
         @Html.HiddenFor(x => x.FormConfig)
-        <div class="row" style="border-bottom:1px #333 solid;background: #f6f8fa;padding:5px 2px;">
+        @Html.HiddenFor(x => x.Name)
+        <input type="hidden" id="isshownav" value="true" />
+        <div class="row" style="border-top: 1px #ccc solid;border-left: 1px #ccc solid;border-right: 1px #ccc solid;border-bottom:1px #333 solid;background: #f6f8fa;padding:5px 2px;">
             <div class="col-sm-12" role="toolbar">
                 <!--class="btn-toolbar" -->
                 <div class="pull-left btn-toolbar-group">
@@ -78,7 +80,7 @@
                 </div>
                 <div class="pull-left btn-toolbar-group">
                     <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-default">表单属性</button>
+                        <button type="button" class="btn btn-default" onclick="editFormParams()">表单属性</button>
                         <button type="button" class="btn btn-default">权限</button>
                         <button type="button" class="btn btn-default">预览</button>
                     </div>
@@ -201,7 +203,7 @@
                 </div>
                 <div class="form-group">
                     <label for="form-isshownav">显示导航</label>
-                    <input id="form-isshownav" name="form-isshownav" type="checkbox" class="form-control input-sm" />
+                    <input id="form-isshownav" name="form-isshownav" type="checkbox" />
                 </div>
             </div>
             <div class="modal-footer">
@@ -209,7 +211,7 @@
                         data-dismiss="modal">
                     取消
                 </button>
-                <button type="button" class="btn btn-primary" onclick="setFormParams()">
+                <button type="button" class="btn btn-primary" onclick="saveFormParams()">
                     确定
                 </button>
             </div>
@@ -355,20 +357,6 @@
                 color: #999;
                 cursor: default;
             }
-
-                .section table td label {
-                    background: #f1f3f5;
-                    color: #000;
-                    font-weight: 600;
-                    cursor: default;
-                }
-
-                .section table td input {
-                    border: 1px #ccc solid;
-                    background: #fff;
-                    cursor: default;
-                }
-
         td.placeholder {
             background: #f1f3f5 !important;
             height: 30px;
@@ -431,32 +419,32 @@
                 e.stopPropagation();
             });
             //layout
-            $('.header,.footer').on('mousedown', null, function (e) {
+            $('.header,.footer').on('click', null, function (e) {
                 $('.selected').removeClass('selected');
                 var self = $(this);
                 self.addClass('selected');
                 e.stopPropagation();
             }).disableSelection();
-            $('.tab').on('mousedown', null, function (e) {
+            $('#formBody').on('click', '.tab', function (e) {
                 $('.selected').removeClass('selected');
                 var self = $(this);
                 self.addClass('selected');
                 e.stopPropagation();
             }).disableSelection();
-            $('.section').on('mousedown', null, function (e) {
+            $('#formBody').on('click', '.section', function (e) {
                 $('.selected').removeClass('selected');
                 var self = $(this);
                 self.addClass('selected');
                 e.stopPropagation();
             }).disableSelection();
-            $('.section').on('mousedown', '.field', function (e) {
+            $('.section').on('click', '.field', function (e) {
                 $('.selected').removeClass('selected').addClass('table-bordered');
                 var self = $(this);
                 self.find('.cell').removeClass('table-bordered').addClass('selected');
                 e.stopPropagation();
             }).disableSelection();
             //nav
-            $('.navGroup').on('mousedown', null, function (e) {
+            $('#formNav').on('click', '.navGroup', function (e) {
                 var self = $(this);
                 if (self.is('.selected')) return;
                 $('.selected').removeClass('selected');
@@ -471,7 +459,7 @@
                 editNavGroup();
                 e.stopPropagation();
             }).disableSelection();
-            $('.navGroup').on('mousedown', '.nav-child > li', function (e) {
+            $('.navGroup').on('click', '.nav-child > li', function (e) {
                 $('.selected').removeClass('selected');
                 var self = $(this);
                 self.addClass('selected');
@@ -590,7 +578,7 @@
         function insertSection(col) {
             var selected = $('#formContent').find('.selected');
             var temp = new Array();
-            temp.push('<div class="section" data-columns="2" data-label="页脚" data-isvisibled="true" data-isshowlabel="true" data-celllabelwidth="100" data-celllabelalignment="Left" data-celllabelposition="Left"><div class="section-title">表格</div>');
+            temp.push('<div class="section" data-columns="2" data-label="表格" data-isvisibled="true" data-isshowlabel="true" data-celllabelwidth="100" data-celllabelalignment="Left" data-celllabelposition="Left"><div class="section-title">表格</div>');
             temp.push('<table class="table table-bordered">');
             temp.push('<tr>');
             for (var i = 0; i < col; i++) {
@@ -609,6 +597,7 @@
             else {
                 $('#formBody').append(el);
             }
+            initSortEvent();
         }
         //插入选项卡
         function insertTab(col, width) {
@@ -650,6 +639,7 @@
             else {
                 $('#formBody').append(el);
             }
+            initSortEvent();
         }
         function editObject() {
             var selected = $('.selected');
@@ -674,6 +664,22 @@
             else if (selected.is('.field')) {
                 editField();
             }
+        }
+        //表单基本信息
+        function editFormParams() {
+            var target = $('#formModal');
+            target.find('#form-name').val($('#Name').val());
+            target.find('#form-isshownav').prop('checked', $('#isshownav').val());
+            target.modal({
+                keyboard: true
+            })
+        }
+        function saveFormParams() {
+            var target = $('#formModal');
+            var selected = $('.selected');
+            $('#Name').val(target.find('#form-name').val());
+            $('#isshownav').val(target.find('#form-isshownav').prop('checked'));
+            target.modal('hide');
         }
         //导航设置
         function editNavGroup() {
@@ -779,6 +785,7 @@
         //保存表单设置
         function saveForm() {
             var formObject = new Xms.Form.FormDescriptor();
+            formObject.IsShowNav = $('#isshownav').val();
             formObject.NavGroups = new Array();
             //nav
             $('#formNav .navGroup:not(.locked)').each(function (i, n) {
@@ -930,6 +937,11 @@
                 formObject.Sections.push(sec);
             });
             $('#FormConfig').val(JSON.stringify(formObject));
+        }
+        function submitForm() {
+            saveForm();
+            purecms.ajaxform($('#editform'));
+            $('#editform').trigger('submit');
         }
     </script>
 }

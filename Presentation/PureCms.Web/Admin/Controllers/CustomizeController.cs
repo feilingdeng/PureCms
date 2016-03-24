@@ -9,11 +9,7 @@ using PureCms.Services.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using PureCms.Core.Domain.Query;
 using PureCms.Core.Components.Platform;
-using System.Web.Helpers;
-using PureCms.Core.Domain.Entity;
 
 namespace PureCms.Web.Admin.Controllers
 {
@@ -25,6 +21,7 @@ namespace PureCms.Web.Admin.Controllers
         static QueryViewService _queryViewService = new QueryViewService();
         static OptionSetService _optionSetService = new OptionSetService();
         //static OptionSetDetailDetailService _optionSetDetailService = new OptionSetDetailDetailService();
+        static SystemFormService _systemFormService = new SystemFormService();
         //
         // GET: /Customize/
 
@@ -711,21 +708,20 @@ namespace PureCms.Web.Admin.Controllers
 
         #region 表单
         [Description("表单列表")]
-        public ActionResult Forms(OptionSetModel model)
+        public ActionResult Forms(FormModel model)
         {
             if (model.SortBy.IsEmpty())
             {
-                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<OptionSetInfo>(n => n.CreatedOn);
+                model.SortBy = Utilities.ExpressionHelper.GetPropertyName<SystemFormInfo>(n => n.CreatedOn);
                 model.SortDirection = (int)Core.Context.SortDirection.Desc;
             }
 
-            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
-            filter.And(n => n.IsPublic == true);
+            FilterContainer<SystemFormInfo> filter = new FilterContainer<SystemFormInfo>();
             if (model.Name.IsNotEmpty())
             {
                 filter.And(n => n.Name.Like(model.Name));
             }
-            PagedList<OptionSetInfo> result = _optionSetService.QueryPaged(x => x
+            PagedList<SystemFormInfo> result = _systemFormService.QueryPaged(x => x
                 .Page(model.Page, model.PageSize)
                 .Where(filter)
                 .Sort(n => n.OnFile(model.SortBy).ByDirection(model.SortDirection))
@@ -736,18 +732,14 @@ namespace PureCms.Web.Admin.Controllers
             return View(model);
         }
         [Description("表单列表-JSON格式")]
-        public ActionResult FormsJson(Guid? id, bool? ispublic)
+        public ActionResult FormsJson(Guid? entityid)
         {
-            FilterContainer<OptionSetInfo> filter = new FilterContainer<OptionSetInfo>();
-            if (id.HasValue && !id.Equals(Guid.Empty))
+            FilterContainer<SystemFormInfo> filter = new FilterContainer<SystemFormInfo>();
+            if (entityid.HasValue && !entityid.Equals(Guid.Empty))
             {
-                filter.And(n => n.OptionSetId == id.Value);
+                filter.And(n => n.EntityId == entityid.Value);
             }
-            if (ispublic.HasValue)
-            {
-                filter.And(n => n.IsPublic == ispublic.Value);
-            }
-            List<OptionSetInfo> result = _optionSetService.Query(x => x
+            List<SystemFormInfo> result = _systemFormService.Query(x => x
                 .Where(filter)
                 .Sort(n => n.SortAscending(f => f.Name))
                 );
@@ -773,7 +765,7 @@ namespace PureCms.Web.Admin.Controllers
                 var entity = new SystemFormInfo();
                 model.CopyTo(entity);
                 entity.SystemFormId = Guid.NewGuid();
-                //_optionSetService.Create(entity);
+                _systemFormService.Create(entity);
                 msg = "创建成功";
                 return AjaxResult(true, msg);
             }
@@ -787,7 +779,7 @@ namespace PureCms.Web.Admin.Controllers
             EditFormModel model = new EditFormModel();
             if (!id.Equals(Guid.Empty))
             {
-                var entity = _optionSetService.FindById(id);
+                var entity = _systemFormService.FindById(id);
                 if (entity != null)
                 {
                     entity.CopyTo(model);
@@ -804,10 +796,10 @@ namespace PureCms.Web.Admin.Controllers
             string msg = string.Empty;
             if (ModelState.IsValid)
             {
-                var entity = new EditFormModel();
+                var entity = new SystemFormInfo();
                 model.CopyTo(entity);
 
-                //_optionSetService.Update(entity);
+                _systemFormService.Update(entity);
                 msg = "保存成功";
                 return AjaxResult(true, msg);
             }
@@ -820,7 +812,7 @@ namespace PureCms.Web.Admin.Controllers
         {
             string msg = string.Empty;
             bool flag = false;
-            flag = _optionSetService.DeleteById(recordid.ToList());
+            flag = _systemFormService.DeleteById(recordid.ToList());
             if (flag)
             {
                 msg = "删除成功";

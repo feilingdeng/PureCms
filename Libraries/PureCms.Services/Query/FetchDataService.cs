@@ -6,7 +6,7 @@ using System.Linq;
 using System.Dynamic;
 using PureCms.Core.Data;
 using PureCms.Core.Context;
-using PureCms.Core.Domain.Query;
+using PureCms.Core.Domain.Schema;
 using PureCms.Core.Components.Platform;
 using PureCms.Services.Schema;
 using PureCms.Core.Domain.Schema;

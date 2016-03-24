@@ -1,5 +1,5 @@
 ﻿using PureCms.Core.Components.Grid;
-using PureCms.Core.Domain.Query;
+using PureCms.Core.Domain.Schema;
 using PureCms.Core.Domain.Schema;
 using PureCms.Services.Query;
 using PureCms.Services.Schema;

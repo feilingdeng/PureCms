@@ -1,6 +1,6 @@
 ﻿using PureCms.Core.Components.Grid;
 using PureCms.Core.Domain;
-using PureCms.Core.Domain.Query;
+using PureCms.Core.Domain.Schema;
 using PureCms.Core.Domain.Schema;
 using System;
 using System.Collections.Generic;

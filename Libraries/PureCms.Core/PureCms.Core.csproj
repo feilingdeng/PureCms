@@ -69,6 +69,7 @@
     <Compile Include="Components\Form\CellLabelPosition.cs" />
     <Compile Include="Components\Form\CellLabelSettings.cs" />
     <Compile Include="Components\Form\ControlDescriptor.cs" />
+    <Compile Include="Components\Form\FormBuilder.cs" />
     <Compile Include="Components\Form\FormControlType.cs" />
     <Compile Include="Components\Form\FormDescriptor.cs" />
     <Compile Include="Components\Form\FormType.cs" />
@@ -112,14 +113,14 @@
     <Compile Include="Domain\Cms\ChannelInfo.cs" />
     <Compile Include="Domain\Cms\CustomAttributeInfo.cs" />
     <Compile Include="Domain\Cms\SiteInfo.cs" />
-    <Compile Include="Domain\Entity\SystemFormInfo.cs" />
+    <Compile Include="Domain\Schema\SystemFormInfo.cs" />
     <Compile Include="Domain\Schema\AttributeInfo.cs" />
     <Compile Include="Domain\Schema\AttributeTypeIds.cs" />
     <Compile Include="Domain\Schema\AttributeTypeInfo.cs" />
     <Compile Include="Domain\Schema\ColumnInfo.cs" />
     <Compile Include="Domain\Schema\EntityInfo.cs" />
     <Compile Include="Domain\Schema\OptionSetInfo.cs" />
-    <Compile Include="Domain\Query\QueryViewInfo.cs" />
+    <Compile Include="Domain\Schema\QueryViewInfo.cs" />
     <Compile Include="Domain\Schema\RelationShipInfo.cs" />
     <Compile Include="Domain\Schema\OptionSetDetailInfo.cs" />
     <Compile Include="Domain\Theme\PageInfo.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Schema\IOptionSetRepository.cs" />
     <Compile Include="Schema\IQueryViewRepository.cs" />
     <Compile Include="Schema\IRelationShipRepository.cs" />
+    <Compile Include="Schema\ISystemFormRepository.cs" />
     <Compile Include="Security\IPrivilegeRepository.cs" />
     <Compile Include="Security\IRolePrivilegesRepository.cs" />
     <Compile Include="Security\IRoleRepository.cs" />

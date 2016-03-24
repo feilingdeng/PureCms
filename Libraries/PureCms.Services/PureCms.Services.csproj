@@ -60,6 +60,7 @@
     <Compile Include="Schema\OptionSetService.cs" />
     <Compile Include="Query\QueryViewService.cs" />
     <Compile Include="Schema\RelationShipService.cs" />
+    <Compile Include="Schema\SystemFormService.cs" />
     <Compile Include="Theme\PageLayoutService.cs" />
     <Compile Include="Theme\PageModuleService.cs" />
     <Compile Include="Theme\PageService.cs" />

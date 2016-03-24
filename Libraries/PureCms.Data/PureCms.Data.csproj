@@ -49,6 +49,7 @@
     <Compile Include="ColumnMapper.cs" />
     <Compile Include="Configuration\SettingRepository.cs" />
     <Compile Include="DataRepository.cs" />
+    <Compile Include="Schema\SystemFormRepository.cs" />
     <Compile Include="Logging\LoggingRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schema\AttributeRepository.cs" />

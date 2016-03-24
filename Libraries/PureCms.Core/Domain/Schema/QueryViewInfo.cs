@@ -19,11 +19,16 @@ namespace PureCms.Core.Domain.Schema
         public Guid? OwnerId { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsDisabled { get; set; }
+        public bool IsSimpleFilter { get; set; }
 
         public Guid EntityId { get; set; }
+        public string SqlString { get; set; }
 
         [ResultColumn]
-        [LinkEntity(typeof(EntityInfo), LinkFromFieldName = "ObjectTypeCode")]
+        [LinkEntity(typeof(EntityInfo), LinkFromFieldName = "EntityId", LinkToFieldName = "EntityId")]
         public int ObjectTypeCode { get; set; }
+        [ResultColumn]
+        [LinkEntity(typeof(EntityInfo), LinkFromFieldName = "EntityId", LinkToFieldName = "EntityId", TargetFieldName = "Name")]
+        public string EntityName { get; set; }
     }
 }

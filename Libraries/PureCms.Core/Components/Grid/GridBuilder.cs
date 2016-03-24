@@ -1,4 +1,4 @@
-﻿using PureCms.Core.Domain.Query;
+﻿using PureCms.Core.Domain.Schema;
 using System.Text;
 
 namespace PureCms.Core.Components.Grid
