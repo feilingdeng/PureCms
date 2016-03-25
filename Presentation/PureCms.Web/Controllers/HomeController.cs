@@ -1,6 +1,6 @@
 ﻿using PureCms.Core.Utilities;
 using PureCms.Services.Cms;
-using PureCms.Services.Query;
+using PureCms.Services.Schema;
 using PureCms.Web.Framework;
 using System;
 using System.ComponentModel;

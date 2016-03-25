@@ -575,6 +575,9 @@
   <ItemGroup>
     <Content Include="Views\Customize\CreateForm.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Entity\Create.cshtml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -5,7 +5,7 @@ using PureCms.Web.Admin.Models;
 using PureCms.Core.Context;
 using System.EnterpriseServices;
 using PureCms.Services.Schema;
-using PureCms.Services.Query;
+using PureCms.Services.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;

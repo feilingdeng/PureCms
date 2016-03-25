@@ -2,7 +2,7 @@
 { Xms = { __namespace: true }; }
 Xms.Form = function () { };
 Xms.Form.FormControlType = function () { };
-Xms.Form.FormControlType = {
+Xms.Form.FormControlType.prototype = {
     none: -1,
     standard: 0,
     hidden: 1,
@@ -76,7 +76,7 @@ Xms.Form.CellDescriptor = function () {
     self.IsVisibled = true;
     self.ColSpan = 0;
     self.RowSpan = 0;
-    self.Control = new this.ControlDescriptor();
+    self.Control = new Xms.Form.ControlDescriptor();
     return self;
 };
 Xms.Form.ControlDescriptor = function () {
@@ -137,3 +137,107 @@ Xms.SubmitMode.always = "always";
 Xms.SubmitMode.never = "never";
 Xms.TabDisplayState.collapsed = "collapsed";
 Xms.TabDisplayState.expanded = "expanded"
+
+Xms.Form.RenderControl = function (_cell) {
+    //var Render = function (_cell) {
+        var _control = new Array();
+        if (_cell.IsVisibled) {
+
+        }
+        if (_cell.IsShowLabel == 'true') {
+            _control.push('<td class="col-sm-2">' + _cell.Label + '</td>');
+            _control.push('<td>');
+            _control.push('<input type="text" class="form-control input-sm" name="" id="" />');
+            _control.push('</td>');
+        }
+        return _control.join('');
+    //}
+}
+//Xms.Form.Create = function(){}
+//create a form
+Xms.Form.CreateForm = function (_form, _container) {
+    var _html = new Array();
+    if (_form.IsShowNav) {
+        //render nav
+
+    }
+    //render header
+    var _header = new Array();
+    var _headerSection = _form.Header;
+    _header.push('<div class="header">');
+    _header.push('<table class="table">');
+    $(_headerSection.Rows).each(function (i, _row) {
+        _header.push('<tr>');
+        $(_row.Cells).each(function (j, _cell) {
+            _header.push(Xms.Form.RenderControl(_cell));
+        });
+        _header.push('</tr>');
+    });
+    _header.push('</table>');
+    _header.push('</div>');
+    _html.push(_header.join(''));
+
+    var _body = new Array();
+    //render tabs
+    _body.push('<div class="body">');
+    $(_form.Panels).each(function (a, _tab) {
+        _body.push('<div class="tab">');
+        $(_tab.Sections).each(function (b, _section) {
+            _body.push('<div class="section">');
+            if (_section.IsShowLabel) {
+                _body.push('<div class="section-title">'+_section.Label+'</div>');
+            }
+            _body.push('<table class="table">');
+            $(_section.Rows).each(function (c, _row) {
+                _body.push('<tr>');
+                $(_row.Cells).each(function (d, _cell) {
+                    _body.push(Xms.Form.RenderControl(_cell));
+                });
+                _body.push('</tr>');
+            });
+            _body.push('</table>');
+            _body.push('</div>');
+        });
+        _body.push('</div>');
+    });
+    //render sections
+    $(_form.Sections).each(function (b, _section) {
+        _body.push('<div class="section">');
+        if (_section.IsShowLabel) {
+            _body.push('<div class="section-title">' + _section.Label + '</div>');
+        }
+        _body.push('<table class="table">');
+        $(_section.Rows).each(function (c, _row) {
+            _body.push('<tr>');
+            $(_row.Cells).each(function (d, _cell) {
+                _body.push(Xms.Form.RenderControl(_cell));
+            });
+            _body.push('</tr>');
+        });
+        _body.push('</table>');
+        _body.push('</div>');
+    });
+    _body.push('</div>');
+
+
+    _html.push(_body.join(''));
+
+    //render footer
+    var _footer = new Array();
+    var _footerSection = _form.Footer;
+    _footer.push('<div class="footer">');
+    _footer.push('<table class="table">');
+    $(_footerSection.Rows).each(function (i, _row) {
+        _footer.push('<tr>');
+        $(_row.Cells).each(function (j, _cell) {
+            _footer.push(Xms.Form.RenderControl(_cell));
+        });
+        _footer.push('</tr>');
+    });
+    _footer.push('</table>');
+    _footer.push('</div>');
+    _html.push(_footer.join(''));
+
+    //rendering
+    _container.html(_html.join(''));
+}
